@@ -9,8 +9,8 @@ namespace Atoms.Utils
     /// <summary>
     /// AtomicResult represents the result of an atomic operation.
     /// If the operation was successful, the Ok variant is returned.
-    /// Otherwise, the Error variant is returned. Functions that return an
-    /// AtomicResult make error checking explicit.
+    /// Otherwise, the Error variant is returned.
+    /// AtomicResult makes error checking explicit, as opposed to traditional exception handling.
     /// </summary>
     public abstract class AtomicResult<E> where E : Exception
     {
@@ -29,9 +29,9 @@ namespace Atoms.Utils
 
     /// <summary>
     /// AtomicResult represents the result of an atomic operation.
-    /// If the operation was successful, the Ok variant is returned.
-    /// Otherwise, the Error variant is returned. Functions that return an
-    /// AtomicResult make error checking explicit.
+    /// If the operation was successful, the Ok variant is returned with a value of type V.
+    /// Otherwise, the Error variant is returned.
+    /// AtomicResult makes error checking explicit, as opposed to traditional exception handling.
     /// </summary>
     public abstract class AtomicResult<V, E> where E : Exception
     {

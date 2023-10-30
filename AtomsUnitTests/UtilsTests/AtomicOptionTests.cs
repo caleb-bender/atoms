@@ -10,28 +10,28 @@ namespace AtomsUnitTests.UtilsTests
     public class AtomicOptionTests
     {
         [Fact]
-        public void WhenAFunctionReturnsAtomicOptionDefined_ThenItIsDefinedVariant()
+        public void WhenAFunctionReturnsAtomicOptionExists_ThenItIsExistsVariant()
         {
             // Act
-            AtomicOption<string> atomicOption = GetDefined(true);
+            AtomicOption<string> atomicOption = GetExists(true);
             // Assert
-            var atomicOptionDefined = Assert.IsType<AtomicOption<string>.Defined>(atomicOption);
-            Assert.Equal("Hello World!", atomicOptionDefined.Value);
+            var atomicOptionExists = Assert.IsType<AtomicOption<string>.Exists>(atomicOption);
+            Assert.Equal("Hello World!", atomicOptionExists.Value);
         }
 
         [Fact]
-        public void WhenAFunctionReturnsAtomicOptionWithoutValue_ThenItIsAbsentVariant()
+        public void WhenAFunctionReturnsAtomicOptionWithoutValue_ThenItIsEmptyVariant()
         {
             // Act
-            AtomicOption<string> atomicOption = GetDefined(false);
+            AtomicOption<string> atomicOption = GetExists(false);
             // Assert
             Assert.IsType<AtomicOption<string>.Empty>(atomicOption);
         }
 
-        private AtomicOption<string> GetDefined(bool shouldBeDefined)
+        private AtomicOption<string> GetExists(bool shouldBeExists)
         {
-            if (!shouldBeDefined) return new AtomicOption<string>.Empty();
-            return new AtomicOption<string>.Defined("Hello World!");
+            if (!shouldBeExists) return new AtomicOption<string>.Empty();
+            return new AtomicOption<string>.Exists("Hello World!");
         }
     }
 }

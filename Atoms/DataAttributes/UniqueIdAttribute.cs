@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories
+namespace Atoms.DataAttributes
 {
-    public interface IAtomicRepository<TModel>
-    {
-
-    }
+	[AttributeUsage(AttributeTargets.Property)]
+	public class UniqueIdAttribute : Attribute { }
 }

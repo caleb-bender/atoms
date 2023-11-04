@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
-    public class AtomsConnectionException : Exception
+    public class AtomsConnectionException : AtomsException
     {
         public AtomsConnectionException(string? message = null) : base(message){ }
 
         public AtomsConnectionException(string? message, Exception? innerException) : base(message, innerException)
         {
+
         }
     }
 }

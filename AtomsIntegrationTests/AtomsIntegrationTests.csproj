@@ -26,4 +26,9 @@
     <ProjectReference Include="..\Atoms\Atoms.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RepositoriesTests\AtomicRepositoryTests\" />
+    <Folder Include="RepositoriesTests\SqlServerRepositoryTests\" />
+  </ItemGroup>
+
 </Project>

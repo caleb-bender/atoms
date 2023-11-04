@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atoms.Repositories.SqlServer
 {
-    internal class SqlServerAtomicRepository : IAtomicRepository
+    internal class SqlServerAtomicRepository<TModel> : IAtomicRepository<TModel>
     {
         private string connectionString;
 

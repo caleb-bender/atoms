@@ -2,6 +2,7 @@
 using Atoms.Repositories;
 using Atoms.Repositories.Factories;
 using Atoms.Utils;
+using AtomsIntegrationTests.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,32 +12,16 @@ using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 
 namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 {
-    public class SqlServerAtomicRepositoryFactoryTests
+    public class SqlServerAtomicRepositoryFactoryTests : AtomicRepositoryFactoryTests
     {
-        IAtomicRepositoryFactory sqlServerRepoFactory;
+        IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> sqlServerRepoFactory;
 
-        public SqlServerAtomicRepositoryFactoryTests()
-        {
-            sqlServerRepoFactory = new SqlServerAtomicRepositoryFactory();
-        }
-
-        [Fact]
-        public void WhenWePassValidConnectionStringToSqlServerAtomicRepositoryFactory_ThenAnOkAtomicResultIsReturned()
-        {
-            // Act
-            var repositoryResult = sqlServerRepoFactory.CreateRepository(GetConnectionString());
-            // Assert
-            var okResult = Assert.IsType<AtomicResult<IAtomicRepository, AtomsConnectionException>.Ok>(repositoryResult);
-            Assert.NotNull(okResult.Value);            
-        }
-
-        [Fact]
-        public void WhenWePassInvalidConnectionStringToSqlServerAtomicRepositoryFactory_ThenAnErrorAtomicResultIsReturned()
-        {
-            // Act
-            var repositoryResult = sqlServerRepoFactory.CreateRepository("");
-            // Assert
-            Assert.IsType<AtomicResult<IAtomicRepository, AtomsConnectionException>.Error>(repositoryResult);
-        }
+        public SqlServerAtomicRepositoryFactoryTests() :
+        base(
+            new SqlServerAtomicRepositoryFactory<ModelWithUniqueIdAttribute>(),
+            new SqlServerAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute>(),
+            GetConnectionString()
+        )
+        { }
     }
 }

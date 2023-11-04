@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Atoms.Repositories.Factories
 {
-    public interface IAtomicRepositoryFactory
-    {
-        AtomicResult<IAtomicRepository, AtomsConnectionException> CreateRepository(string connectionString);
+    public interface IAtomicRepositoryFactory<TModel>
+	{
+        AtomicResult<IAtomicRepository<TModel>, AtomsException> CreateRepository(string connectionString);
     }
 }

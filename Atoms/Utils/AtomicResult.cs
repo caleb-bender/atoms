@@ -35,7 +35,7 @@ namespace Atoms.Utils
     /// </summary>
     public abstract class AtomicResult<V, E> where E : Exception
     {
-        public sealed class Ok : AtomicResult<V, E>
+		public sealed class Ok : AtomicResult<V, E>
         {
             public V Value { get; }
             public Ok(V value)

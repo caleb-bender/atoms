@@ -23,6 +23,6 @@ namespace Atoms.Utils
             }
         }
 
-        public sealed class Empty : AtomicOption<string> { }
+        public sealed class Empty : AtomicOption<V> { }
     }
 }

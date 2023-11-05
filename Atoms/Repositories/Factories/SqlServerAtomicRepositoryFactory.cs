@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 namespace Atoms.Repositories.Factories
 {
     public class SqlServerAtomicRepositoryFactory<TModel> : AtomicRepositoryFactory<TModel>
+		where TModel : class, new()
 	{
 		protected override AtomicResult<IAtomicRepository<TModel>, AtomsException> NewAtomicRepositoryResult(string connectionString)
 		{

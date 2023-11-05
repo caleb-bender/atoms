@@ -12,17 +12,18 @@ using static Atoms.Utils.Reflection.AttributeCheckerHelpers;
 namespace Atoms.Repositories.Factories
 {
 	public abstract class AtomicRepositoryFactory<TModel> : IAtomicRepositoryFactory<TModel>
+		where TModel : class, new()
 	{
 		private static readonly bool modelTypeDoesNotContainUniqueIdAttribute =
 			!HasAttributeOnAtLeastOneProperty<UniqueIdAttribute>(typeof(TModel));
-		public AtomicResult<IAtomicRepository<TModel>, AtomsException> CreateRepository(string connectionString)
+		public AtomicResult<IAtomicRepository<TModel>, AtomsException> CreateRepository(string dbConnectionString)
 		{
 			try
 			{
 				if (modelTypeDoesNotContainUniqueIdAttribute)
 					return MissingUniqueIdAttributeExceptionResult();
-				AttemptToConnectAndOpen(connectionString);
-				return NewAtomicRepositoryResult(connectionString);
+				AttemptToConnectAndOpen(dbConnectionString);
+				return NewAtomicRepositoryResult(dbConnectionString);
 			}
 			catch (Exception err)
 			{

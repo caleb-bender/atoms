@@ -12,6 +12,7 @@ namespace AtomsIntegrationTests.Models
 		[UniqueId]
 		public long AuthorId { get; set; }
 		public string AuthorName { get; set; } = "John Doe";
+		[DbPropertyName("UserRegisteredOn")]
 		public DateTime AuthorSinceDate { get; set; }
 	}
 }

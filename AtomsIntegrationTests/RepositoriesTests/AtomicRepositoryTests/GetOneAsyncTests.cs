@@ -135,12 +135,25 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		{
 			// Arrange
 			await CreateOneBlogUserAsync(1L, "Group 1");
-			await CreateOneBlogUserAsync(2L, "Group 1", BlogUserRole.Contributor);
+			await CreateOneBlogUserAsync(2L, "Group 1", BlogUserRole.Contributor.ToString());
 			// Act
 			var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 2L, GroupName = "Group 1" });
 			// Assert
 			var blogUserExists = Assert.IsType<AtomicOption<BlogUser>.Exists>(blogUserOption);
 			AssertThatBlogUserIsCorrect(blogUserExists, 2L, "Group 1", BlogUserRole.Contributor);
+		}
+
+		[Fact]
+		public async Task GivenABlogUserWithAUserRoleStringThatCantBeMappedToEnum_WhenWeAttemptToGetModel_ThenAEnumPropertyMappingFailedExceptionIsThrown()
+		{
+			// Arrange
+			await CreateOneBlogUserAsync(1L, "Group 1", "Invalid");
+			// Assert
+			await Assert.ThrowsAsync<EnumPropertyMappingFailedException>(async () =>
+			{
+				// Act
+				var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 1L, GroupName = "Group 1" });
+			});
 		}
 
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
@@ -159,6 +172,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract void Cleanup();
 		protected abstract Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate);
 		protected abstract Task CreateOneTypeMismatchModelAsync(Guid id, string status);
-		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, BlogUserRole userRole = BlogUserRole.Reader);
+		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, string? userRole = null);
 	}
 }

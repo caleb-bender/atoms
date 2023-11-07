@@ -84,6 +84,13 @@ namespace Atoms.Repositories.SqlServer
 			return model;
 		}
 
+		private enum EnumPropertyParsingStatus
+		{
+			ParsingSuccessful,
+			ParsingFailedBecauseStringIsInvalid,
+			ParsingFailedBecauseOneOrMoreTypesAreIncompatible
+		}
+
 		private static void AttemptToMapDatabasePropertyToModelProperty(TModel model, PropertyInfo modelProperty, string dbPropertyName, object columnValue)
 		{
 			try
@@ -92,21 +99,24 @@ namespace Atoms.Repositories.SqlServer
 			}
 			catch (ArgumentException err)
 			{
-				var (propertyWasParsedEnum, enumValue) = AttemptToParseEnumProperty(modelProperty, columnValue);
-				if (propertyWasParsedEnum)
+				var (parsingStatus, enumValue) = AttemptToParseEnumProperty(modelProperty, columnValue);
+				if (parsingStatus == EnumPropertyParsingStatus.ParsingSuccessful)
 					modelProperty.SetValue(model, enumValue);
+				else if (parsingStatus == EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid)
+					throw new EnumPropertyMappingFailedException($"The database property \"{dbPropertyName}\" with value = \"{columnValue}\" could not be mapped to the enum property \"{typeof(TModel).Name}.{modelProperty.Name}\".");
 				else
 					throw new ModelPropertyTypeMismatchException($"The type of the database property \"{dbPropertyName}\" could not be converted to the type of the \"{typeof(TModel).Name}.{modelProperty.Name}\" property.", err);
 			}
 		}
 
-		private static (bool, object?) AttemptToParseEnumProperty(PropertyInfo modelProperty, object? columnValue)
+		private static (EnumPropertyParsingStatus, object?) AttemptToParseEnumProperty(PropertyInfo modelProperty, object? columnValue)
 		{
 			var modelPropertyType = modelProperty.PropertyType;
-			if (!modelPropertyType.IsEnum || columnValue is not string columnValueString) return (false, columnValue);
+			if (!modelPropertyType.IsEnum || columnValue is not string columnValueString)
+				return (EnumPropertyParsingStatus.ParsingFailedBecauseOneOrMoreTypesAreIncompatible, columnValue);
 			var propertyWasParsedEnum = Enum.TryParse(modelPropertyType, columnValueString, out object? parsedEnumValue);
-			if (propertyWasParsedEnum) return (true, parsedEnumValue);
-			return (false, columnValue);
+			if (propertyWasParsedEnum) return (EnumPropertyParsingStatus.ParsingSuccessful, parsedEnumValue);
+			return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
 		}
 	}
 }

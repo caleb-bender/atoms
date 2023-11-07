@@ -45,8 +45,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			await createCommand.ExecuteNonQueryAsync();
 		}
 
-		protected override async Task CreateOneBlogUserAsync(long userId, string groupName, BlogUserRole userRole = BlogUserRole.Reader)
+		protected override async Task CreateOneBlogUserAsync(long userId, string groupName, string? userRole = null)
 		{
+			if (userRole is null) userRole = BlogUserRole.Reader.ToString();
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
 			using SqlCommand createCommand = new SqlCommand(

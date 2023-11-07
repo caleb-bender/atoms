@@ -8,19 +8,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static AtomsIntegrationTests.Models.BlogUser;
 
 namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 {
 	public abstract class GetOneAsyncTests : IDisposable
 	{
 		private readonly IAtomicRepository<BlogPostAuthor> authorRepo;
+		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchRepo;
+		private readonly IAtomicRepository<BlogUser> blogUserRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
+			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchRepoFactory,
+			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
 			string connectionString
 		)
 		{
 			authorRepo = authorRepoFactory.CreateRepository(connectionString);
+			typeMismatchRepo = typeMismatchRepoFactory.CreateRepository(connectionString);
+			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -81,6 +88,69 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(new DateTime(2023, 1, 1), blogPost.AuthorSinceDate);
 		}
 
+		[Fact]
+		public async Task GivenATypeMismatchBetweenDatabaseAndModelProperty_WhenWeAttemptToGetTheModel_ThenAPropertyTypeMismatchExceptionIsThrown()
+		{
+			// Arrange
+			var guid = Guid.NewGuid();
+			await CreateOneTypeMismatchModelAsync(guid, status: "OPEN");
+			// Assert
+			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
+			{
+				// TypeMismatchModel's Status property is an int and not a string, which should cause exception to be thrown
+				var typeMismatchModel = await typeMismatchRepo.GetOneAsync(new TypeMismatchModel { Id = guid });
+			});
+		}
+
+		[Fact]
+		public async Task GivenModelWithDifferentNameFromDatabase_WhenWeAttemptToGetTheModel_ThenTheCorrectOneIsRetrieved()
+		{
+			// Arrange
+			await CreateOneBlogUserAsync(1L, "Group 1");
+			await CreateOneBlogUserAsync(1L, "Group 2");
+			await CreateOneBlogUserAsync(1L, "Group 3");
+			// Act
+			var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 1L, GroupName = "Group 2" });
+			// Assert
+			var blogUserExists = Assert.IsType<AtomicOption<BlogUser>.Exists>(blogUserOption);
+			AssertThatBlogUserIsCorrect(blogUserExists, 1L, "Group 2");
+		}
+
+		[Fact]
+		public async Task GivenModelUniqueIdPropertyWithDifferentNameFromDatabase_WhenWeAttemptToGetTheModel_ThenTheCorrectOneIsRetrieved()
+		{
+			// Arrange
+			await CreateOneBlogUserAsync(1L, "Group 1");
+			await CreateOneBlogUserAsync(2L, "Group 1");
+			await CreateOneBlogUserAsync(2L, "Group 2");
+			// Act
+			var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 2L, GroupName = "Group 2" });
+			// Assert
+			var blogUserExists = Assert.IsType<AtomicOption<BlogUser>.Exists>(blogUserOption);
+			AssertThatBlogUserIsCorrect(blogUserExists, 2L, "Group 2");
+		}
+
+		[Fact]
+		public async Task GivenBlogUserWithUserRoleDefinedAsStringInDatabase_WhenWeAttemptToGetTheModel_ThenTheCorrectOneIsRetrieved()
+		{
+			// Arrange
+			await CreateOneBlogUserAsync(1L, "Group 1");
+			await CreateOneBlogUserAsync(2L, "Group 1", BlogUserRole.Contributor);
+			// Act
+			var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 2L, GroupName = "Group 1" });
+			// Assert
+			var blogUserExists = Assert.IsType<AtomicOption<BlogUser>.Exists>(blogUserOption);
+			AssertThatBlogUserIsCorrect(blogUserExists, 2L, "Group 1", BlogUserRole.Contributor);
+		}
+
+		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
+		{
+			var blogUser = blogUserExists.Value;
+			Assert.Equal(expectedUserId, blogUser.UserId);
+			Assert.Equal(expectedGroupName, blogUser.GroupName);
+			Assert.Equal(expectedUserRole, blogUser.UserRole);
+		}
+
 		public void Dispose()
 		{
 			Cleanup();
@@ -88,5 +158,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 
 		protected abstract void Cleanup();
 		protected abstract Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate);
+		protected abstract Task CreateOneTypeMismatchModelAsync(Guid id, string status);
+		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, BlogUserRole userRole = BlogUserRole.Reader);
 	}
 }

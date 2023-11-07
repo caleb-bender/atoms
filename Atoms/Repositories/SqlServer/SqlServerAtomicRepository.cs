@@ -1,4 +1,5 @@
 ﻿using Atoms.DataAttributes;
+using Atoms.Exceptions;
 using Atoms.Utils;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,6 @@ namespace Atoms.Repositories.SqlServer
 		where TModel : class, new()
 	{
         private string connectionString;
-		private static readonly IEnumerable<PropertyInfo> modelPublicProperties = GetAllPublicProperties(typeof(TModel));
 
         internal SqlServerAtomicRepository(string connectionString)
         {
@@ -39,21 +39,10 @@ namespace Atoms.Repositories.SqlServer
 			using SqlDataReader reader = await readCommand.ExecuteReaderAsync();
 			await reader.ReadAsync();
 			if (!reader.HasRows) return new AtomicOption<TModel>.Empty();
-			TModel model = GetModelWithMappedProperties(reader);
+			TModel model =
+				PropertyMappingUtilities<TModel>
+				.GetModelWithMappedProperties(reader);
 			return new AtomicOption<TModel>.Exists(model);
-		}
-
-		private static TModel GetModelWithMappedProperties(SqlDataReader reader)
-		{
-			var model = new TModel();
-			foreach (var modelProperty in modelPublicProperties)
-			{
-				var dbPropertyName =
-					PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
-				var columnValue = reader[dbPropertyName];
-				modelProperty.SetValue(model, columnValue);
-			}
-			return model;
 		}
 	}
 }

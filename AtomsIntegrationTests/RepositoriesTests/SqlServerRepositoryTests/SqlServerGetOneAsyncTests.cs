@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
+using static AtomsIntegrationTests.Models.BlogUser;
 
 namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 {
@@ -17,6 +18,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 		public SqlServerGetOneAsyncTests()
 		: base(
 				new SqlServerAtomicRepositoryFactory<BlogPostAuthor>(),
+				new SqlServerAtomicRepositoryFactory<TypeMismatchModel>(),
+				new SqlServerAtomicRepositoryFactory<BlogUser>(),
 				GetConnectionString()
 		) { }
 
@@ -24,7 +27,10 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 		{
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
-			using SqlCommand deleteCommand = new SqlCommand("DELETE FROM BlogPostAuthors", connection);
+			using SqlCommand deleteCommand = new SqlCommand(
+				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels; DELETE FROM TheBlogUsers;",
+				connection
+			);
 			deleteCommand.ExecuteNonQuery();
 		}
 
@@ -35,6 +41,28 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlCommand createCommand = new SqlCommand(
 				$@"INSERT INTO BlogPostAuthors(AuthorId, AuthorName, UserRegisteredOn)
 				VALUES ({authorId}, '{authorName}', '{authorSinceDate}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override async Task CreateOneBlogUserAsync(long userId, string groupName, BlogUserRole userRole = BlogUserRole.Reader)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO TheBlogUsers(UserId, GroupId, UserRole)
+				VALUES ({userId}, '{groupName}', '{userRole}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override async Task CreateOneTypeMismatchModelAsync(Guid id, string status)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO TypeMismatchModels(Id, Status)
+				VALUES ('{id}', '{status}')", connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
 		}

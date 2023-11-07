@@ -16,37 +16,22 @@ namespace Atoms.Repositories.Factories
 	{
 		private static readonly bool modelTypeDoesNotContainUniqueIdAttribute =
 			!HasAttributeOnAtLeastOneProperty<UniqueIdAttribute>(typeof(TModel));
-		public AtomicResult<IAtomicRepository<TModel>, AtomsException> CreateRepository(string dbConnectionString)
+		public IAtomicRepository<TModel> CreateRepository(string dbConnectionString)
 		{
-			try
-			{
-				if (modelTypeDoesNotContainUniqueIdAttribute)
-					return MissingUniqueIdAttributeExceptionResult();
-				AttemptToConnectAndOpen(dbConnectionString);
-				return NewAtomicRepositoryResult(dbConnectionString);
-			}
-			catch (Exception err)
-			{
-				return AtomsConnectionExceptionResult(err);
-			}
+			if (modelTypeDoesNotContainUniqueIdAttribute)
+				ThrowNewMissingUniqueIdAttributeException();
+			AttemptToConnectAndOpen(dbConnectionString);
+			return NewAtomicRepositoryResult(dbConnectionString);
 		}
 
-		protected abstract AtomicResult<IAtomicRepository<TModel>, AtomsException> NewAtomicRepositoryResult(string connectionString);
-		protected abstract void AttemptToConnectAndOpen(string connectionString);
-
-		protected virtual AtomicResult<IAtomicRepository<TModel>, AtomsException> AtomsConnectionExceptionResult(Exception err)
+		private static void ThrowNewMissingUniqueIdAttributeException()
 		{
-			var connectionException = new AtomsConnectionException(err.Message, err);
-			return new AtomicResult<IAtomicRepository<TModel>, AtomsException>
-				.Error(connectionException);
-		}
-
-		private static AtomicResult<IAtomicRepository<TModel>, AtomsException>
-		MissingUniqueIdAttributeExceptionResult()
-		{
-			return new AtomicResult<IAtomicRepository<TModel>, AtomsException>.Error(
-				new MissingUniqueIdAttributeException($"The model type \"{nameof(TModel)}\" must contain the Atoms.DataAttributes.UniqueIdAttribute on at least one of its public properties.")
+			throw new MissingUniqueIdAttributeException(
+				$@"The model type ""{nameof(TModel)}"" must contain the Atoms.DataAttributes.UniqueIdAttribute on at least one of its public properties."
 			);
 		}
+
+		protected abstract IAtomicRepository<TModel> NewAtomicRepositoryResult(string connectionString);
+		protected abstract void AttemptToConnectAndOpen(string connectionString);
 	}
 }

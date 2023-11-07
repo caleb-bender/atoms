@@ -20,9 +20,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			string connectionString
 		)
 		{
-			var authorRepoResult = authorRepoFactory.CreateRepository(connectionString);
-			if (authorRepoResult is AtomicResult<IAtomicRepository<BlogPostAuthor>, AtomsException>.Ok authorRepoOkResult)
-				authorRepo = authorRepoOkResult.Value;
+			authorRepo = authorRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]

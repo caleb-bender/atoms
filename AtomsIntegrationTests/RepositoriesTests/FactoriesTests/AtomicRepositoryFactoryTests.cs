@@ -29,34 +29,35 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 		}
 
 		[Fact]
-		public void WhenWePassValidConnectionStringToAtomicRepositoryFactory_ThenAnOkAtomicResultIsReturned()
+		public void WhenWePassValidConnectionStringToAtomicRepositoryFactory_ThenAnAtomicRepositoryIsReturned()
 		{
 			// Act
-			var repositoryResult = atomicRepositoryFactory.CreateRepository(validConnectionString);
+			IAtomicRepository<ModelWithUniqueIdAttribute> repository = atomicRepositoryFactory.CreateRepository(validConnectionString);
 			// Assert
-			var okResult = Assert.IsType<AtomicResult<IAtomicRepository<ModelWithUniqueIdAttribute>, AtomsException>.Ok>(repositoryResult);
-			Assert.NotNull(okResult.Value);
+			Assert.NotNull(repository);
 		}
 
 		[Fact]
-		public void WhenWePassInvalidConnectionStringToAtomicRepositoryFactory_ThenAnErrorAtomicResultIsReturned()
+		public void WhenWePassInvalidConnectionStringToAtomicRepositoryFactory_ThenAnAtomsConnectionExceptionIsThrown()
 		{
-			// Act
-			var repositoryResult = atomicRepositoryFactory.CreateRepository("");
 			// Assert
-			var errorResult = Assert.IsType<AtomicResult<IAtomicRepository<ModelWithUniqueIdAttribute>, AtomsException>.Error>(repositoryResult);
-			Assert.True(errorResult.Except is AtomsConnectionException);
+			Assert.Throws<AtomsConnectionException>(() =>
+			{
+				// Act
+				var repositoryResult = atomicRepositoryFactory.CreateRepository("");
+			});
 		}
 
 		[Fact]
-		public void WhenWeUseModelWithoutUniqueIdAttributeForGenericType_ThenAnErrorAtomicResultIsReturned()
+		public void WhenWeUseModelWithoutUniqueIdAttributeForGenericType_ThenAMissingUniqueIdAttributeExceptionIsThrown()
 		{
-			// Act
-			var repositoryResult = 
-				atomicRepositoryFactoryWithoutModelUniqueId.CreateRepository(validConnectionString);
 			// Assert
-			var errorResult = Assert.IsType<AtomicResult<IAtomicRepository<ModelWithoutUniqueIdAttribute>, AtomsException>.Error>(repositoryResult);
-			Assert.True(errorResult.Except is MissingUniqueIdAttributeException);
+			Assert.Throws<MissingUniqueIdAttributeException>(() =>
+			{
+				// Act
+				var repository = 
+					atomicRepositoryFactoryWithoutModelUniqueId.CreateRepository(validConnectionString);
+			});
 		}
 
 	}

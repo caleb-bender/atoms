@@ -156,6 +156,18 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenABlogUserWithExtraPropertyNotInModel_WhenWeAttemptToGetModel_ThenAllOtherPropertiesAreCorrect()
+		{
+			// Arrange
+			await CreateOneBlogUserAsync(3L, "Group 1");
+			// Act
+			var blogUserOption = await blogUserRepo.GetOneAsync(new BlogUser { UserId = 3L, GroupName = "Group 1" });
+			// Assert
+			var blogUserExists = Assert.IsType<AtomicOption<BlogUser>.Exists>(blogUserOption);
+			AssertThatBlogUserIsCorrect(blogUserExists, 3L, "Group 1");
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;

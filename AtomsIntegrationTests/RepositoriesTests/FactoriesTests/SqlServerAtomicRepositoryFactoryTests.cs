@@ -14,12 +14,11 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 {
     public class SqlServerAtomicRepositoryFactoryTests : AtomicRepositoryFactoryTests
     {
-        IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> sqlServerRepoFactory;
-
         public SqlServerAtomicRepositoryFactoryTests() :
         base(
             new SqlServerAtomicRepositoryFactory<ModelWithUniqueIdAttribute>(),
             new SqlServerAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute>(),
+            new SqlServerAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId>(),
             GetConnectionString()
         )
         { }

@@ -16,6 +16,7 @@ namespace Atoms.Repositories.Factories
         /// <param name="dbConnectionString"></param>
         /// <returns>The instantiated IAtomicRepository implementation</returns>
         /// <exception cref="MissingUniqueIdAttributeException"></exception>
+        /// <exception cref="PropertyTypeIsIncompatibleWithUniqueIdAttributeException"></exception>
         /// <exception cref="AtomsConnectionException"></exception>
         IAtomicRepository<TModel> CreateRepository(string dbConnectionString);
     }

@@ -15,16 +15,19 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
     {
         private readonly IAtomicRepositoryFactory<ModelWithUniqueIdAttribute> atomicRepositoryFactory;
 		private readonly IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryFactoryWithoutModelUniqueId;
+		private readonly IAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId> atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory;
 		private readonly string validConnectionString;
 
 		public AtomicRepositoryFactoryTests(
             IAtomicRepositoryFactory<ModelWithUniqueIdAttribute> atomicRepositoryFactory,
 			IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryFactoryWithoutModelUniqueId,
+			IAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId> atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory,
             string validConnectionString
         )
         {
             this.atomicRepositoryFactory = atomicRepositoryFactory;
 			this.atomicRepositoryFactoryWithoutModelUniqueId = atomicRepositoryFactoryWithoutModelUniqueId;
+			this.atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory = atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory;
 			this.validConnectionString = validConnectionString;
 		}
 
@@ -57,6 +60,17 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 				// Act
 				var repository = 
 					atomicRepositoryFactoryWithoutModelUniqueId.CreateRepository(validConnectionString);
+			});
+		}
+
+		[Fact]
+		public void WhenWeUseModelWithPropertyNotCompatibleWithUniqueId_ThenAPropertyTypeIsIncompatibleWithUniqueIdAttributeExceptionIsThrown()
+		{
+			// Assert
+			Assert.Throws<PropertyTypeIsIncompatibleWithUniqueIdAttributeException>(() =>
+			{
+				// Act
+				atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory.CreateRepository(validConnectionString);
 			});
 		}
 

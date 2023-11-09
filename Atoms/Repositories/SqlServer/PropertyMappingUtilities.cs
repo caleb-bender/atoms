@@ -47,7 +47,9 @@ namespace Atoms.Repositories.SqlServer
 				var property = modelPublicPropertiesWithUniqueIdAttribute.ElementAt(i);
 				string propertyName = GetDatabasePropertyName(property);
 				whereClause += $"{propertyName} = @{propertyName}";
-				sqlParameters.Add(new SqlParameter("@" + propertyName, property.GetValue(model)));
+				var propertyValue = property.GetValue(model);
+				if (property.PropertyType.IsEnum) propertyValue = propertyValue?.ToString();
+				sqlParameters.Add(new SqlParameter("@" + propertyName, propertyValue));
 				if (i != modelPublicPropertiesWithUniqueIdAttribute.Count() - 1)
 					whereClause += " AND ";
 			}

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static AtomsIntegrationTests.Models.BlogPost;
 using static AtomsIntegrationTests.Models.BlogUser;
 
 namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
@@ -17,17 +18,20 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<BlogPostAuthor> authorRepo;
 		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchRepo;
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
+		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
 			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchRepoFactory,
 			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
+			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
 			string connectionString
 		)
 		{
 			authorRepo = authorRepoFactory.CreateRepository(connectionString);
 			typeMismatchRepo = typeMismatchRepoFactory.CreateRepository(connectionString);
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
+			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -168,6 +172,23 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			AssertThatBlogUserIsCorrect(blogUserExists, 3L, "Group 1");
 		}
 
+		[Fact]
+		public async Task GivenABlogPostWithAnEnumAsPartOfTheUniqueId_WhenWeGetModel_ThenWeGetBackCorrectOne()
+		{
+			// Arrange
+			await CreateOneBlogPostAsync(123L, BlogPostGenre.Horror, "A Spooky Night", "Once upon a time...");
+			await CreateOneBlogPostAsync(123L, BlogPostGenre.Scifi, "Amongst the Nebula", "In a desolate part of the galaxy, there was...");
+			// Act
+			var blogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = 123L, Genre = BlogPostGenre.Scifi });
+			// Assert
+			var blogPostExists = Assert.IsType<AtomicOption<BlogPost>.Exists>(blogPostOption);
+			var blogPost = blogPostExists.Value;
+			Assert.Equal(123L, blogPost.PostId);
+			Assert.Equal(BlogPostGenre.Scifi, blogPost.Genre);
+			Assert.Equal("Amongst the Nebula", blogPost.Title);
+			Assert.Equal("In a desolate part of the galaxy, there was...", blogPost.Content);
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -185,5 +206,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate);
 		protected abstract Task CreateOneTypeMismatchModelAsync(Guid id, string status);
 		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, string? userRole = null);
+		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content);
 	}
 }

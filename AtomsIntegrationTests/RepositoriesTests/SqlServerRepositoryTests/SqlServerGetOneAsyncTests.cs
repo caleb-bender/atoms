@@ -20,6 +20,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				new SqlServerAtomicRepositoryFactory<BlogPostAuthor>(),
 				new SqlServerAtomicRepositoryFactory<TypeMismatchModel>(),
 				new SqlServerAtomicRepositoryFactory<BlogUser>(),
+				new SqlServerAtomicRepositoryFactory<BlogPost>(),
 				GetConnectionString()
 		) { }
 
@@ -28,10 +29,22 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
-				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels; DELETE FROM TheBlogUsers;",
+				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
+				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
+		}
+
+		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO BlogPosts(PostId, Genre, Title, Content)
+				VALUES ({postId}, '{genre}', '{title}', '{content}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
 		}
 
 		protected override async Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate)

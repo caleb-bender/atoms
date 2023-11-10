@@ -189,6 +189,18 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal("In a desolate part of the galaxy, there was...", blogPost.Content);
 		}
 
+		[Fact]
+		public async Task GivenABlogPostWithMaxLengthAttributeOnTitleProperty_WhenWeGetValueThatExceedsMaxLength_ThenAPropertyValueExceedsMaxLengthExceptionIsThrown()
+		{
+			// Arrange
+			await CreateOneBlogPostAsync(1L, BlogPostGenre.Thriller, "1234567890123456789012345678901234567890", "Content");
+			// Assert
+			await Assert.ThrowsAsync<PropertyValueExceedsMaxLengthException>(async () =>
+			{
+				var blogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = 1L, Genre = BlogPostGenre.Thriller });
+			});
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;

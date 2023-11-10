@@ -27,7 +27,7 @@ namespace Atoms.Repositories.SqlServer
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			var (selectQuery, sqlParameters) =
-				PropertyMappingUtilities<TModel>
+				SqlTextGenerationUtilities<TModel>
 				.GetSelectSqlTextAndParameters(modelWithUniqueIdSet);
 			return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
 		}

@@ -14,7 +14,7 @@ using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
 namespace Atoms.Repositories.SqlServer
 {
-	internal static class PropertyMappingUtilities<TModel>
+	internal static class InboundPropertyMappingUtilities<TModel>
 		where TModel : class, new()
 	{
 
@@ -39,7 +39,7 @@ namespace Atoms.Repositories.SqlServer
 			foreach (var modelProperty in modelPublicProperties)
 			{
 				var dbPropertyName =
-					PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
+					InboundPropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
 				var columnValue = reader[dbPropertyName];
 				AttemptToMapDatabasePropertyToModelProperty(model, modelProperty, dbPropertyName, columnValue);
 			}
@@ -96,6 +96,20 @@ namespace Atoms.Repositories.SqlServer
 				return (EnumPropertyParsingStatus.ParsingFailedBecauseOneOrMoreTypesAreIncompatible, columnValue);
 			var propertyWasParsedEnum = Enum.TryParse(modelPropertyType, columnValueString, out object? parsedEnumValue);
 			if (propertyWasParsedEnum) return (EnumPropertyParsingStatus.ParsingSuccessful, parsedEnumValue);
+			return EnumVariantThatMatchesMappingRule(modelProperty, columnValue, columnValueString);
+		}
+
+		private static (InboundPropertyMappingUtilities<TModel>.EnumPropertyParsingStatus, object?) EnumVariantThatMatchesMappingRule(PropertyInfo modelProperty, object? columnValue, string columnValueString)
+		{
+			var enumMappingRules = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
+			if (enumMappingRules is null || enumMappingRules.Count() == 0)
+				return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
+			// Attempt to use one of the mapping rule attributes
+			foreach (var enumMappingRule in enumMappingRules)
+			{
+				if (columnValueString == enumMappingRule.DatabasePropertyValue)
+					return (EnumPropertyParsingStatus.ParsingSuccessful, enumMappingRule.DesiredEnumVariant);
+			}
 			return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
 		}
 
@@ -104,10 +118,15 @@ namespace Atoms.Repositories.SqlServer
 			var theModelPropertyTypeIsAClassThatIsNotAString = modelProperty.PropertyType != typeof(string)
 						&& !modelProperty.PropertyType.IsValueType && modelProperty.PropertyType.IsClass;
 			if (theModelPropertyTypeIsAClassThatIsNotAString && columnValue is string columnValueString)
-				return (
-					JsonConvert.DeserializeObject(columnValueString, modelProperty.PropertyType),
-					true
-				);
+			{
+				object? deserializedObject = null;
+				try
+				{
+					deserializedObject = JsonConvert.DeserializeObject(columnValueString, modelProperty.PropertyType);
+				}
+				catch (JsonReaderException) {}
+				return (deserializedObject, true);
+			}
 			else
 				return (null, false);
 		}

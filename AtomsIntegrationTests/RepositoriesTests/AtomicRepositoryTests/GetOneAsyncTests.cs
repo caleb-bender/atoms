@@ -1,4 +1,5 @@
-﻿using Atoms.Exceptions;
+﻿using Atoms.DataAttributes;
+using Atoms.Exceptions;
 using Atoms.Repositories;
 using Atoms.Repositories.Factories;
 using Atoms.Utils;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static AtomsIntegrationTests.Models.BlogPost;
 using static AtomsIntegrationTests.Models.BlogUser;
+using static AtomsIntegrationTests.Models.CustomerOrder;
 
 namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 {
@@ -20,6 +22,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
+		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
@@ -27,6 +30,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
 			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
+			IAtomicRepositoryFactory<CustomerOrder> customerOrderRepoFactory,
 			string connectionString
 		)
 		{
@@ -35,6 +39,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
 			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
 			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
+			customerOrderRepo = customerOrderRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -245,6 +250,42 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal("john-doe", blogPost.BlogComments[0].Username);
 		}
 
+		[Fact]
+		public async Task GivenABlogPostWithInvalidSerializedBlogComments_WhenWeAttemptToGetAndDeserialize_ThenTheBlogCommentsAreNull()
+		{
+			// Arrange
+			await CreateOneBlogPostAsync(1L, BlogPostGenre.Thriller, "Body in the Woods", "...", null, insertInvalidBlogCommentsJson: true);
+			// Act
+			var blogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = 1L, Genre = BlogPostGenre.Thriller });
+			// Assert
+			var blogPostExists = Assert.IsType<AtomicOption<BlogPost>.Exists>(blogPostOption);
+			var blogPost = blogPostExists.Value;
+			Assert.Null(blogPost.BlogComments);
+		}
+
+		[Theory]
+		[InlineData("PC", FulfillmentTypes.PickupByCustomer)]
+		[InlineData("D", FulfillmentTypes.Delivery)]
+		[InlineData("PT", FulfillmentTypes.PickupByThirdParty)]
+		[InlineData(null, FulfillmentTypes.Unknown)]
+		[InlineData("", FulfillmentTypes.Unknown)]
+		[InlineData("NONE", FulfillmentTypes.Unknown)]
+		public async Task GivenACustomerOrderWithVariousDifferentOrderTypeStrings_WhenWeGetModel_ThenAllEnumVariantsShouldBeMappedCorrectly(
+			string? databasePropertyValue,
+			FulfillmentTypes expectedEnumVariant
+		)
+		{
+			// Arrange
+			var orderId = Guid.NewGuid();
+			await CreateOneCustomerOrderAsync(orderId, databasePropertyValue);
+			// Act
+			var customerOrderOption = await customerOrderRepo.GetOneAsync(new CustomerOrder { OrderId = orderId });
+			// Assert
+			var customerOrderExists = Assert.IsType<AtomicOption<CustomerOrder>.Exists>(customerOrderOption);
+			var customerOrder = customerOrderExists.Value;
+			Assert.Equal(expectedEnumVariant, customerOrder.FulfillmentType);
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -262,7 +303,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate);
 		protected abstract Task CreateOneTypeMismatchModelAsync(Guid id, string status);
 		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, string? userRole = null);
-		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null);
+		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null, bool insertInvalidBlogCommentsJson = false);
 		protected abstract Task CreateOneCustomerAddressAsync(string phoneNumber, string city, string country);
+		protected abstract Task CreateOneCustomerOrderAsync(Guid orderId, string? orderType);
 	}
 }

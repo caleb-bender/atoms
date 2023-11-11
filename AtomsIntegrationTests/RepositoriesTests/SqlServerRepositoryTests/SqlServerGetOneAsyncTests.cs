@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 using static AtomsIntegrationTests.Models.BlogUser;
 
@@ -23,6 +24,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				new SqlServerAtomicRepositoryFactory<BlogUser>(),
 				new SqlServerAtomicRepositoryFactory<BlogPost>(),
 				new SqlServerAtomicRepositoryFactory<CustomerAddress>(),
+				new SqlServerAtomicRepositoryFactory<CustomerOrder>(),
 				GetConnectionString()
 		) { }
 
@@ -32,23 +34,24 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
-				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts; DELETE FROM CustomerAddresses;",
+				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;
+				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
 		}
 
-		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null)
+		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null, bool insertInvalidBlogCommentsJson = false)
 		{
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
 			var insertIntoText = "INSERT INTO BlogPosts(PostId, Genre, Title, Content";
 			var valuesText = $" VALUES ({postId}, '{genre}', '{title}', '{content}'";
-			if (blogComments is not null)
+			if (blogComments is not null || insertInvalidBlogCommentsJson is true)
 			{
 				insertIntoText += ", BlogComments";
 				var blogCommentsSerialized = JsonConvert.SerializeObject(blogComments);
-				valuesText += $", '{blogCommentsSerialized}'";
+				valuesText += $", '{(insertInvalidBlogCommentsJson ? "}invalid{}{" : blogCommentsSerialized)}'";
 			}
 			insertIntoText += ")";
 			valuesText += ")";
@@ -88,6 +91,25 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlCommand createCommand = new SqlCommand(
 				$@"INSERT INTO CustomerAddresses(Phone, City, Country)
 				VALUES ('{phoneNumber}', '{city}', '{country}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override async Task CreateOneCustomerOrderAsync(Guid orderId, string? orderType)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			var insertIntoText = "INSERT INTO CustomerOrders(OrderId";
+			var valuesText = $" VALUES('{orderId}'";
+			if (orderType is not null)
+			{
+				insertIntoText += ", OrderType";
+				valuesText += $", '{orderType}'";
+			}
+			insertIntoText += ")";
+			valuesText += ")";
+			using SqlCommand createCommand = new SqlCommand(
+				insertIntoText + valuesText, connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
 		}

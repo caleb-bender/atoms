@@ -40,7 +40,7 @@ namespace Atoms.Repositories.SqlServer
 			await reader.ReadAsync();
 			if (!reader.HasRows) return new AtomicOption<TModel>.Empty();
 			TModel model =
-				PropertyMappingUtilities<TModel>
+				InboundPropertyMappingUtilities<TModel>
 				.GetModelWithMappedProperties(reader);
 			return new AtomicOption<TModel>.Exists(model);
 		}

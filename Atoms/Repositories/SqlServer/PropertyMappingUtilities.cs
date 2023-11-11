@@ -1,5 +1,6 @@
 ﻿using Atoms.DataAttributes;
 using Atoms.Exceptions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
@@ -56,7 +58,9 @@ namespace Atoms.Repositories.SqlServer
 			try
 			{
 				AssertStringValueDoesNotExceedMaxLength(modelProperty, dbPropertyName, columnValue);
-				modelProperty.SetValue(model, columnValue);
+				var columnValueIsNull = columnValue is null || columnValue == DBNull.Value;
+				if (columnValueIsNull) modelProperty.SetValue(model, null);
+				else modelProperty.SetValue(model, columnValue);
 			}
 			catch (ArgumentException err)
 			{
@@ -66,7 +70,12 @@ namespace Atoms.Repositories.SqlServer
 				else if (parsingStatus == EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid)
 					throw new EnumPropertyMappingFailedException($"The database property \"{dbPropertyName}\" with value = \"{columnValue}\" could not be mapped to the enum property \"{typeof(TModel).Name}.{modelProperty.Name}\".");
 				else
-					throw new ModelPropertyTypeMismatchException($"The type of the database property \"{dbPropertyName}\" could not be converted to the type of the \"{typeof(TModel).Name}.{modelProperty.Name}\" property.", err);
+				{
+					var (deserializedObject, wasDeserialized) = DatabasePropertyStringWasDeserializedToObject(modelProperty, columnValue);
+					if (!wasDeserialized)
+						throw new ModelPropertyTypeMismatchException($"The type of the database property \"{dbPropertyName}\" could not be converted to the type of the \"{typeof(TModel).Name}.{modelProperty.Name}\" property.", err);
+					modelProperty.SetValue(model, deserializedObject);
+				}
 			}
 		}
 
@@ -88,6 +97,19 @@ namespace Atoms.Repositories.SqlServer
 			var propertyWasParsedEnum = Enum.TryParse(modelPropertyType, columnValueString, out object? parsedEnumValue);
 			if (propertyWasParsedEnum) return (EnumPropertyParsingStatus.ParsingSuccessful, parsedEnumValue);
 			return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
+		}
+
+		private static (object?, bool) DatabasePropertyStringWasDeserializedToObject(PropertyInfo modelProperty, object? columnValue)
+		{
+			var theModelPropertyTypeIsAClassThatIsNotAString = modelProperty.PropertyType != typeof(string)
+						&& !modelProperty.PropertyType.IsValueType && modelProperty.PropertyType.IsClass;
+			if (theModelPropertyTypeIsAClassThatIsNotAString && columnValue is string columnValueString)
+				return (
+					JsonConvert.DeserializeObject(columnValueString, modelProperty.PropertyType),
+					true
+				);
+			else
+				return (null, false);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using Atoms.Repositories.Factories;
 using AtomsIntegrationTests.Models;
 using AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -21,6 +22,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				new SqlServerAtomicRepositoryFactory<TypeMismatchModel>(),
 				new SqlServerAtomicRepositoryFactory<BlogUser>(),
 				new SqlServerAtomicRepositoryFactory<BlogPost>(),
+				new SqlServerAtomicRepositoryFactory<CustomerAddress>(),
 				GetConnectionString()
 		) { }
 
@@ -30,19 +32,28 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
-				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;",
+				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts; DELETE FROM CustomerAddresses;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
 		}
 
-		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content)
+		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null)
 		{
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
+			var insertIntoText = "INSERT INTO BlogPosts(PostId, Genre, Title, Content";
+			var valuesText = $" VALUES ({postId}, '{genre}', '{title}', '{content}'";
+			if (blogComments is not null)
+			{
+				insertIntoText += ", BlogComments";
+				var blogCommentsSerialized = JsonConvert.SerializeObject(blogComments);
+				valuesText += $", '{blogCommentsSerialized}'";
+			}
+			insertIntoText += ")";
+			valuesText += ")";
 			using SqlCommand createCommand = new SqlCommand(
-				$@"INSERT INTO BlogPosts(PostId, Genre, Title, Content)
-				VALUES ({postId}, '{genre}', '{title}', '{content}')", connection
+				insertIntoText + valuesText, connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
 		}
@@ -66,6 +77,17 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlCommand createCommand = new SqlCommand(
 				$@"INSERT INTO TheBlogUsers(UserId, GroupId, UserRole)
 				VALUES ({userId}, '{groupName}', '{userRole}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override async Task CreateOneCustomerAddressAsync(string phoneNumber, string city, string country)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO CustomerAddresses(Phone, City, Country)
+				VALUES ('{phoneNumber}', '{city}', '{country}')", connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
 		}

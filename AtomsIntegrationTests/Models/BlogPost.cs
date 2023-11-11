@@ -25,5 +25,6 @@ namespace AtomsIntegrationTests.Models
 		[MaxLength(30)]
 		public string Title { get; set; } = "";
 		public string Content { get; set; } = "";
+		public List<BlogComment>? BlogComments { get; set; }
 	}
 }

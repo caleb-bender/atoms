@@ -19,12 +19,14 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchRepo;
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
+		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
 			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchRepoFactory,
 			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
 			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
+			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
 			string connectionString
 		)
 		{
@@ -32,6 +34,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			typeMismatchRepo = typeMismatchRepoFactory.CreateRepository(connectionString);
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
 			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
+			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -173,6 +176,27 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		}
 
 		[Fact]
+		public async Task GivenACustomerAddressWithSomeNullValues_WhenWeAttemptToGetModel_ThenItsPropertiesAreCorrect()
+		{
+			// Arrange
+			await CreateOneCustomerAddressAsync("+11234567890", "Los Angeles", "United States");
+			// Act
+			// Act
+			var customerAddressOption = await customerAddressRepo.GetOneAsync(new CustomerAddress { PhoneNumber = "+11234567890" });
+			// Assert
+			var customerAddressExists = Assert.IsType<AtomicOption<CustomerAddress>.Exists>(customerAddressOption);
+			var customerAddress = customerAddressExists.Value;
+			Assert.Equal("+11234567890", customerAddress.PhoneNumber);
+			Assert.Null(customerAddress.UnitNumber);
+			Assert.Null(customerAddress.StreetNumber);
+			Assert.Null(customerAddress.Street);
+			Assert.Null(customerAddress.PostalCode);
+			Assert.NotNull(customerAddress.City);
+			Assert.Null(customerAddress.Province);
+			Assert.NotNull(customerAddress.Country);
+		}
+
+		[Fact]
 		public async Task GivenABlogPostWithAnEnumAsPartOfTheUniqueId_WhenWeGetModel_ThenWeGetBackCorrectOne()
 		{
 			// Arrange
@@ -201,6 +225,26 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenABlogPostWithSerializedBlogComments_WhenWeGetAndDeserializeThoseBlogComments_ThenTheyAreCorrect()
+		{
+			// Arrange
+			var blogComments = new List<BlogComment>
+			{
+				new BlogComment { Username = "john-doe", Content = "Great short story!" },
+				new BlogComment { Username = "janesmith123", Content = "A decent indie tale." }
+			};
+			await CreateOneBlogPostAsync(1L, BlogPostGenre.Fantasy, "A Lonely Village", "Once upon a time...", blogComments);
+			// Act
+			var blogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = 1L, Genre = BlogPostGenre.Fantasy });
+			// Assert
+			var blogPostExists = Assert.IsType<AtomicOption<BlogPost>.Exists>(blogPostOption);
+			var blogPost = blogPostExists.Value;
+			Assert.NotNull(blogPost.BlogComments);
+			Assert.Equal(2, blogPost.BlogComments?.Count());
+			Assert.Equal("john-doe", blogPost.BlogComments[0].Username);
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -218,6 +262,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneBlogPostAuthorAsync(long authorId, string authorName, DateTime authorSinceDate);
 		protected abstract Task CreateOneTypeMismatchModelAsync(Guid id, string status);
 		protected abstract Task CreateOneBlogUserAsync(long userId, string groupName, string? userRole = null);
-		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content);
+		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null);
+		protected abstract Task CreateOneCustomerAddressAsync(string phoneNumber, string city, string country);
 	}
 }

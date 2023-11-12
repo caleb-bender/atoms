@@ -14,7 +14,7 @@ using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
 namespace Atoms.Repositories.SqlServer
 {
-	internal static class InboundPropertyMappingUtilities<TModel>
+	internal static class PropertyMappingUtilities<TModel>
 		where TModel : class, new()
 	{
 
@@ -39,7 +39,7 @@ namespace Atoms.Repositories.SqlServer
 			foreach (var modelProperty in modelPublicProperties)
 			{
 				var dbPropertyName =
-					InboundPropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
+					PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
 				var columnValue = reader[dbPropertyName];
 				AttemptToMapDatabasePropertyToModelProperty(model, modelProperty, dbPropertyName, columnValue);
 			}
@@ -99,7 +99,7 @@ namespace Atoms.Repositories.SqlServer
 			return EnumVariantThatMatchesMappingRule(modelProperty, columnValue, columnValueString);
 		}
 
-		private static (InboundPropertyMappingUtilities<TModel>.EnumPropertyParsingStatus, object?) EnumVariantThatMatchesMappingRule(PropertyInfo modelProperty, object? columnValue, string columnValueString)
+		private static (PropertyMappingUtilities<TModel>.EnumPropertyParsingStatus, object?) EnumVariantThatMatchesMappingRule(PropertyInfo modelProperty, object? columnValue, string columnValueString)
 		{
 			var enumMappingRules = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
 			if (enumMappingRules is null || enumMappingRules.Count() == 0)

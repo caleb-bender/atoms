@@ -7,26 +7,34 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static Atoms.Utils.Reflection.AttributeCheckerHelpers;
+using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
 namespace Atoms.Repositories.SqlServer
 {
 	internal class SqlTextGenerationUtilities<TModel>
 		where TModel : class, new()
 	{
+		private static readonly IEnumerable<PropertyInfo> modelPublicProperties = GetAllPublicProperties(typeof(TModel));
 		private static readonly IEnumerable<PropertyInfo> modelPublicPropertiesWithUniqueIdAttribute =
 			GetPublicPropertiesThatContainAttribute<UniqueIdAttribute>(typeof(TModel));
 		private static readonly Type modelType = typeof(TModel);
 		private static readonly DbEntityNameAttribute? dbEntityNameAttribute = modelType.GetCustomAttribute<DbEntityNameAttribute>();
+		private static readonly string databaseTableName = GetDatabaseTableName();
 
 		internal static (string, IEnumerable<SqlParameter>) GetSelectSqlTextAndParameters(TModel model)
+		{
+			var selectQuery = $"SELECT TOP(1) * FROM [{databaseTableName}]";
+			var (whereClause, whereParameters) = GetWhereClauseTextAndParametersForSpecificModel(model);
+			selectQuery += whereClause;
+			return (selectQuery, whereParameters);
+		}
+
+		internal static string GetDatabaseTableName()
 		{
 			var tableName = modelType.Name + "s";
 			if (dbEntityNameAttribute is not null)
 				tableName = dbEntityNameAttribute.Name;
-			var selectQuery = $"SELECT TOP(1) * FROM [{tableName}]";
-			var (whereClause, whereParameters) = GetWhereClauseTextAndParametersForSpecificModel(model);
-			selectQuery += whereClause;
-			return (selectQuery, whereParameters);
+			return tableName;
 		}
 
 		internal static (string, IEnumerable<SqlParameter>) GetWhereClauseTextAndParametersForSpecificModel(TModel model)
@@ -45,6 +53,27 @@ namespace Atoms.Repositories.SqlServer
 					whereClause += " AND ";
 			}
 			return (whereClause, sqlParameters);
+		}
+
+		internal static (string, IEnumerable<SqlParameter>) GetInsertSqlTextForOne(TModel model)
+		{
+			var insertIntoText = $"INSERT INTO [{databaseTableName}](";
+			int i = 0;
+			List<SqlParameter> parameters = new List<SqlParameter>();
+			foreach (var modelProperty in modelPublicProperties)
+			{
+				if (modelProperty.GetValue(model) is null) continue;
+				var databasePropertyName = PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
+				insertIntoText += $"[{databasePropertyName}]";
+				if (++i < modelPublicProperties.Count())
+					insertIntoText += ", ";
+				parameters.Add(new SqlParameter("@" + databasePropertyName, modelProperty.GetValue(model)));
+			}
+			insertIntoText += ") ";
+			insertIntoText = insertIntoText.Replace(", )", ")");
+			var valuesText = $"VALUES ({string.Join(',', parameters.Select(parameter => parameter.ParameterName))});";
+
+			return (insertIntoText + valuesText, parameters);
 		}
 
 		private static string GetDatabasePropertyName(PropertyInfo property)

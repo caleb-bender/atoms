@@ -1,14 +1,5 @@
-﻿using Atoms.DataAttributes;
-using Atoms.Exceptions;
-using Atoms.Utils;
-using System;
-using System.Collections.Generic;
+﻿using Atoms.Utils;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
 namespace Atoms.Repositories.SqlServer
 {
@@ -22,13 +13,23 @@ namespace Atoms.Repositories.SqlServer
             this.connectionString = connectionString;
         }
 
-		public async Task<AtomicOption<TModel>> GetOneAsync(TModel modelWithUniqueIdSet)
+		public async Task<TModel> CreateOneAsync(TModel model)
+		{
+			using SqlConnection connection = new SqlConnection(connectionString);
+			connection.Open();
+			using SqlTransaction transaction = connection.BeginTransaction();
+			await InsertModelAsync(transaction, model);
+			await transaction.CommitAsync();
+			return model;
+		}
+
+		public async Task<AtomicOption<TModel>> GetOneAsync(TModel model)
 		{
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			var (selectQuery, sqlParameters) =
 				SqlTextGenerationUtilities<TModel>
-				.GetSelectSqlTextAndParameters(modelWithUniqueIdSet);
+				.GetSelectSqlTextAndParameters(model);
 			return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
 		}
 
@@ -40,9 +41,18 @@ namespace Atoms.Repositories.SqlServer
 			await reader.ReadAsync();
 			if (!reader.HasRows) return new AtomicOption<TModel>.Empty();
 			TModel model =
-				InboundPropertyMappingUtilities<TModel>
+				PropertyMappingUtilities<TModel>
 				.GetModelWithMappedProperties(reader);
 			return new AtomicOption<TModel>.Exists(model);
+		}
+
+		private async Task InsertModelAsync(SqlTransaction transaction, TModel model)
+		{
+			var (insertSqlText, insertParameters) = SqlTextGenerationUtilities<TModel>.GetInsertSqlTextForOne(model);
+			using SqlCommand insertCommand = new SqlCommand(insertSqlText, transaction.Connection);
+			insertCommand.Parameters.AddRange(insertParameters.ToArray());
+			insertCommand.Transaction = transaction;
+			await insertCommand.ExecuteNonQueryAsync();
 		}
 	}
 }

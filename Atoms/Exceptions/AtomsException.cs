@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
+	/// <summary>
+	/// AtomsException is the base class for all exceptions that originate from the Atoms library
+	/// </summary>
 	public class AtomsException : Exception
 	{
 		public AtomsException(string? message = null) : base(message) { }

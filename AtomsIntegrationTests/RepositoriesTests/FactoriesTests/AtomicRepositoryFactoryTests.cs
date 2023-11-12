@@ -14,20 +14,23 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
     public abstract class AtomicRepositoryFactoryTests
     {
         private readonly IAtomicRepositoryFactory<ModelWithUniqueIdAttribute> atomicRepositoryFactory;
-		private readonly IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryFactoryWithoutModelUniqueId;
+		private readonly IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryWithoutModelUniqueIdFactory;
 		private readonly IAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId> atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory;
+		private readonly IAtomicRepositoryFactory<ModelWithNullableUniqueId> atomicRepositoryWithNullableIdFactory;
 		private readonly string validConnectionString;
 
 		public AtomicRepositoryFactoryTests(
             IAtomicRepositoryFactory<ModelWithUniqueIdAttribute> atomicRepositoryFactory,
-			IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryFactoryWithoutModelUniqueId,
+			IAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute> atomicRepositoryWithoutModelUniqueIdFactory,
 			IAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId> atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory,
+			IAtomicRepositoryFactory<ModelWithNullableUniqueId> atomicRepositoryWithNullableIdFactory,
             string validConnectionString
         )
         {
             this.atomicRepositoryFactory = atomicRepositoryFactory;
-			this.atomicRepositoryFactoryWithoutModelUniqueId = atomicRepositoryFactoryWithoutModelUniqueId;
+			this.atomicRepositoryWithoutModelUniqueIdFactory = atomicRepositoryWithoutModelUniqueIdFactory;
 			this.atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory = atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory;
+			this.atomicRepositoryWithNullableIdFactory = atomicRepositoryWithNullableIdFactory;
 			this.validConnectionString = validConnectionString;
 		}
 
@@ -59,7 +62,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 			{
 				// Act
 				var repository = 
-					atomicRepositoryFactoryWithoutModelUniqueId.CreateRepository(validConnectionString);
+					atomicRepositoryWithoutModelUniqueIdFactory.CreateRepository(validConnectionString);
 			});
 		}
 
@@ -71,6 +74,17 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 			{
 				// Act
 				atomicRepositoryWithPropertyNotCompatibleWithUniqueIdFactory.CreateRepository(validConnectionString);
+			});
+		}
+
+		[Fact]
+		public void WhenWeUseModelWithNullablleUniqueId_ThenAPropertyTypeIsIncompatibleWithUniqueIdAttributeExceptionIsThrown()
+		{
+			// Assert
+			Assert.Throws<PropertyTypeIsIncompatibleWithUniqueIdAttributeException>(() =>
+			{
+				// Act
+				atomicRepositoryWithNullableIdFactory.CreateRepository(validConnectionString);
 			});
 		}
 

@@ -1,5 +1,7 @@
-﻿using Atoms.Utils;
+﻿using Atoms.Exceptions;
+using Atoms.Utils;
 using System.Data.SqlClient;
+using static Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
 namespace Atoms.Repositories.SqlServer
 {
@@ -18,9 +20,18 @@ namespace Atoms.Repositories.SqlServer
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlTransaction transaction = connection.BeginTransaction();
-			await InsertModelAsync(transaction, model);
-			await transaction.CommitAsync();
-			return model;
+			try
+			{
+				await InsertModelAsync(transaction, model);
+				await transaction.CommitAsync();
+				return model;
+			}
+			catch (SqlException sqlException)
+			{
+				await transaction.RollbackAsync();
+				TranslateDuplicatePrimaryKeyOrIndexError(sqlException, typeof(TModel));
+				throw;
+			}
 		}
 
 		public async Task<AtomicOption<TModel>> GetOneAsync(TModel model)

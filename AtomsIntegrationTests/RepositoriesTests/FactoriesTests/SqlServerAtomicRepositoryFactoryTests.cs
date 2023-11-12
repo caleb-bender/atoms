@@ -19,6 +19,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
             new SqlServerAtomicRepositoryFactory<ModelWithUniqueIdAttribute>(),
             new SqlServerAtomicRepositoryFactory<ModelWithoutUniqueIdAttribute>(),
             new SqlServerAtomicRepositoryFactory<ModelWithPropertyNotCompatibleWithUniqueId>(),
+            new SqlServerAtomicRepositoryFactory<ModelWithNullableUniqueId>(),
             GetConnectionString()
         )
         { }

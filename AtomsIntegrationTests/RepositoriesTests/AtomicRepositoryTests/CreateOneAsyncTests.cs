@@ -1,4 +1,5 @@
-﻿using Atoms.Repositories;
+﻿using Atoms.Exceptions;
+using Atoms.Repositories;
 using Atoms.Repositories.Factories;
 using Atoms.Utils;
 using AtomsIntegrationTests.Models;
@@ -9,26 +10,42 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 	{
 		private readonly IAtomicRepository<BlogPostAuthor> authorRepo;
 		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
+		private readonly IAtomicRepository<JobPosting> jobPostingRepo;
+		private readonly CustomerAddress customerAddress = new CustomerAddress
+		{
+			PhoneNumber = "+1234567890",
+			City = "Sacramento",
+			Province = "California"
+		};
+
+		private readonly BlogPostAuthor author = new BlogPostAuthor
+		{
+			AuthorId = 2L,
+			AuthorName = "Test",
+			AuthorSinceDate = DateTime.Today
+		};
+
+		private readonly JobPosting jobPosting = new JobPosting
+		{
+			PostingId = 456L,
+			EmployerId = 321L
+		};
 
 		public CreateOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
-			IAtomicRepositoryFactory<CustomerAddress> customerAddressFactory,
+			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
+			IAtomicRepositoryFactory<JobPosting> jobPostingRepoFactory,
 			string connectionString
 		)
 		{
 			authorRepo = authorRepoFactory.CreateRepository(connectionString);
-			customerAddressRepo = customerAddressFactory.CreateRepository(connectionString);
+			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
+			jobPostingRepo = jobPostingRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
 		public async Task WhenWeCreateABlogPostAuthor_ThenWhenWeGetItBackItExists()
 		{
-			var author = new BlogPostAuthor
-			{
-				AuthorId = 2L,
-				AuthorName = "Test",
-				AuthorSinceDate = DateTime.Today
-			};
 			// Act
 			var createdAuthor = await authorRepo.CreateOneAsync(author);
 			// Assert
@@ -40,13 +57,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		[Fact]
 		public async Task GivenACustomerAddressWithSomeNulls_WhenWeCreateOne_ThenItOnlyHasNonNullFieldsDefined()
 		{
-			// Arrange
-			var customerAddress = new CustomerAddress
-			{
-				PhoneNumber = "+1234567890",
-				City = "Sacramento",
-				Province = "California"
-			};
 			// Act
 			var createdCustomerAddress = await customerAddressRepo.CreateOneAsync(customerAddress);
 			// Assert
@@ -59,6 +69,32 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Null(retrievedCustomerAddress.Street);
 			Assert.Null(retrievedCustomerAddress.PostalCode);
 			Assert.Null(retrievedCustomerAddress.Country);
+		}
+
+		[Fact]
+		public async Task GivenABlogPostAuthorAlreadyExists_WhenWeAttemptToCreateTheSameOne_ThenADuplicateUniqueIdExceptionIsThrown()
+		{
+			// Arrange
+			await authorRepo.CreateOneAsync(author);
+			// Assert
+			await Assert.ThrowsAsync<DuplicateUniqueIdException>(async () =>
+			{
+				// Act
+				await authorRepo.CreateOneAsync(author);
+			});
+		}
+
+		[Fact]
+		public async Task GivenAJobPostingAlreadyExists_WhenWeAttemptToCreateTheSameOne_ThenADuplicateUniqueIdExceptionIsThrown()
+		{
+			// Arrange
+			await jobPostingRepo.CreateOneAsync(jobPosting);
+			// Assert
+			await Assert.ThrowsAsync<DuplicateUniqueIdException>(async () =>
+			{
+				// Act
+				await jobPostingRepo.CreateOneAsync(jobPosting);
+			});
 		}
 
 

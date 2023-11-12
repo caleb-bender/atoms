@@ -87,6 +87,5 @@ namespace AtomsIntegrationTests.RepositoriesTests.FactoriesTests
 				atomicRepositoryWithNullableIdFactory.CreateRepository(validConnectionString);
 			});
 		}
-
 	}
 }

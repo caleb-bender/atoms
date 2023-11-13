@@ -1,4 +1,5 @@
 ﻿using Atoms.Exceptions;
+using Atoms.Repositories.SqlServer.SqlGeneration;
 using Atoms.Utils;
 using System.Data.SqlClient;
 using System.Reflection;
@@ -40,7 +41,7 @@ namespace Atoms.Repositories.SqlServer
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			var (selectQuery, sqlParameters) =
-				SqlConversionUtilities<TModel>
+				SelectSqlGenerator<TModel>
 				.GetSelectSqlTextAndParameters(model);
 			return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
 		}
@@ -60,7 +61,8 @@ namespace Atoms.Repositories.SqlServer
 
 		private async Task InsertModelAsync(SqlTransaction transaction, TModel model)
 		{
-			var (insertSqlText, insertParameters, identityModelProperty) = SqlConversionUtilities<TModel>.GetInsertSqlTextForOne(model);
+			var (insertSqlText, insertParameters, identityModelProperty) =
+				InsertSqlGenerator<TModel>.GetInsertSqlTextForOne(model);
 			using SqlCommand insertCommand = new SqlCommand(insertSqlText, transaction.Connection);
 			insertCommand.Parameters.AddRange(insertParameters.ToArray());
 			insertCommand.Transaction = transaction;
@@ -69,7 +71,8 @@ namespace Atoms.Repositories.SqlServer
 			else
 			{
 				object identityValue = await insertCommand.ExecuteScalarAsync() ?? 0;
-				identityValue = SqlConversionUtilities<TModel>.GetConvertedIdentityType(identityModelProperty, identityValue);
+				identityValue =
+					InsertSqlGenerator<TModel>.GetConvertedIdentityType(identityModelProperty, identityValue);
 				identityModelProperty.SetValue(model, identityValue);
 			}
 		}

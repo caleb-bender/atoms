@@ -12,9 +12,9 @@ using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 {
 	[Collection("SqlServerDBTests")]
-	public class SqlServerCreateOneAsyncTests : CreateOneAsyncTests
+	public class SqlServerCreateManyAsyncTests : CreateManyAsyncTests
 	{
-		public SqlServerCreateOneAsyncTests()
+		public SqlServerCreateManyAsyncTests()
 			: base(
 				  new SqlServerAtomicRepositoryFactory<BlogPostAuthor>(),
 				  new SqlServerAtomicRepositoryFactory<CustomerAddress>(),

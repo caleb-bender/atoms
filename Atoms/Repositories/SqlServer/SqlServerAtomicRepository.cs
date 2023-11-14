@@ -17,16 +17,16 @@ namespace Atoms.Repositories.SqlServer
             this.connectionString = connectionString;
         }
 
-		public async Task<TModel> CreateOneAsync(TModel model)
+		public async Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models)
 		{
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlTransaction transaction = connection.BeginTransaction();
 			try
 			{
-				await InsertModelAsync(transaction, model);
+				await InsertModelsAsync(transaction, models);
 				await transaction.CommitAsync();
-				return model;
+				return models;
 			}
 			catch (SqlException sqlException)
 			{
@@ -59,10 +59,10 @@ namespace Atoms.Repositories.SqlServer
 			return new AtomicOption<TModel>.Exists(model);
 		}
 
-		private async Task InsertModelAsync(SqlTransaction transaction, TModel model)
+		private async Task InsertModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (insertSqlText, insertParameters, identityModelProperty) =
-				InsertSqlGenerator<TModel>.GetInsertSqlTextForOne(model);
+				InsertSqlGenerator<TModel>.GetInsertSqlText(models);
 			using SqlCommand insertCommand = new SqlCommand(insertSqlText, transaction.Connection);
 			insertCommand.Parameters.AddRange(insertParameters.ToArray());
 			insertCommand.Transaction = transaction;
@@ -73,7 +73,7 @@ namespace Atoms.Repositories.SqlServer
 				object identityValue = await insertCommand.ExecuteScalarAsync() ?? 0;
 				identityValue =
 					InsertSqlGenerator<TModel>.GetConvertedIdentityType(identityModelProperty, identityValue);
-				identityModelProperty.SetValue(model, identityValue);
+				identityModelProperty.SetValue(models.First(), identityValue);
 			}
 		}
 	}

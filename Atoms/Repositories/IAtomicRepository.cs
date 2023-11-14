@@ -9,7 +9,7 @@ namespace Atoms.Repositories
 {
 	public interface IAtomicRepository<TModel> where TModel : class, new()
 	{
-		Task<TModel> CreateOneAsync(TModel model);
+		Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models);
 		Task<AtomicOption<TModel>> GetOneAsync(TModel model);
 	}
 }

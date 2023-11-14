@@ -13,5 +13,12 @@ namespace Atoms.Repositories
 		{
 			return await repo.CreateManyAsync(models);
 		}
+
+		public static async Task<TModel> CreateOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
+			where TModel : class, new()
+		{
+			if (model is null) throw new ArgumentNullException("A null model cannot be created with CreateOneAsync.");
+			return (await repo.CreateManyAsync(model)).First();
+		}
 	}
 }

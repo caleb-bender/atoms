@@ -19,6 +19,7 @@ namespace Atoms.Repositories.SqlServer
 
 		public async Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models)
 		{
+			if (models is null || models.Count() == 0) return new List<TModel>();
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlTransaction transaction = connection.BeginTransaction();
@@ -38,6 +39,7 @@ namespace Atoms.Repositories.SqlServer
 
 		public async Task<AtomicOption<TModel>> GetOneAsync(TModel model)
 		{
+			if (model is null) throw new ArgumentNullException("A null model cannot be used in GetOneAsync.");
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			var (selectQuery, sqlParameters) =

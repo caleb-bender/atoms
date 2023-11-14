@@ -286,6 +286,16 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(expectedEnumVariant, customerOrder.FulfillmentType);
 		}
 
+		[Fact]
+		public async Task WhenWeAttemptToGetOneUsingNull_AnArgumentNullExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+			{
+				await customerAddressRepo.GetOneAsync(null);
+			});
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;

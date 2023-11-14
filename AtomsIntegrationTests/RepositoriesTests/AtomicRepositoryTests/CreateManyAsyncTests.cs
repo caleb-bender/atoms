@@ -38,6 +38,18 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Salary = 120_000.00M
 		};
 
+		private readonly Employee employee2 = new Employee
+		{
+			EmployeeId = Guid.NewGuid(),
+			Salary = 70_000.00M
+		};
+
+		private readonly Employee employee3 = new Employee
+		{
+			EmployeeId = Guid.NewGuid(),
+			Salary = 95_000.00M
+		};
+
 		public CreateManyAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
@@ -110,6 +122,16 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			// Assert
 			var retrievedEmployee = await GetExistingModelAsync(createdEmployees.First(), employeeRepo);
 			Assert.Equal(employee.Salary, retrievedEmployee.Salary);
+		}
+
+		[Fact]
+		public async Task WhenWeInsertMultipleEmployees_ThenWeGetBackEachEmployeeWithLocationIdSet()
+		{
+			// Act
+			var createdEmployees = await employeeRepo.CreateManyAsync(employee, employee2, employee3);
+			foreach (var createdEmployee in createdEmployees)
+				// Assert
+				Assert.NotEqual(-1L, createdEmployee.LocationId);
 		}
 
 

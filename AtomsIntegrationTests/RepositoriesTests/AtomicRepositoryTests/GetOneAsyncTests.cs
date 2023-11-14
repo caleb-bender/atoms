@@ -23,6 +23,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
 		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
+		private readonly IAtomicRepository<ModelWithIgnored> modelWithIgnoredRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
@@ -31,6 +32,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
 			IAtomicRepositoryFactory<CustomerOrder> customerOrderRepoFactory,
+			IAtomicRepositoryFactory<ModelWithIgnored> modelWithIgnoredRepoFactory,
 			string connectionString
 		)
 		{
@@ -40,6 +42,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
 			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
 			customerOrderRepo = customerOrderRepoFactory.CreateRepository(connectionString);
+			modelWithIgnoredRepo = modelWithIgnoredRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -169,7 +172,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		}
 
 		[Fact]
-		public async Task GivenABlogUserWithExtraPropertyNotInModel_WhenWeAttemptToGetModel_ThenAllOtherPropertiesAreCorrect()
+		public async Task GivenABlogUserInDatabaseWithExtraPropertyNotInModel_WhenWeAttemptToGetModel_ThenAllOtherPropertiesAreCorrect()
 		{
 			// Arrange
 			await CreateOneBlogUserAsync(3L, "Group 1");
@@ -296,6 +299,20 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenModelHasPropertiesWithAtomsIgnoreAttribute_WhenWeGetIt_ThenIgnoredPropertiesAreSetCorrectly()
+		{
+			// Arrange
+			await CreateOneModelWithIgnoredAsync(1L, "value from database", "value from database");
+			// Act
+			var modelWithIgnoredOption = await modelWithIgnoredRepo.GetOneAsync(new ModelWithIgnored { Id = 1L });
+			// Assert
+			var modelWithIgnoredExists = Assert.IsType<AtomicOption<ModelWithIgnored>.Exists>(modelWithIgnoredOption);
+			var modelWithIgnored = modelWithIgnoredExists.Value;
+			Assert.Equal("value from database", modelWithIgnored.PropertyReadFromButNotWrittenTo);
+			Assert.Equal("default", modelWithIgnored.PropertyNeitherReadFromNorWrittenTo);
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -316,5 +333,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneBlogPostAsync(long postId, BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null, bool insertInvalidBlogCommentsJson = false);
 		protected abstract Task CreateOneCustomerAddressAsync(string phoneNumber, string city, string country);
 		protected abstract Task CreateOneCustomerOrderAsync(Guid orderId, string? orderType);
+		protected abstract Task CreateOneModelWithIgnoredAsync(long id, string propertyReadFromButNotWrittenTo, string propertyNeitherReadFromNorWrittenTo);
 	}
 }

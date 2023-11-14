@@ -13,6 +13,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<JobPosting> jobPostingRepo;
 		private readonly IAtomicRepository<Employee> employeeRepo;
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
+		private readonly IAtomicRepository<ModelWithIgnored> modelWithIgnoredRepo;
 		private readonly CustomerAddress customerAddress = new CustomerAddress
 		{
 			PhoneNumber = "+1234567890",
@@ -69,6 +70,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<JobPosting> jobPostingRepoFactory,
 			IAtomicRepositoryFactory<Employee> employeeRepoFactory,
 			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
+			IAtomicRepositoryFactory<ModelWithIgnored> modelWithIgnoredRepoFactory,
 			string connectionString
 		)
 		{
@@ -77,6 +79,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			jobPostingRepo = jobPostingRepoFactory.CreateRepository(connectionString);
 			employeeRepo = employeeRepoFactory.CreateRepository(connectionString);
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
+			modelWithIgnoredRepo = modelWithIgnoredRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -176,6 +179,19 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 				await GetExistingModelAsync(createdBlogUsers.ElementAt(1), blogUserRepo);
 			Assert.Equal(blogUser1.UserId, retrievedBlogUser1.UserId);
 			Assert.Equal(blogUser2.UserId, retrievedBlogUser2.UserId);
+		}
+
+		[Fact]
+		public async Task WhenWeCreateModelWithIgnoredProperties_ThenRetrievedModelHasCorrectValuesForIgnored()
+		{
+			// Act
+			var createdModel = await modelWithIgnoredRepo.CreateOneAsync(new ModelWithIgnored { Id = 1L });
+			// Assert
+			var retrievedModel = await GetExistingModelAsync(createdModel, modelWithIgnoredRepo);
+			// This one is read from so will be null
+			Assert.Null(retrievedModel.PropertyReadFromButNotWrittenTo);
+			// This one is not read from so will be default
+			Assert.Equal("default", retrievedModel.PropertyNeitherReadFromNorWrittenTo);
 		}
 
 		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)

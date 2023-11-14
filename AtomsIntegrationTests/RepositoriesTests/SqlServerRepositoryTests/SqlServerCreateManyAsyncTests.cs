@@ -21,6 +21,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				  new SqlServerAtomicRepositoryFactory<JobPosting>(),
 				  new SqlServerAtomicRepositoryFactory<Employee>(),
 				  new SqlServerAtomicRepositoryFactory<BlogUser>(),
+				  new SqlServerAtomicRepositoryFactory<ModelWithIgnored>(),
 				  GetConnectionString()
 			)
 		{}
@@ -31,7 +32,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM BlogPostAuthors; DELETE FROM CustomerAddresses;
-				DELETE FROM JobPostings; DELETE FROM Employees; DELETE FROM TheBlogUsers;",
+				DELETE FROM JobPostings; DELETE FROM Employees; DELETE FROM TheBlogUsers;
+				DELETE FROM ModelsWithIgnored;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();

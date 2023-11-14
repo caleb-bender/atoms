@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Atoms.DataAttributes;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,11 +12,12 @@ namespace Atoms.Repositories.SqlServer.SqlGeneration
 	internal class SelectSqlGenerator<TModel>
 		where TModel : class, new()
 	{
+		private static readonly string selectFromText = GetSelectFromSqlText();
+
 		internal static (string, IEnumerable<SqlParameter>) GetSelectSqlTextAndParameters(TModel model)
 		{
-			var selectQuery = $"SELECT TOP(1) * FROM [{ModelMetadata<TModel>.TableName}]";
 			var (whereClause, whereParameters) = GetWhereClauseTextAndParametersForSpecificModel(model);
-			selectQuery += whereClause;
+			var selectQuery = selectFromText + whereClause;
 			return (selectQuery, whereParameters);
 		}
 
@@ -34,6 +37,23 @@ namespace Atoms.Repositories.SqlServer.SqlGeneration
 					whereClause += " AND ";
 			}
 			return (whereClause, sqlParameters);
+		}
+
+		private static string GetSelectFromSqlText()
+		{
+			var selectFromText = "SELECT TOP(1) ";
+			var modelPublicProperties = ModelMetadata<TModel>.PublicProperties;
+			foreach (var modelProperty in modelPublicProperties)
+			{
+				if (
+					PropertyMappingUtilities<TModel>
+					.PropertyShouldNotBeReadFromDatabase(modelProperty)
+				) continue;
+				selectFromText += "[" + ModelMetadata<TModel>.GetDatabasePropertyName(modelProperty) + "], ";
+			}
+			selectFromText += $"FROM [{ModelMetadata<TModel>.TableName}]";
+			selectFromText = selectFromText.Replace(", FROM", " FROM");
+			return selectFromText;
 		}
 	}
 }

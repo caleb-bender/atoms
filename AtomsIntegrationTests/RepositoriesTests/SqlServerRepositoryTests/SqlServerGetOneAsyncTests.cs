@@ -25,6 +25,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				new SqlServerAtomicRepositoryFactory<BlogPost>(),
 				new SqlServerAtomicRepositoryFactory<CustomerAddress>(),
 				new SqlServerAtomicRepositoryFactory<CustomerOrder>(),
+				new SqlServerAtomicRepositoryFactory<ModelWithIgnored>(),
 				GetConnectionString()
 		) { }
 
@@ -35,7 +36,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
 				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;
-				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;",
+				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;
+				DELETE FROM ModelsWithIgnored;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
@@ -110,6 +112,17 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			valuesText += ")";
 			using SqlCommand createCommand = new SqlCommand(
 				insertIntoText + valuesText, connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override async Task CreateOneModelWithIgnoredAsync(long id, string propertyReadFromButNotWrittenTo, string propertyNeitherReadFromNorWrittenTo)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO ModelsWithIgnored(Id, PropertyReadFromButNotWrittenTo, PropertyNeitherReadFromNorWrittenTo)
+				VALUES ('{id}', '{propertyReadFromButNotWrittenTo}', '{propertyNeitherReadFromNorWrittenTo}')", connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
 		}

@@ -38,6 +38,7 @@ namespace Atoms.Repositories.SqlServer
 			var model = new TModel();
 			foreach (var modelProperty in modelPublicProperties)
 			{
+				if (PropertyShouldNotBeReadFromDatabase(modelProperty)) continue;
 				var dbPropertyName =
 					PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
 				var columnValue = reader[dbPropertyName];
@@ -129,6 +130,15 @@ namespace Atoms.Repositories.SqlServer
 			}
 			else
 				return (null, false);
+		}
+
+		internal static bool PropertyShouldNotBeReadFromDatabase(PropertyInfo modelProperty)
+		{
+			var atomsIgnoreAttribute = modelProperty.GetCustomAttribute<AtomsIgnoreAttribute>();
+			var propertyHasAtomsIgnoreAttributeAndReadFromDatabaseIsFalse =
+				atomsIgnoreAttribute is not null && atomsIgnoreAttribute.ReadFromDatabase == false;
+
+			return propertyHasAtomsIgnoreAttributeAndReadFromDatabaseIsFalse;
 		}
 	}
 }

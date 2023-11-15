@@ -222,12 +222,12 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		}
 
 		[Fact]
-		public async Task GivenABlogPostWithMaxLengthAttributeOnTitleProperty_WhenWeGetValueThatExceedsMaxLength_ThenAPropertyValueExceedsMaxLengthExceptionIsThrown()
+		public async Task GivenABlogPostWithMaxLengthAttributeOnTitleProperty_WhenWeGetValueThatExceedsMaxLength_ThenAStringPropertyValueExceedsMaxLengthExceptionIsThrown()
 		{
 			// Arrange
 			await CreateOneBlogPostAsync(1L, BlogPostGenre.Thriller, "1234567890123456789012345678901234567890", "Content");
 			// Assert
-			await Assert.ThrowsAsync<PropertyValueExceedsMaxLengthException>(async () =>
+			await Assert.ThrowsAsync<StringPropertyValueExceedsMaxLengthException>(async () =>
 			{
 				var blogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = 1L, Genre = BlogPostGenre.Thriller });
 			});

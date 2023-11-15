@@ -17,6 +17,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingMismatchRepo;
 		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
 		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchModelRepo;
+		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly CustomerAddress customerAddress = new CustomerAddress
 		{
 			PhoneNumber = "+1234567890",
@@ -87,6 +88,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingMismatchRepoFactory,
 			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
 			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchModelRepoFactory,
+			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
 			string connectionString
 		)
 		{
@@ -99,6 +101,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			jobPostingMismatchRepo = jobPostingMismatchRepoFactory.CreateRepository(connectionString);
 			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
 			typeMismatchModelRepo = typeMismatchModelRepoFactory.CreateRepository(connectionString);
+			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -242,6 +245,49 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
 			{
 				await typeMismatchModelRepo.CreateOneAsync(typeMismatchModel);
+			});
+		}
+
+		[Fact]
+		public async Task WhenWeCreateABlogPost_ThenWeCanUseTheGenreEnumToRetrieveItBack()
+		{
+			// Arrange
+			var blogPost = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Scifi };
+			// Act
+			var createdBlogPost = await blogPostRepo.CreateOneAsync(blogPost);
+			// Assert
+			var retrievedBlogPostOption = await blogPostRepo.GetOneAsync(createdBlogPost);
+			Assert.IsType<AtomicOption<BlogPost>.Exists>(retrievedBlogPostOption);
+
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToCreateABlogPostWithBlogComments_ThenTheyAreSerializedAndDeserializedCorrectly()
+		{
+			// Arrange
+			var blogPost = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror, BlogComments = new List<BlogComment> { new BlogComment { Username = "test", Content = "Hello World!" } } };
+			// Act
+			var createdBlogPost = await blogPostRepo.CreateOneAsync(blogPost);
+			// Assert
+			var retrievedBlogPost = await GetExistingModelAsync(createdBlogPost, blogPostRepo);
+			Assert.Single(retrievedBlogPost.BlogComments);
+			Assert.Equal("test", retrievedBlogPost.BlogComments?.First().Username);
+			Assert.Equal("Hello World!", retrievedBlogPost.BlogComments?.First().Content);
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToCreateABlogPostWithATitleThatIsTooLong_ThenAStringPropertyValueExceedsMaxLengthExceptionIsThrown()
+		{
+			// Arrange
+			var blogPost = new BlogPost {
+				PostId = 234L,
+				Genre = BlogPost.BlogPostGenre.Thriller,
+				Title = "0123456789012345678901234567890123456789"
+			};
+			// Assert
+			await Assert.ThrowsAsync<StringPropertyValueExceedsMaxLengthException>(async () =>
+			{
+				await blogPostRepo.CreateOneAsync(blogPost);
 			});
 		}
 

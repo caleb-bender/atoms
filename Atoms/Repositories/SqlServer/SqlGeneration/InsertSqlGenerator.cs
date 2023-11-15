@@ -35,7 +35,8 @@ namespace Atoms.Repositories.SqlServer.SqlGeneration
 						|| PropertyHasAtomsIgnoreAttribute(modelProperty)
 					) continue;
 					var databasePropertyName = PropertyMappingUtilities<TModel>.GetDbPropertyNameOfModelProperty(modelProperty);
-					modelsParameters.ElementAt(i).Add(new SqlParameter("@" + databasePropertyName + i.ToString(), modelProperty.GetValue(model) ?? DBNull.Value));
+					var modelPropertyValue = PropertyMappingUtilities<TModel>.GetModelPropertyDatabaseValue(modelProperty, model);
+					modelsParameters.ElementAt(i).Add(new SqlParameter("@" + databasePropertyName + i.ToString(), modelPropertyValue ?? DBNull.Value));
 				}
 			}
 			var valuesText = $"VALUES " + GetValuesTuplesToInsert(modelsParameters) + "; ";

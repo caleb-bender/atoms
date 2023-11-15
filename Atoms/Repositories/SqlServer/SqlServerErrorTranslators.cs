@@ -17,6 +17,14 @@ namespace Atoms.Repositories.SqlServer
 				throw new DuplicateUniqueIdException($"The creation of a duplicate unique id for the entity \"{modelType.Name}\" was attempted.", err);
 		}
 
+		internal static void TranslateOperandTypeClashError(SqlException err, Type modelType)
+		{
+			if (err.Number == 206)
+				throw new ModelPropertyTypeMismatchException(
+					$"One or more properties' types in the model \"{modelType.Name}\" are incompatible with the corresponding database property or properties. Ensure that each model property is mapped to the correct database property and contains a compatible type.", err
+				);
+		}
+
 		internal static void TranslateInvalidColumnNameError(SqlException err, Type modelType)
 		{
 			if (err.Number == 207)

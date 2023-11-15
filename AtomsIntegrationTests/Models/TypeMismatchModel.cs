@@ -12,5 +12,6 @@ namespace AtomsIntegrationTests.Models
 		[UniqueId]
 		public Guid Id { get; set; }
 		public int Status { get; set; }
+		public int? DateCreated { get; set; }
 	}
 }

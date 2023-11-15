@@ -233,6 +233,18 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task WhenWeAttemptToCreateATypeMismatchModel_ThenAModelPropertyTypeMismatchExceptionIsThrown()
+		{
+			// Arrange
+			var typeMismatchModel = new TypeMismatchModel { Id = Guid.NewGuid(), DateCreated = 3 };
+			// Assert
+			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
+			{
+				await typeMismatchModelRepo.CreateOneAsync(typeMismatchModel);
+			});
+		}
+
 		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
 			where TModel : class, new()
 		{

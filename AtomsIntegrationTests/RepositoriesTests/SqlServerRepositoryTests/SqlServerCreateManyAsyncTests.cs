@@ -36,7 +36,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM BlogPostAuthors; DELETE FROM CustomerAddresses;
 				DELETE FROM JobPostings; DELETE FROM Employees; DELETE FROM TheBlogUsers;
-				DELETE FROM ModelsWithIgnored;",
+				DELETE FROM ModelsWithIgnored; DELETE FROM TypeMismatchModels;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();

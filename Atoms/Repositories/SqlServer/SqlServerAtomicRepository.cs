@@ -33,6 +33,7 @@ namespace Atoms.Repositories.SqlServer
 			{
 				await transaction.RollbackAsync();
 				TranslateDuplicatePrimaryKeyOrIndexError(sqlException, typeof(TModel));
+				TranslateOperandTypeClashError(sqlException, typeof(TModel));
 				TranslateInvalidColumnNameError(sqlException, typeof(TModel));
 				TranslateInvalidObjectNameError(sqlException, typeof(TModel));
 				throw;

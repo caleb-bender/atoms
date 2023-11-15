@@ -113,8 +113,8 @@ namespace Atoms.Repositories.SqlServer
 			// Attempt to use one of the mapping rule attributes
 			foreach (var enumMappingRule in enumMappingRules)
 			{
-				if (columnValueString == enumMappingRule.DatabasePropertyValue)
-					return (EnumPropertyParsingStatus.ParsingSuccessful, enumMappingRule.DesiredEnumVariant);
+				if (columnValueString == enumMappingRule.DatabaseStringValue)
+					return (EnumPropertyParsingStatus.ParsingSuccessful, enumMappingRule.EnumVariant);
 			}
 			return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
 		}
@@ -150,6 +150,22 @@ namespace Atoms.Repositories.SqlServer
 			return propertyHasAtomsIgnoreAttributeAndReadFromDatabaseIsFalse;
 		}
 
+		private static (object?, bool) IfIsEnumThenTryToMapUsingRule(PropertyInfo modelProperty, TModel model)
+		{
+			object? modelPropertyValue = modelProperty.GetValue(model);
+			if (!modelProperty.PropertyType.IsEnum || modelPropertyValue is null) 
+				return (modelPropertyValue, false);
+			var stringToEnumMappings = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
+			foreach (var mappingRule in stringToEnumMappings)
+			{
+				int enumVariantInt = Convert.ToInt32(mappingRule.EnumVariant);
+				int modelPropertyValueInt = Convert.ToInt32(modelPropertyValue);
+				if (enumVariantInt == modelPropertyValueInt)
+					return (mappingRule.DatabaseStringValue, true);
+			}
+			return (modelPropertyValue, false);
+		}
+
 		private static (object?, bool) IfNonStringClassThenSerializeToJson(PropertyInfo modelProperty, TModel model)
 		{
 			var modelPropertyValue = modelProperty.GetValue(model);
@@ -177,6 +193,9 @@ namespace Atoms.Repositories.SqlServer
 		{
 			AssertModelStringValueDoesNotExceedMaxLength(modelProperty, model);
 			var modelPropertyValue = modelProperty.GetValue(model);
+
+			var (enumToStringMappedValue, wasMappedFromEnumToString) = IfIsEnumThenTryToMapUsingRule(modelProperty, model);
+			if (wasMappedFromEnumToString) return enumToStringMappedValue;
 
 			var (enumToString, wasConvertedFromEnumToString) = IfEnumThenConvertToString(modelProperty, model);
 			if (wasConvertedFromEnumToString) return enumToString;

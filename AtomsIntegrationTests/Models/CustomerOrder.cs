@@ -12,8 +12,8 @@ namespace AtomsIntegrationTests.Models
 		[StringToEnumVariantMappingRule("PC", PickupByCustomer)]
 		[StringToEnumVariantMappingRule("D", Delivery)]
 		[StringToEnumVariantMappingRule("PT", PickupByThirdParty)]
-		[StringToEnumVariantMappingRule("", Unknown)]
 		[StringToEnumVariantMappingRule("NONE", Unknown)]
+		[StringToEnumVariantMappingRule("", Unknown)]
 		public enum FulfillmentTypes
 		{
 			Unknown,

@@ -9,13 +9,13 @@ namespace Atoms.DataAttributes
 	[AttributeUsage(AttributeTargets.Enum, AllowMultiple = true)]
 	public class StringToEnumVariantMappingRule : Attribute
 	{
-		public StringToEnumVariantMappingRule(string databasePropertyValue, object desiredEnumVariant)
+		public StringToEnumVariantMappingRule(string databaseStringValue, object enumVariant)
 		{
-			DatabasePropertyValue = databasePropertyValue;
-			DesiredEnumVariant = desiredEnumVariant;
+			DatabaseStringValue = databaseStringValue;
+			EnumVariant = enumVariant;
 		}
 
-		public string DatabasePropertyValue { get; }
-		public object DesiredEnumVariant { get; }
+		public string DatabaseStringValue { get; }
+		public object EnumVariant { get; }
 	}
 }

@@ -14,6 +14,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<Employee> employeeRepo;
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
 		private readonly IAtomicRepository<ModelWithIgnored> modelWithIgnoredRepo;
+		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingMismatchRepo;
+		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
+		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchModelRepo;
 		private readonly CustomerAddress customerAddress = new CustomerAddress
 		{
 			PhoneNumber = "+1234567890",
@@ -64,6 +67,16 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			GroupName = "Group 2"
 		};
 
+		private readonly JobPostingModelEntityMismatch jobPostMismatch = new JobPostingModelEntityMismatch
+		{
+			Id = Guid.NewGuid()
+		};
+
+		private readonly NonexistentModel nonexistentModel = new NonexistentModel
+		{
+			Id = 1
+		};
+
 		public CreateManyAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
@@ -71,6 +84,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<Employee> employeeRepoFactory,
 			IAtomicRepositoryFactory<BlogUser> blogUserRepoFactory,
 			IAtomicRepositoryFactory<ModelWithIgnored> modelWithIgnoredRepoFactory,
+			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingMismatchRepoFactory,
+			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
+			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchModelRepoFactory,
 			string connectionString
 		)
 		{
@@ -80,6 +96,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			employeeRepo = employeeRepoFactory.CreateRepository(connectionString);
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
 			modelWithIgnoredRepo = modelWithIgnoredRepoFactory.CreateRepository(connectionString);
+			jobPostingMismatchRepo = jobPostingMismatchRepoFactory.CreateRepository(connectionString);
+			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
+			typeMismatchModelRepo = typeMismatchModelRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -192,6 +211,26 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Null(retrievedModel.PropertyReadFromButNotWrittenTo);
 			// This one is not read from so will be default
 			Assert.Equal("default", retrievedModel.PropertyNeitherReadFromNorWrittenTo);
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToCreateAModelDoesNotMatchEntitySchema_ThenAModelDbEntityMismatchExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<ModelDbEntityMismatchException>(async () =>
+			{
+				await jobPostingMismatchRepo.CreateOneAsync(jobPostMismatch);
+			});
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToCreateAModelThatsMapsToNonexistentDatabaseEntity_ThenADbEntityNotFoundExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<DbEntityNotFoundException>(async () =>
+			{
+				await nonexistentModelRepo.CreateOneAsync(nonexistentModel);
+			});
 		}
 
 		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)

@@ -22,6 +22,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				  new SqlServerAtomicRepositoryFactory<Employee>(),
 				  new SqlServerAtomicRepositoryFactory<BlogUser>(),
 				  new SqlServerAtomicRepositoryFactory<ModelWithIgnored>(),
+				  new SqlServerAtomicRepositoryFactory<JobPostingModelEntityMismatch>(),
+				  new SqlServerAtomicRepositoryFactory<NonexistentModel>(),
+				  new SqlServerAtomicRepositoryFactory<TypeMismatchModel>(),
 				  GetConnectionString()
 			)
 		{}

@@ -24,6 +24,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
 		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
 		private readonly IAtomicRepository<ModelWithIgnored> modelWithIgnoredRepo;
+		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
+		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingModelEntityMismatchRepo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
@@ -33,6 +35,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
 			IAtomicRepositoryFactory<CustomerOrder> customerOrderRepoFactory,
 			IAtomicRepositoryFactory<ModelWithIgnored> modelWithIgnoredRepoFactory,
+			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
+			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingModelEntityMismatchRepoFactory,
 			string connectionString
 		)
 		{
@@ -43,6 +47,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
 			customerOrderRepo = customerOrderRepoFactory.CreateRepository(connectionString);
 			modelWithIgnoredRepo = modelWithIgnoredRepoFactory.CreateRepository(connectionString);
+			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
+			jobPostingModelEntityMismatchRepo = jobPostingModelEntityMismatchRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -313,6 +319,28 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal("default", modelWithIgnored.PropertyNeitherReadFromNorWrittenTo);
 		}
 
+		[Fact]
+		public async Task GivenAModelThatDoesNotMapToADatabaseEntity_WhenWeAttemptToGetIt_ThenADbEntityNotFoundExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<DbEntityNotFoundException>(async () =>
+			{
+				await nonexistentModelRepo.GetOneAsync(new NonexistentModel { Id = 1 });
+			});
+		}
+
+		[Fact]
+		public async Task GivenAModelThatHasAPropertyThatDoesNotMapToADatabaseProperty_WhenWeAttemptToGetIt_ThenAModelDbEntityMismatchExceptionIsThrown()
+		{
+			// Arrange
+			await CreateJobPostingAsync(1L, 1L);
+			// Assert
+			await Assert.ThrowsAsync<ModelDbEntityMismatchException>(async () =>
+			{
+				await jobPostingModelEntityMismatchRepo.GetOneAsync(new JobPostingModelEntityMismatch { Id = Guid.Empty });
+			});
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -334,5 +362,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneCustomerAddressAsync(string phoneNumber, string city, string country);
 		protected abstract Task CreateOneCustomerOrderAsync(Guid orderId, string? orderType);
 		protected abstract Task CreateOneModelWithIgnoredAsync(long id, string propertyReadFromButNotWrittenTo, string propertyNeitherReadFromNorWrittenTo);
+		protected abstract Task CreateJobPostingAsync(long postingId, long employerId);
 	}
 }

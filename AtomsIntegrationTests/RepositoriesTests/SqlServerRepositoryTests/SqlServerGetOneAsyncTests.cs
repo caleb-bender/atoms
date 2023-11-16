@@ -26,6 +26,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				new SqlServerAtomicRepositoryFactory<CustomerAddress>(),
 				new SqlServerAtomicRepositoryFactory<CustomerOrder>(),
 				new SqlServerAtomicRepositoryFactory<ModelWithIgnored>(),
+				new SqlServerAtomicRepositoryFactory<NonexistentModel>(),
+				new SqlServerAtomicRepositoryFactory<JobPostingModelEntityMismatch>(),
 				GetConnectionString()
 		) { }
 
@@ -37,10 +39,21 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
 				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;
 				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;
-				DELETE FROM ModelsWithIgnored;",
+				DELETE FROM ModelsWithIgnored; DELETE FROM JobPostings;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
+		}
+
+		protected override async Task CreateJobPostingAsync(long postingId, long employerId)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO JobPostings(PostingId, EmployerId)
+				VALUES ({postingId}, '{employerId}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
 		}
 
 		protected override async Task CreateOneBlogPostAsync(long postId, BlogPost.BlogPostGenre genre, string title, string content, List<BlogComment>? blogComments = null, bool insertInvalidBlogCommentsJson = false)

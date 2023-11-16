@@ -45,10 +45,19 @@ namespace Atoms.Repositories.SqlServer
 			if (model is null) throw new ArgumentNullException("A null model cannot be used in GetOneAsync.");
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
-			var (selectQuery, sqlParameters) =
-				SelectSqlGenerator<TModel>
-				.GetSelectSqlTextAndParameters(model);
-			return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
+			try
+			{
+				var (selectQuery, sqlParameters) =
+					SelectSqlGenerator<TModel>
+					.GetSelectSqlTextAndParameters(model);
+				return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
+			}
+			catch (SqlException err)
+			{
+				TranslateInvalidColumnNameError(err, typeof(TModel));
+				TranslateInvalidObjectNameError(err, typeof(TModel));
+				throw;
+			}
 		}
 
 		private async Task<AtomicOption<TModel>> RetrieveModelAsync(string selectQuery, IEnumerable<SqlParameter> sqlParameters, SqlConnection connection)

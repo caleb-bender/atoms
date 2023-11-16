@@ -21,7 +21,7 @@ namespace Atoms.Repositories.SqlServer.SqlGeneration
 		};
 		private static readonly string insertIntoText = GetInsertIntoText();
 
-		internal static (string, IEnumerable<SqlParameter>) GetInsertSqlText(IEnumerable<TModel> models)
+		internal static (string, IEnumerable<SqlParameter>) GetInsertSqlTextAndParameters(IEnumerable<TModel> models)
 		{
 			List<List<SqlParameter>> modelsParameters = new List<List<SqlParameter>>();
 			for (int i = 0; i < models.Count(); i++)

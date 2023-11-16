@@ -20,5 +20,17 @@ namespace Atoms.Repositories
 			if (model is null) throw new ArgumentNullException("A null model cannot be created with CreateOneAsync.");
 			return (await repo.CreateManyAsync(model)).First();
 		}
+
+		public static async Task DeleteManyAsync<TModel>(this IAtomicRepository<TModel> repo, params TModel[] models)
+			where TModel : class, new()
+		{
+			await repo.DeleteManyAsync(models);
+		}
+
+		public static async Task DeleteOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
+			where TModel : class, new()
+		{
+			await repo.DeleteManyAsync(model);
+		}
 	}
 }

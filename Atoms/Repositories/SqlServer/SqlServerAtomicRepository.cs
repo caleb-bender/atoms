@@ -60,6 +60,26 @@ namespace Atoms.Repositories.SqlServer
 			}
 		}
 
+		public async Task DeleteManyAsync(IEnumerable<TModel> models)
+		{
+			if (models is null || models.Count() == 0) return;
+			using SqlConnection connection = new SqlConnection(connectionString);
+			connection.Open();
+			using SqlTransaction transaction = connection.BeginTransaction();
+			try
+			{
+				await DeleteModelsAsync(transaction, models);
+				await transaction.CommitAsync();
+			}
+			catch (SqlException sqlException)
+			{
+				await transaction.RollbackAsync();
+				TranslateInvalidColumnNameError(sqlException, typeof(TModel));
+				TranslateInvalidObjectNameError(sqlException, typeof(TModel));
+				throw;
+			}
+		}
+
 		private async Task<AtomicOption<TModel>> RetrieveModelAsync(string selectQuery, IEnumerable<SqlParameter> sqlParameters, SqlConnection connection)
 		{
 			using SqlCommand readCommand = new SqlCommand(selectQuery, connection);
@@ -76,7 +96,7 @@ namespace Atoms.Repositories.SqlServer
 		private async Task InsertModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (insertSqlText, insertParameters) =
-				InsertSqlGenerator<TModel>.GetInsertSqlText(models);
+				InsertSqlGenerator<TModel>.GetInsertSqlTextAndParameters(models);
 			using SqlCommand insertCommand = new SqlCommand(insertSqlText, transaction.Connection);
 			insertCommand.Parameters.AddRange(insertParameters.ToArray());
 			insertCommand.Transaction = transaction;
@@ -91,6 +111,16 @@ namespace Atoms.Repositories.SqlServer
 				identityProperty?.SetValue(model, identityValue);
 				i++;
 			}
+		}
+
+		private async Task DeleteModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
+		{
+			var (deleteSqlText, deleteParameters) =
+				DeleteSqlGenerator<TModel>.GetDeleteTextAndParameters(models);
+			using SqlCommand deleteCommand = new SqlCommand(deleteSqlText, transaction.Connection);
+			deleteCommand.Parameters.AddRange(deleteParameters.ToArray());
+			deleteCommand.Transaction = transaction;
+			await deleteCommand.ExecuteNonQueryAsync();
 		}
 	}
 }

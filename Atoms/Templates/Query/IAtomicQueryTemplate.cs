@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atoms.Templates.Query
 {
-	public interface IDbQueryTemplate<T>
+	public interface IAtomicQueryTemplate<T>
 	{
 		Task<IEnumerable<T>> QueryAsync(object? parameters = null);
 		Task<IEnumerable<T>> QueryLazyAsync(object? parameters = null);

@@ -29,8 +29,8 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 				.GetMutationTemplate();
 
 			// Assert
-			var sqlServerQueryTemplate = Assert.IsType<SqlServerQueryTemplate<int>>(queryTemplate);
-			var sqlServerMutationTemplate = Assert.IsType<SqlServerMutationTemplate>(mutationTemplate);
+			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);
+			var sqlServerMutationTemplate = Assert.IsType<SqlServerAtomicMutationTemplate>(mutationTemplate);
 
 			Assert.Equal("connection", sqlServerQueryTemplate.ConnectionString);
 			Assert.Equal("connection", sqlServerMutationTemplate.ConnectionString);
@@ -47,8 +47,8 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 				.SetSqlText("SQL")
 				.GetMutationTemplate();
 			// Assert
-			var sqlServerQueryTemplate = Assert.IsType<SqlServerQueryTemplate<int>>(queryTemplate);
-			var sqlServerMutationTemplate = Assert.IsType<SqlServerMutationTemplate>(mutationTemplate);
+			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);
+			var sqlServerMutationTemplate = Assert.IsType<SqlServerAtomicMutationTemplate>(mutationTemplate);
 
 			Assert.Equal("SQL", sqlServerQueryTemplate.SqlText);
 			Assert.Equal("SQL", sqlServerMutationTemplate.SqlText);
@@ -77,8 +77,8 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 				.SetExceptionHandler(ExceptionHandler2)
 				.GetMutationTemplate();
 			// Assert
-			var sqlServerQueryTemplate = Assert.IsType<SqlServerQueryTemplate<int>>(queryTemplate);
-			var sqlServerMutationTemplate = Assert.IsType<SqlServerMutationTemplate>(mutationTemplate);
+			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);
+			var sqlServerMutationTemplate = Assert.IsType<SqlServerAtomicMutationTemplate>(mutationTemplate);
 
 			sqlServerQueryTemplate.ExceptionHandler?.Invoke(new Exception());
 			sqlServerMutationTemplate.ExceptionHandler?.Invoke(new Exception());

@@ -21,16 +21,16 @@ namespace Atoms.Templates.Builders
 			return this;
 		}
 
-		public IDbQueryTemplate<T> GetQueryTemplate<T>() {
-			return new SqlServerQueryTemplate<T>
+		public IAtomicQueryTemplate<T> GetQueryTemplate<T>() {
+			return new SqlServerAtomicQueryTemplate<T>
 			{
 				ConnectionString = connectionString,
 				SqlText = sqlText,
 				ExceptionHandler = exceptionHandler
 			};
 		}
-		public IDbMutationTemplate GetMutationTemplate() {
-			return new SqlServerMutationTemplate
+		public IAtomicMutationTemplate GetMutationTemplate() {
+			return new SqlServerAtomicMutationTemplate
 			{
 				ConnectionString = connectionString,
 				SqlText = sqlText,

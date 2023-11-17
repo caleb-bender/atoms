@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Atoms.Templates.Query
 {
-    internal class SqlServerQueryTemplate<T> : IDbQueryTemplate<T>
+    internal class SqlServerAtomicQueryTemplate<T> : IAtomicQueryTemplate<T>
     {
 		internal string ConnectionString { get; init; }
 		internal string SqlText { get; init; }

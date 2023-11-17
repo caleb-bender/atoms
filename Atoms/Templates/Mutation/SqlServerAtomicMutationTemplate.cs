@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atoms.Templates.Mutation
 {
-	internal class SqlServerMutationTemplate : IDbMutationTemplate
+	internal class SqlServerAtomicMutationTemplate : IAtomicMutationTemplate
 	{
 		internal string ConnectionString { get; init; }
 		internal string SqlText { get; init; }

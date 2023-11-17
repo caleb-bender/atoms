@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atoms.Templates.Mutation
 {
-	public interface IDbMutationTemplate
+	public interface IAtomicMutationTemplate
 	{
 		Task MutateAsync(object? parameters = null);
 	}

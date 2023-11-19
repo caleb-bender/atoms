@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {
-	public abstract class AtomicQueryTemplateTests : IDisposable
+	public abstract class BasicAtomicQueryTemplateTests : IDisposable
 	{
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly IAtomicQueryTemplate<long> blogPostIdQueryTemplate;
@@ -18,16 +18,25 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
 		private readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeQueryTemplate;
 		private readonly IAtomicQueryTemplate<string?> customerCityQueryTemplate;
+		private readonly IAtomicQueryTemplate<BlogPost.BlogPostGenre> blogPostGenresTemplate;
+		private readonly IAtomicQueryTemplate<CustomerOrder.FulfillmentTypes> customerOrderTypesTemplate;
+		private readonly IAtomicQueryTemplate<string> blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate;
+		private readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate;
 		IAtomicRepository<CustomerAddress> customerAddressRepo;
 		private BlogPost blogPost1 = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror, Title = "The Cursed Baby" };
 		private BlogPost blogPost2 = new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Scifi, Title = "Cosmic Quest" };
 		private BlogPost blogPost3 = new BlogPost { PostId = 3L, Genre = BlogPost.BlogPostGenre.Fantasy, Title = "Kingdoms of the Hallowed" };
+		private BlogPost blogPost4 = new BlogPost { PostId = 4L, Genre = BlogPost.BlogPostGenre.Fantasy, Title = "Castle of the Sea" };
 
-		protected AtomicQueryTemplateTests(
+		protected BasicAtomicQueryTemplateTests(
 			IAtomicQueryTemplate<long> blogPostIdQueryTemplate,
 			IAtomicQueryTemplate<(long, BlogPost.BlogPostGenre, string)> blogIdGenreTitleQueryTemplate,
 			IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeQueryTemplate,
-			IAtomicQueryTemplate<string?> customerCityQueryTemplate
+			IAtomicQueryTemplate<string?> customerCityQueryTemplate,
+			IAtomicQueryTemplate<BlogPost.BlogPostGenre> blogPostGenresTemplate,
+			IAtomicQueryTemplate<CustomerOrder.FulfillmentTypes> customerOrderTypesTemplate,
+			IAtomicQueryTemplate<string> blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate,
+			IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate
 			)
 		{
 			blogPostRepo = GetAtomicRepository<BlogPost>();
@@ -36,6 +45,10 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			customerOrderRepo = GetAtomicRepository<CustomerOrder>();
 			this.customerOrderIdAndTypeQueryTemplate = customerOrderIdAndTypeQueryTemplate;
 			this.customerCityQueryTemplate = customerCityQueryTemplate;
+			this.blogPostGenresTemplate = blogPostGenresTemplate;
+			this.customerOrderTypesTemplate = customerOrderTypesTemplate;
+			this.blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate = blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate;
+			this.customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate = customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate;
 			customerAddressRepo = GetAtomicRepository<CustomerAddress>();
 		}
 
@@ -110,6 +123,68 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				else Assert.Null(cityName);
 				i++;
 			}
+		}
+
+		[Fact]
+		public async Task WhenWeLazilyQueryEnumScalarThatDoesNotContainMappingRules_ThenWeGetBackCorrectValues()
+		{
+			// Arrange
+			await blogPostRepo.CreateOneAsync(blogPost2);
+			// Act
+			var lazyBlogPostGenres = blogPostGenresTemplate.QueryLazy();
+			await foreach (var genre in lazyBlogPostGenres)
+				Assert.Equal(blogPost2.Genre, genre);
+		}
+
+		[Fact]
+		public async Task WhenWeLazilyQueryEnumScalarThatContainsMappingRules_ThenWeGetBackCorrectValues()
+		{
+			// Arrange
+			var customerOrder1 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByThirdParty };
+			var customerOrder3 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByCustomer };
+			var customerOrders = new[] { customerOrder1, customerOrder3 };
+			await customerOrderRepo.CreateManyAsync(customerOrders);
+			// Act
+			var lazyFulfillmentTypes = customerOrderTypesTemplate.QueryLazy();
+			// Assert
+			await foreach (var fulfillmentType in lazyFulfillmentTypes)
+				Assert.Single(customerOrders.Where(x => x.FulfillmentType == fulfillmentType));
+		}
+
+		[Fact]
+		public async Task WhenWeLazilyQueryDataUsingParameters_AndOneOfTheParametersIsEnumWithoutMappingRules_ThenWeGetBackCorrectData()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPost1, blogPost2, blogPost3, blogPost4);
+			// Act
+			var lazyTitles =
+				blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate
+				.QueryLazy(new { Genre = BlogPost.BlogPostGenre.Fantasy, Title = "K%" });
+			// Assert
+			await foreach (var title in lazyTitles)
+				Assert.Equal(blogPost3.Title, title);
+		}
+
+		[Fact]
+		public async Task WhenWeLazilyQueryDataUsingParameters_AndOneOfTheParametersIsEnumWithMappingRules_ThenWeGetBackCorrectData()
+		{
+			// Arrange
+			var customerOrder1 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByThirdParty };
+			var customerOrder3 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByCustomer };
+			await customerOrderRepo.CreateManyAsync(customerOrder1, customerOrder3);
+			// Act
+			var lazyOrderIdsAndTypes =
+				customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate
+				.QueryLazy(new { OrderType = CustomerOrder.FulfillmentTypes.PickupByCustomer });
+			// Assert
+			int numberOfResults = 0;
+			await foreach (var (id, fulfillmentType) in lazyOrderIdsAndTypes)
+			{
+				numberOfResults++;
+				Assert.Equal(customerOrder3.OrderId, id);
+				Assert.Equal(customerOrder3.FulfillmentType, fulfillmentType);
+			}
+			Assert.Equal(1, numberOfResults);
 		}
 
 

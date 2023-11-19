@@ -14,7 +14,7 @@ using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {
 	[Collection("SqlServerDBTests")]
-	public class SqlServerAtomicQueryTemplateTests : AtomicQueryTemplateTests
+	public class BasicSqlServerAtomicQueryTemplateTests : BasicAtomicQueryTemplateTests
 	{
 		private static readonly string connectionString = GetConnectionString();
 		private static readonly IAtomicQueryTemplate<long> blogPostIdQueryTemplate = GetBlogPostIdQueryTemplate();
@@ -24,6 +24,30 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			GetCustomerOrderIdAndTypeQueryTemplate();
 		private static readonly IAtomicQueryTemplate<string?> customerCityQueryTemplate =
 			GetCustomerCityQueryTemplate();
+		private static readonly IAtomicQueryTemplate<BlogPost.BlogPostGenre> blogPostGenresTemplate =
+			GetBlogGenreQueryTemplate();
+		private static readonly IAtomicQueryTemplate<CustomerOrder.FulfillmentTypes> customerOrderTypesTemplate =
+			GetFulfillmentTypeTemplate();
+		private static readonly IAtomicQueryTemplate<string> blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate =
+			GetTitleWithSpecificGenreAndTitleStartsWithLetterTemplate();
+		private static readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate =
+			GetIdAndTypeWithSpecificFulfillmentType();
+
+		private static IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> GetIdAndTypeWithSpecificFulfillmentType()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT OrderId, OrderType FROM CustomerOrders WHERE OrderType = @OrderType")
+				.GetQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)>();
+		}
+
+		private static IAtomicQueryTemplate<string> GetTitleWithSpecificGenreAndTitleStartsWithLetterTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT Title FROM BlogPosts WHERE Genre = @Genre AND Title LIKE @Title")
+				.GetQueryTemplate<string>();
+		}
 
 		private static IAtomicQueryTemplate<string?> GetCustomerCityQueryTemplate()
 		{
@@ -41,10 +65,29 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				.GetQueryTemplate<(long, BlogPost.BlogPostGenre, string)>();
 		}
 
-		public SqlServerAtomicQueryTemplateTests()
+		private static IAtomicQueryTemplate<BlogPost.BlogPostGenre> GetBlogGenreQueryTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT Genre FROM BlogPosts")
+				.GetQueryTemplate<BlogPost.BlogPostGenre>();
+		}
+
+		private static IAtomicQueryTemplate<CustomerOrder.FulfillmentTypes> GetFulfillmentTypeTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT OrderType FROM CustomerOrders")
+				.GetQueryTemplate<CustomerOrder.FulfillmentTypes>();
+		}
+
+		public BasicSqlServerAtomicQueryTemplateTests()
 		: base(
 			blogPostIdQueryTemplate, blogIdGenreTitleQueryTemplate,
-			customerOrderIdAndTypeQueryTemplate, customerCityQueryTemplate
+			customerOrderIdAndTypeQueryTemplate, customerCityQueryTemplate,
+			blogPostGenresTemplate, customerOrderTypesTemplate,
+			blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate,
+			customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate
 		)
 		{
 		}

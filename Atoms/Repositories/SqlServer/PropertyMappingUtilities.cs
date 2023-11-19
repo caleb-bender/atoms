@@ -120,22 +120,6 @@ namespace Atoms.Repositories.SqlServer
 			return propertyHasAtomsIgnoreAttributeAndReadFromDatabaseIsFalse;
 		}
 
-		private static (object?, bool) IfIsEnumThenTryToMapUsingRule(PropertyInfo modelProperty, TModel model)
-		{
-			object? modelPropertyValue = modelProperty.GetValue(model);
-			if (!modelProperty.PropertyType.IsEnum || modelPropertyValue is null) 
-				return (modelPropertyValue, false);
-			var stringToEnumMappings = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
-			foreach (var mappingRule in stringToEnumMappings)
-			{
-				int enumVariantInt = Convert.ToInt32(mappingRule.EnumVariant);
-				int modelPropertyValueInt = Convert.ToInt32(modelPropertyValue);
-				if (enumVariantInt == modelPropertyValueInt)
-					return (mappingRule.DatabaseStringValue, true);
-			}
-			return (modelPropertyValue, false);
-		}
-
 		private static (object?, bool) IfNonStringClassThenSerializeToJson(PropertyInfo modelProperty, TModel model)
 		{
 			var modelPropertyValue = modelProperty.GetValue(model);
@@ -150,13 +134,6 @@ namespace Atoms.Repositories.SqlServer
 			}
 			catch (Exception) { }
 			return (serializedJsonString, wasSerialized);
-		}
-
-		private static (object?, bool) IfEnumThenConvertToString(PropertyInfo modelProperty, TModel model)
-		{
-			if (modelProperty.PropertyType.IsEnum)
-				return (modelProperty.GetValue(model)?.ToString(), true);
-			return (null, false);
 		}
 
 		internal static object? GetModelPropertyDatabaseValue(PropertyInfo modelProperty, TModel model)

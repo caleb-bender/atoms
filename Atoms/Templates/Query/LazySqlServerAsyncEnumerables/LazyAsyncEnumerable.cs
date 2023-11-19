@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
 namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
@@ -14,12 +17,17 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		private string connectionString;
 		private string sqlText;
 		private object? parameters;
+		private IEnumerable<PropertyInfo>? parameterObjectProperties;
 
 		protected LazyAsyncEnumerable(string connectionString, string sqlText, object? parameters)
 		{
 			this.connectionString = connectionString;
 			this.sqlText = sqlText;
 			this.parameters = parameters;
+			if (parameters is not null)
+			{
+				parameterObjectProperties = GetAllPublicProperties(parameters.GetType());
+			}
 		}
 
 		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -27,6 +35,7 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlCommand queryCommand = new SqlCommand(sqlText, connection);
+			AddParametersIfTheyExist(queryCommand);
 			using var reader = await queryCommand.ExecuteReaderAsync();
 			while (await reader.ReadAsync())
 			{
@@ -37,6 +46,17 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 				}
 				catch (InvalidCastException) { }
 				yield return value;
+			}
+		}
+
+		private void AddParametersIfTheyExist(SqlCommand queryCommand)
+		{
+			if (parameterObjectProperties is null) return;
+			foreach (var property in parameterObjectProperties)
+			{
+				var propertyValue =
+					IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, parameters);
+				queryCommand.Parameters.AddWithValue("@" + property.Name, propertyValue);
 			}
 		}
 

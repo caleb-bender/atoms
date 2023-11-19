@@ -1,5 +1,6 @@
 ﻿using Atoms.DataAttributes;
 using Atoms.Repositories.SqlServer;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,22 @@ namespace Atoms.Utils.Reflection.TypeMapping
 			ParsingSuccessful,
 			ParsingFailedBecauseStringIsInvalid,
 			ParsingFailedBecauseOneOrMoreTypesAreIncompatible
+		}
+
+		internal static object? IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(PropertyInfo modelProperty, object? model)
+		{
+			var (enumToStringMappedValue, wasMappedFromEnumToString) = IfIsEnumThenTryToMapUsingRule(modelProperty, model);
+			if (wasMappedFromEnumToString) return enumToStringMappedValue;
+
+			var (enumToString, wasConvertedFromEnumToString) = IfEnumThenConvertToString(modelProperty, model);
+			if (wasConvertedFromEnumToString) return enumToString;
+
+			return modelProperty.GetValue(model);
+		}
+
+		internal static (EnumParsingStatus, object?) AttemptToParseEnumScalar(Type type, object? scalar)
+		{
+			return EnumParsingStatusAndParsedValue(type, scalar);
 		}
 
 		internal static (EnumParsingStatus, object?) AttemptToParseEnumProperty(PropertyInfo property, object? value)
@@ -59,6 +76,29 @@ namespace Atoms.Utils.Reflection.TypeMapping
 			var propertyWasParsedEnum = Enum.TryParse(type, valueString, out object? parsedEnumValue);
 			if (propertyWasParsedEnum) return (EnumParsingStatus.ParsingSuccessful, parsedEnumValue);
 			return (EnumParsingStatus.ParsingFailedBecauseStringIsInvalid, value);
+		}
+
+		internal static (object?, bool) IfIsEnumThenTryToMapUsingRule(PropertyInfo modelProperty, object? model)
+		{
+			object? modelPropertyValue = modelProperty.GetValue(model);
+			if (!modelProperty.PropertyType.IsEnum || modelPropertyValue is null)
+				return (modelPropertyValue, false);
+			var stringToEnumMappings = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
+			foreach (var mappingRule in stringToEnumMappings)
+			{
+				int enumVariantInt = Convert.ToInt32(mappingRule.EnumVariant);
+				int modelPropertyValueInt = Convert.ToInt32(modelPropertyValue);
+				if (enumVariantInt == modelPropertyValueInt)
+					return (mappingRule.DatabaseStringValue, true);
+			}
+			return (modelPropertyValue, false);
+		}
+
+		internal static (object?, bool) IfEnumThenConvertToString(PropertyInfo modelProperty, object? model)
+		{
+			if (modelProperty.PropertyType.IsEnum)
+				return (modelProperty.GetValue(model)?.ToString(), true);
+			return (null, false);
 		}
 	}
 }

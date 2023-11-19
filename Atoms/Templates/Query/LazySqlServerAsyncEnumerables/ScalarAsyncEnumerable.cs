@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Atoms.Utils.Reflection.TypeMapping;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
 namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
@@ -20,7 +22,8 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		protected override T GetValueFromReader(SqlDataReader reader)
 		{
 			var scalar = reader[0];
-			return (T)scalar;
+			var (parsingStatus, parsedEnumOrScalar) = AttemptToParseEnumScalar(typeof(T), scalar);
+			return (T)parsedEnumOrScalar;
 		}
 	}
 }

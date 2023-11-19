@@ -27,8 +27,8 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			foreach (var field in ValueTupleHelpers<T>.Fields)
 			{
 				var value = reader[i++];
-				var (parsingStatus, parsedEnum) = AttemptToParseEnumField(field, value);
-				field.SetValue(valueTupleInstance, parsedEnum);
+				var (parsingStatus, parsedEnumOrValue) = AttemptToParseEnumField(field, value);
+				field.SetValue(valueTupleInstance, parsedEnumOrValue);
 			}
 			return (T)valueTupleInstance;
 		}

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Reflection;
 using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
 namespace Atoms.Repositories.SqlServer
 {
@@ -41,13 +42,6 @@ namespace Atoms.Repositories.SqlServer
 			return model;
 		}
 
-		private enum EnumPropertyParsingStatus
-		{
-			ParsingSuccessful,
-			ParsingFailedBecauseStringIsInvalid,
-			ParsingFailedBecauseOneOrMoreTypesAreIncompatible
-		}
-
 		private static void AttemptToMapDatabasePropertyToModelProperty(TModel model, PropertyInfo modelProperty, string dbPropertyName, object columnValue)
 		{
 			try
@@ -60,9 +54,9 @@ namespace Atoms.Repositories.SqlServer
 			catch (ArgumentException err)
 			{
 				var (parsingStatus, enumValue) = AttemptToParseEnumProperty(modelProperty, columnValue);
-				if (parsingStatus == EnumPropertyParsingStatus.ParsingSuccessful)
+				if (parsingStatus == EnumParsingStatus.ParsingSuccessful)
 					modelProperty.SetValue(model, enumValue);
-				else if (parsingStatus == EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid)
+				else if (parsingStatus == EnumParsingStatus.ParsingFailedBecauseStringIsInvalid)
 					throw new EnumPropertyMappingFailedException($"The database property \"{dbPropertyName}\" with value = \"{columnValue}\" could not be mapped to the enum property \"{typeof(TModel).Name}.{modelProperty.Name}\".");
 				else
 				{
@@ -93,30 +87,6 @@ namespace Atoms.Repositories.SqlServer
 				throw new StringPropertyValueExceedsMaxLengthException(
 					$"The length of the value of the model property \"{typeof(TModel).Name}.{modelProperty.PropertyType.Name}\" exceeds the Length of its MaximumLengthAttribute."
 				);
-		}
-
-		private static (EnumPropertyParsingStatus, object?) AttemptToParseEnumProperty(PropertyInfo modelProperty, object? columnValue)
-		{
-			var modelPropertyType = modelProperty.PropertyType;
-			if (!modelPropertyType.IsEnum || columnValue is not string columnValueString)
-				return (EnumPropertyParsingStatus.ParsingFailedBecauseOneOrMoreTypesAreIncompatible, columnValue);
-			var propertyWasParsedEnum = Enum.TryParse(modelPropertyType, columnValueString, out object? parsedEnumValue);
-			if (propertyWasParsedEnum) return (EnumPropertyParsingStatus.ParsingSuccessful, parsedEnumValue);
-			return EnumVariantThatMatchesMappingRule(modelProperty, columnValue, columnValueString);
-		}
-
-		private static (PropertyMappingUtilities<TModel>.EnumPropertyParsingStatus, object?) EnumVariantThatMatchesMappingRule(PropertyInfo modelProperty, object? columnValue, string columnValueString)
-		{
-			var enumMappingRules = modelProperty.PropertyType.GetCustomAttributes<StringToEnumVariantMappingRule>();
-			if (enumMappingRules is null || enumMappingRules.Count() == 0)
-				return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
-			// Attempt to use one of the mapping rule attributes
-			foreach (var enumMappingRule in enumMappingRules)
-			{
-				if (columnValueString == enumMappingRule.DatabaseStringValue)
-					return (EnumPropertyParsingStatus.ParsingSuccessful, enumMappingRule.EnumVariant);
-			}
-			return (EnumPropertyParsingStatus.ParsingFailedBecauseStringIsInvalid, columnValue);
 		}
 
 		private static (object?, bool) DatabasePropertyStringWasDeserializedToObject(PropertyInfo modelProperty, object? columnValue)

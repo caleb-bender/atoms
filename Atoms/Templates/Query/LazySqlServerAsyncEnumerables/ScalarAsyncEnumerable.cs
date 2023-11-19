@@ -14,8 +14,10 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		public ScalarAsyncEnumerable(
 			string connectionString,
 			string sqlText,
-			object? parameters
-		) : base(connectionString, sqlText, parameters)
+			object? parameters,
+			Func<Exception, Task>? exceptionHandler,
+			CancellationToken cancellationToken
+		) : base(connectionString, sqlText, parameters, exceptionHandler, cancellationToken)
 		{
 		}
 

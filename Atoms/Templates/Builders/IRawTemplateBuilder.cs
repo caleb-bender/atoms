@@ -1,4 +1,5 @@
-﻿using Atoms.Templates.Query;
+﻿using Atoms.Templates.Mutation;
+using Atoms.Templates.Query;
 
 namespace Atoms.Templates.Builders
 {
@@ -9,14 +10,16 @@ namespace Atoms.Templates.Builders
 	/// </summary>
 	public interface IRawTemplateBuilder
 	{
+		IAtomicMutationTemplate GetMutationTemplate();
 		/// <summary>
 		/// Consumption method that returns an IAtomicQueryTemplate configured
 		/// with the connection, query text, and optionally the exception handler.
 		/// </summary>
 		/// <typeparam name="T">The type that each result in the query is mapped to.</typeparam>
 		IAtomicQueryTemplate<T> GetQueryTemplate<T>();
-		SqlServerRawTemplateBuilder SetConnectionString(string connectionString);
-		SqlServerRawTemplateBuilder SetExceptionHandler(Func<Exception, Task> exceptionHandler);
-		SqlServerRawTemplateBuilder SetQueryText(string queryText);
+		IRawTemplateBuilder SetCancellationToken(CancellationToken cancellationToken);
+		IRawTemplateBuilder SetConnectionString(string connectionString);
+		IRawTemplateBuilder SetExceptionHandler(Func<Exception, Task> exceptionHandler);
+		IRawTemplateBuilder SetQueryText(string queryText);
 	}
 }

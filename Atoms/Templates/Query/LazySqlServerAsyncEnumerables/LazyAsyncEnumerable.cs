@@ -17,34 +17,43 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		private string connectionString;
 		private string sqlText;
 		private object? parameters;
+		private readonly Func<Exception, Task>? exceptionHandler;
+		private readonly CancellationToken cancellationToken;
 		private IEnumerable<PropertyInfo>? parameterObjectProperties;
 
-		protected LazyAsyncEnumerable(string connectionString, string sqlText, object? parameters)
+		protected LazyAsyncEnumerable(
+			string connectionString, string sqlText, object? parameters,
+			Func<Exception, Task>? exceptionHandler, CancellationToken cancellationToken
+		)
 		{
 			this.connectionString = connectionString;
 			this.sqlText = sqlText;
 			this.parameters = parameters;
+			this.exceptionHandler = exceptionHandler;
+			this.cancellationToken = cancellationToken;
 			if (parameters is not null)
-			{
 				parameterObjectProperties = GetAllPublicProperties(parameters.GetType());
-			}
 		}
 
-		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken localCancellationToken = default)
 		{
+			localCancellationToken = cancellationToken;
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlCommand queryCommand = new SqlCommand(sqlText, connection);
 			AddParametersIfTheyExist(queryCommand);
-			using var reader = await queryCommand.ExecuteReaderAsync();
-			while (await reader.ReadAsync())
+			using var reader = await queryCommand.ExecuteReaderAsync(localCancellationToken);
+			while (await reader.ReadAsync(localCancellationToken))
 			{
 				T value = default(T);
 				try
 				{
 					value = GetValueFromReader(reader);
 				}
-				catch (InvalidCastException) { }
+				catch (Exception err) {
+					if (exceptionHandler is not null)
+						await exceptionHandler.Invoke(err);
+				}
 				yield return value;
 			}
 		}

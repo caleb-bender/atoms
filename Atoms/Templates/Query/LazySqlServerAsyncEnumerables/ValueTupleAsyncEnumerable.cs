@@ -13,8 +13,10 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		public ValueTupleAsyncEnumerable(
 			string connectionString,
 			string sqlText,
-			object? parameters
-		) : base(connectionString, sqlText, parameters)
+			object? parameters,
+			Func<Exception, Task>? exceptionHandler,
+			CancellationToken cancellationToken
+		) : base(connectionString, sqlText, parameters, exceptionHandler, cancellationToken)
 		{
 			if (!ValueTupleHelpers<T>.IsValueTuple)
 				throw new ArgumentException($"The generic type argument \"{typeof(T).Name}\" is not a ValueTuple");

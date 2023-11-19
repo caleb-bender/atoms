@@ -19,8 +19,9 @@ namespace Atoms.Templates.Builders
 		private string connectionString = "";
 		private string sqlText = "";
 		private Func<Exception, Task>? exceptionHandler;
+		private CancellationToken cancellationToken = default;
 
-		public SqlServerRawTemplateBuilder SetConnectionString(string connectionString)
+		public IRawTemplateBuilder SetConnectionString(string connectionString)
 		{
 			this.connectionString = connectionString;
 			return this;
@@ -33,7 +34,8 @@ namespace Atoms.Templates.Builders
 			{
 				ConnectionString = connectionString,
 				SqlText = sqlText,
-				ExceptionHandler = exceptionHandler
+				ExceptionHandler = exceptionHandler,
+				CancellationToken = cancellationToken
 			};
 		}
 
@@ -45,25 +47,32 @@ namespace Atoms.Templates.Builders
 				throw new QueryTextMissingException("This builder's SetQueryText adapter method was not called with a nonempty query text string.");
 		}
 
-		internal IAtomicMutationTemplate GetMutationTemplate()
+		public IAtomicMutationTemplate GetMutationTemplate()
 		{
 			return new SqlServerAtomicMutationTemplate
 			{
 				ConnectionString = connectionString,
 				SqlText = sqlText,
-				ExceptionHandler = exceptionHandler
+				ExceptionHandler = exceptionHandler,
+				CancellationToken = cancellationToken
 			};
 		}
 
-		public SqlServerRawTemplateBuilder SetQueryText(string queryText)
+		public IRawTemplateBuilder SetQueryText(string queryText)
 		{
-			this.sqlText = queryText;
+			sqlText = queryText;
 			return this;
 		}
 
-		public SqlServerRawTemplateBuilder SetExceptionHandler(Func<Exception, Task> exceptionHandler)
+		public IRawTemplateBuilder SetExceptionHandler(Func<Exception, Task> exceptionHandler)
 		{
 			this.exceptionHandler = exceptionHandler;
+			return this;
+		}
+
+		public IRawTemplateBuilder SetCancellationToken(CancellationToken cancellationToken)
+		{
+			this.cancellationToken = cancellationToken;
 			return this;
 		}
 	}

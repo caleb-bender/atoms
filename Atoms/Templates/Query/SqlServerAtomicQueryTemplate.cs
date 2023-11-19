@@ -14,6 +14,7 @@ namespace Atoms.Templates.Query
 {
     internal class SqlServerAtomicQueryTemplate<T> : IAtomicQueryTemplate<T>
     {
+		internal CancellationToken CancellationToken { get; init; }
 		internal string ConnectionString { get; init; }
 		internal string SqlText { get; init; }
         internal Func<Exception, Task>? ExceptionHandler { get; init; }
@@ -21,7 +22,7 @@ namespace Atoms.Templates.Query
         public IAsyncEnumerable<T> QueryLazy(object? parameters = null)
         {
             return new LazyAsyncEnumerableFactory<T>().Create(
-                ConnectionString, SqlText, parameters
+                ConnectionString, SqlText, parameters, ExceptionHandler, CancellationToken
             );
         }
 	}

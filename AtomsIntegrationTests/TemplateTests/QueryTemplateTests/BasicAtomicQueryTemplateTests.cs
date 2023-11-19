@@ -12,6 +12,8 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {
 	public abstract class BasicAtomicQueryTemplateTests : IDisposable
 	{
+		protected CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+		private static bool exceptionHandlerWasCalled = false;
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly IAtomicQueryTemplate<long> blogPostIdQueryTemplate;
 		private readonly IAtomicQueryTemplate<(long, BlogPost.BlogPostGenre, string)> blogIdGenreTitleQueryTemplate;
@@ -23,6 +25,8 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		private readonly IAtomicQueryTemplate<string> blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate;
 		private readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate;
 		IAtomicRepository<CustomerAddress> customerAddressRepo;
+		private readonly IAtomicQueryTemplate<DateTime> queryTemplateThatResultsInExceptionBeingThrown;
+		private readonly IAtomicQueryTemplate<BlogPost.BlogPostGenre> blogPostGenreTemplateWithCancelToken;
 		private BlogPost blogPost1 = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror, Title = "The Cursed Baby" };
 		private BlogPost blogPost2 = new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Scifi, Title = "Cosmic Quest" };
 		private BlogPost blogPost3 = new BlogPost { PostId = 3L, Genre = BlogPost.BlogPostGenre.Fantasy, Title = "Kingdoms of the Hallowed" };
@@ -36,8 +40,9 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			IAtomicQueryTemplate<BlogPost.BlogPostGenre> blogPostGenresTemplate,
 			IAtomicQueryTemplate<CustomerOrder.FulfillmentTypes> customerOrderTypesTemplate,
 			IAtomicQueryTemplate<string> blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate,
-			IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate
-			)
+			IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate,
+			IAtomicQueryTemplate<DateTime> queryTemplateThatResultsInExceptionBeingThrown
+		)
 		{
 			blogPostRepo = GetAtomicRepository<BlogPost>();
 			this.blogPostIdQueryTemplate = blogPostIdQueryTemplate;
@@ -50,6 +55,8 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			this.blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate = blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate;
 			this.customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate = customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate;
 			customerAddressRepo = GetAtomicRepository<CustomerAddress>();
+			this.queryTemplateThatResultsInExceptionBeingThrown = queryTemplateThatResultsInExceptionBeingThrown;
+			blogPostGenreTemplateWithCancelToken = GetBlogGenreQueryTemplateWithCancelToken();
 		}
 
 		[Fact]
@@ -187,14 +194,50 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			Assert.Equal(1, numberOfResults);
 		}
 
+		[Fact]
+		public async Task GivenAnExceptionHandlerIsDefinedOnTheTemplate_WhenWeLazilyQueryThatResultsInAnExceptionBeingThrown_ThenTheHandlerIsCalled()
+		{
+			// Arrange
+			var customerAddress1 = new CustomerAddress { PhoneNumber = "1234567890", UnitNumber = 1 };
+			await customerAddressRepo.CreateOneAsync(customerAddress1);
+			var lazyData = queryTemplateThatResultsInExceptionBeingThrown.QueryLazy();
+			// Act
+			await foreach (var data in lazyData) { }
+			// Assert
+			Assert.True(exceptionHandlerWasCalled);
+		}
+
+		[Fact]
+		public async Task GivenADefinedCancellationTokenOnTheTemplate_WhenWeCancelBeforeLazilyQueryingData_ThenTaskCanceledExceptionIsThrown()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPost1, blogPost2);
+			// Act
+			var lazyGenres = blogPostGenreTemplateWithCancelToken.QueryLazy();
+			cancellationTokenSource.Cancel();
+			// Assert
+			await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+			{
+				await foreach (var genre in lazyGenres) { }
+			});
+		}
+
+		protected static Task ExceptionHandler(Exception err)
+		{
+			exceptionHandlerWasCalled = true;
+			return Task.CompletedTask;
+		}
+
 
 		public void Dispose()
 		{
+			exceptionHandlerWasCalled = false;
 			Cleanup();
 		}
 
 		protected abstract void Cleanup();
 
 		protected abstract IAtomicRepository<T> GetAtomicRepository<T>() where T : class, new();
+		protected abstract IAtomicQueryTemplate<BlogPost.BlogPostGenre> GetBlogGenreQueryTemplateWithCancelToken();
 	}
 }

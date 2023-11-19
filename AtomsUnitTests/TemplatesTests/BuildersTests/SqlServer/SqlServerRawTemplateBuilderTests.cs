@@ -96,7 +96,7 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		}
 
 		[Fact]
-		public async void WhenWeGetQueryTemplateWithoutDefiningAConnectionString_ThenAConnectionStringMissingExceptionIsThrown()
+		public void WhenWeGetQueryTemplateWithoutDefiningAConnectionString_ThenAConnectionStringMissingExceptionIsThrown()
 		{
 			// Assert
 			Assert.Throws<ConnectionStringMissingException>(() =>
@@ -109,7 +109,7 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		}
 
 		[Fact]
-		public async void WhenWeGetQueryTemplateWithoutDefiningTheQueryText_ThenQueryTextMissingExceptionIsThrown()
+		public void WhenWeGetQueryTemplateWithoutDefiningTheQueryText_ThenQueryTextMissingExceptionIsThrown()
 		{
 			Assert.Throws<QueryTextMissingException>(() =>
 			{
@@ -118,6 +118,31 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 				.SetExceptionHandler(ExceptionHandler1)
 				.GetQueryTemplate<int>();
 			});
+		}
+
+		[Fact]
+		public void WhenWeDefineACustomCancellationToken_And_GetQueryTemplate_ThenTheQueryTemplatesContainTheToken()
+		{
+			// Arrange
+			var cancellationTokenSource = new CancellationTokenSource();
+			var cancellationToken = cancellationTokenSource.Token;
+			cancellationTokenSource.Cancel();
+			// Act
+			var queryTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
+				.SetCancellationToken(cancellationToken)
+				.GetQueryTemplate<int>();
+			var mutationTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
+				.SetCancellationToken(cancellationToken)
+				.GetMutationTemplate();
+			// Assert
+			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);
+			var sqlServerMutationTemplate = Assert.IsType<SqlServerAtomicMutationTemplate>(mutationTemplate);
+			Assert.Equal(cancellationToken, sqlServerQueryTemplate.CancellationToken);
+			Assert.Equal(cancellationToken, sqlServerMutationTemplate.CancellationToken);
 		}
 	}
 }

@@ -32,6 +32,26 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			GetTitleWithSpecificGenreAndTitleStartsWithLetterTemplate();
 		private static readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate =
 			GetIdAndTypeWithSpecificFulfillmentType();
+		private static readonly IAtomicQueryTemplate<DateTime> queryTemplateThatResultsInExceptionBeingThrown =
+			GetQueryTemplateWithExceptionOccurring();
+
+		protected override IAtomicQueryTemplate<BlogPost.BlogPostGenre> GetBlogGenreQueryTemplateWithCancelToken()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetQueryText("SELECT Genre FROM BlogPosts")
+				.SetCancellationToken(cancellationTokenSource.Token)
+				.GetQueryTemplate<BlogPost.BlogPostGenre>();
+		}
+
+		private static IAtomicQueryTemplate<DateTime> GetQueryTemplateWithExceptionOccurring()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetQueryText("SELECT Unit FROM CustomerAddresses")
+				.SetExceptionHandler(ExceptionHandler)
+				.GetQueryTemplate<DateTime>();
+		}
 
 		private static IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> GetIdAndTypeWithSpecificFulfillmentType()
 		{
@@ -87,7 +107,8 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			customerOrderIdAndTypeQueryTemplate, customerCityQueryTemplate,
 			blogPostGenresTemplate, customerOrderTypesTemplate,
 			blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate,
-			customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate
+			customerOrderIdAndTypeWithSpecificFulfillmentTypeTemplate,
+			queryTemplateThatResultsInExceptionBeingThrown
 		)
 		{
 		}

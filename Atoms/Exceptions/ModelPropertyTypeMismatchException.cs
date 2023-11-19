@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
+	/// <summary>
+	/// This exception
+	/// </summary>
 	public class ModelPropertyTypeMismatchException : AtomsException
 	{
 		public ModelPropertyTypeMismatchException(string? message = null) : base(message) { }

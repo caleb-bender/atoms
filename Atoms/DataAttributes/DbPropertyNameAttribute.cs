@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace Atoms.DataAttributes
 {
+	/// <summary>
+	/// If one or more property names in your data model class
+	/// differ from the corresponding property names of the database entity,
+	/// then you may annotate them with this attribute.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Property)]
 	public class DbPropertyNameAttribute : Attribute
 	{

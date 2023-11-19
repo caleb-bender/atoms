@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
+	/// <summary>
+	/// This exception occurs when one or more properties on a data model class
+	/// do not map to corresponding database entity properties.
+	/// </summary>
 	public class ModelDbEntityMismatchException : AtomsException
 	{
 		public ModelDbEntityMismatchException(string? message = null) : base(message) { }

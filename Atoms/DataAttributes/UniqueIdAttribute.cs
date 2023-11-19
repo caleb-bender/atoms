@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Atoms.DataAttributes
 {
+	/// <summary>
+	/// This attribute is required on at least one of the properties of
+	/// a data model class for it to be used as the generic type argument
+	/// of an IAtomicRepository. Apply it to the properties that are unique
+	/// keys/indexes/ids in the database entity
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Property)]
 	public class UniqueIdAttribute : Attribute
 	{

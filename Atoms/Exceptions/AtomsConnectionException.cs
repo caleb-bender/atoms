@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
+    /// <summary>
+    /// This exception occurs when Atoms fails to connect to the database instance.
+    /// </summary>
     public class AtomsConnectionException : AtomsException
     {
         public AtomsConnectionException(string? message = null) : base(message){ }

@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Atoms.Exceptions
 {
+	/// <summary>
+	/// This exception occurs when an IAtomicRepositoryFactory's data model class
+	/// generic type does not contain the UniqueIdAttribute on at least one of its properties.
+	/// </summary>
 	public class MissingUniqueIdAttributeException : AtomsException
 	{
 		public MissingUniqueIdAttributeException(string? message = null) : base(message) { }

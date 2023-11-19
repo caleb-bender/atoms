@@ -29,7 +29,7 @@ namespace Atoms.Templates.Builders
 				ExceptionHandler = exceptionHandler
 			};
 		}
-		public IAtomicMutationTemplate GetMutationTemplate() {
+		internal IAtomicMutationTemplate GetMutationTemplate() {
 			return new SqlServerAtomicMutationTemplate
 			{
 				ConnectionString = connectionString,

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Atoms.Exceptions
 {
 	/// <summary>
-	/// AtomsException is the base class for all exceptions that originate from the Atoms library
+	/// AtomsException is the base class for all exceptions that originate from Atoms ORM.
 	/// </summary>
 	public class AtomsException : Exception
 	{

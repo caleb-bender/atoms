@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace Atoms.Templates.Builders
 {
-	public class SqlServerRawTemplateBuilder
+	/// <summary>
+	/// Build an IAtomicQueryTemplate by providing a custom connection string,
+	/// custom query text, and if desired, a custom exception handler that will be
+	/// called if an exception is thrown.
+	/// </summary>
+	public class SqlServerRawTemplateBuilder : IRawTemplateBuilder
 	{
 		private string connectionString = "";
 		private string sqlText = "";
@@ -21,7 +26,9 @@ namespace Atoms.Templates.Builders
 			return this;
 		}
 
-		public IAtomicQueryTemplate<T> GetQueryTemplate<T>() {
+		public IAtomicQueryTemplate<T> GetQueryTemplate<T>()
+		{
+			AssertConnectionStringAndQueryTextWereDefined();
 			return new SqlServerAtomicQueryTemplate<T>
 			{
 				ConnectionString = connectionString,
@@ -29,7 +36,17 @@ namespace Atoms.Templates.Builders
 				ExceptionHandler = exceptionHandler
 			};
 		}
-		internal IAtomicMutationTemplate GetMutationTemplate() {
+
+		private void AssertConnectionStringAndQueryTextWereDefined()
+		{
+			if (string.IsNullOrEmpty(connectionString))
+				throw new ConnectionStringMissingException("This builder's SetConnectionString adapter method was not called with a nonempty connection string.");
+			if (string.IsNullOrEmpty(sqlText))
+				throw new QueryTextMissingException("This builder's SetQueryText adapter method was not called with a nonempty query text string.");
+		}
+
+		internal IAtomicMutationTemplate GetMutationTemplate()
+		{
 			return new SqlServerAtomicMutationTemplate
 			{
 				ConnectionString = connectionString,
@@ -38,9 +55,9 @@ namespace Atoms.Templates.Builders
 			};
 		}
 
-		public SqlServerRawTemplateBuilder SetSqlText(string sqlText)
+		public SqlServerRawTemplateBuilder SetQueryText(string queryText)
 		{
-			this.sqlText = sqlText;
+			this.sqlText = queryText;
 			return this;
 		}
 

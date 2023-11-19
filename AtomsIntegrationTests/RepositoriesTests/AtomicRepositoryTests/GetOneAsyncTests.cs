@@ -26,6 +26,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<ModelWithIgnored> modelWithIgnoredRepo;
 		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
 		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingModelEntityMismatchRepo;
+		private readonly IAtomicRepository<TypeMismatchModel3> typeMismatch3Repo;
 
 		public GetOneAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
@@ -37,6 +38,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<ModelWithIgnored> modelWithIgnoredRepoFactory,
 			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
 			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingModelEntityMismatchRepoFactory,
+			IAtomicRepositoryFactory<TypeMismatchModel3> typeMismatch3RepoFactory,
 			string connectionString
 		)
 		{
@@ -49,6 +51,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			modelWithIgnoredRepo = modelWithIgnoredRepoFactory.CreateRepository(connectionString);
 			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
 			jobPostingModelEntityMismatchRepo = jobPostingModelEntityMismatchRepoFactory.CreateRepository(connectionString);
+			typeMismatch3Repo = typeMismatch3RepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -338,6 +341,20 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			await Assert.ThrowsAsync<ModelDbEntityMismatchException>(async () =>
 			{
 				await jobPostingModelEntityMismatchRepo.GetOneAsync(new JobPostingModelEntityMismatch { Id = Guid.Empty });
+			});
+		}
+
+		[Fact]
+		public async Task GivenAModelWithAPropertyTypeMismatchWithDatabaseProperty_WhenWeGetOne_ThenAModelPropertyTypeMismatchExceptionIsThrown()
+		{
+			// Arrange
+			// TypeMismatchModel3 has unique id of type long
+			// but maps to TypeMismatchModels with unique id type of Guid
+			var typeMismatchModel3 = new TypeMismatchModel3 { Id = 2L };
+			// Assert
+			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
+			{
+				await typeMismatch3Repo.DeleteOneAsync(typeMismatchModel3);
 			});
 		}
 

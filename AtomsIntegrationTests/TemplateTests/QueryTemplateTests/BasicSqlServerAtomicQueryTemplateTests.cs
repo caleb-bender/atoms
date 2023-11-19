@@ -37,7 +37,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT OrderId, OrderType FROM CustomerOrders WHERE OrderType = @OrderType")
+				.SetQueryText("SELECT OrderId, OrderType FROM CustomerOrders WHERE OrderType = @OrderType")
 				.GetQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)>();
 		}
 
@@ -45,7 +45,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT Title FROM BlogPosts WHERE Genre = @Genre AND Title LIKE @Title")
+				.SetQueryText("SELECT Title FROM BlogPosts WHERE Genre = @Genre AND Title LIKE @Title")
 				.GetQueryTemplate<string>();
 		}
 
@@ -53,7 +53,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT City FROM CustomerAddresses")
+				.SetQueryText("SELECT City FROM CustomerAddresses")
 				.GetQueryTemplate<string?>();
 		}
 
@@ -61,7 +61,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT PostId, Genre, Title FROM BlogPosts")
+				.SetQueryText("SELECT PostId, Genre, Title FROM BlogPosts")
 				.GetQueryTemplate<(long, BlogPost.BlogPostGenre, string)>();
 		}
 
@@ -69,7 +69,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT Genre FROM BlogPosts")
+				.SetQueryText("SELECT Genre FROM BlogPosts")
 				.GetQueryTemplate<BlogPost.BlogPostGenre>();
 		}
 
@@ -77,7 +77,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT OrderType FROM CustomerOrders")
+				.SetQueryText("SELECT OrderType FROM CustomerOrders")
 				.GetQueryTemplate<CustomerOrder.FulfillmentTypes>();
 		}
 
@@ -96,7 +96,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT PostId FROM BlogPosts")
+				.SetQueryText("SELECT PostId FROM BlogPosts")
 				.GetQueryTemplate<long>();
 		}
 
@@ -104,7 +104,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(connectionString)
-				.SetSqlText("SELECT OrderId, OrderType FROM CustomerOrders")
+				.SetQueryText("SELECT OrderId, OrderType FROM CustomerOrders")
 				.GetQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)>();
 		}
 

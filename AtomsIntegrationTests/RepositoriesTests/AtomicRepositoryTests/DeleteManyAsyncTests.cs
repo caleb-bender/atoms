@@ -18,6 +18,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
 		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
 		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingMismatchRepo;
+		private readonly IAtomicRepository<TypeMismatchModel3> typeMismatchModelRepo;
 
 		public DeleteManyAsyncTests(
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
@@ -25,6 +26,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
 			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
 			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingMismatchRepoFactory,
+			IAtomicRepositoryFactory<TypeMismatchModel3> typeMismatchModelRepoFactory,
 			string connectionString
 		)
 		{
@@ -33,6 +35,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
 			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
 			jobPostingMismatchRepo = jobPostingMismatchRepoFactory.CreateRepository(connectionString);
+			typeMismatchModelRepo = typeMismatchModelRepoFactory.CreateRepository(connectionString);
 		}
 
 		[Fact]
@@ -120,6 +123,20 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			await Assert.ThrowsAsync<ModelDbEntityMismatchException>(async () =>
 			{
 				await jobPostingMismatchRepo.DeleteOneAsync(jobPostingMismatchModel);
+			});
+		}
+
+		[Fact]
+		public async Task GivenAModelThatHasAUniqueIdPropertyTypeMismatchWithDatabaseProperty_WhenWeDeleteOne_ThenAModelPropertyTypeMismatchExceptionIsThrown()
+		{
+			// Arrange
+			// TypeMismatchModel3 has unique id of type long
+			// but maps to TypeMismatchModels with unique id type of Guid
+			var typeMismatchModel3 = new TypeMismatchModel3 { Id = 2L };
+			// Assert
+			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
+			{
+				await typeMismatchModelRepo.DeleteOneAsync(typeMismatchModel3);
 			});
 		}
 

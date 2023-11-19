@@ -29,6 +29,9 @@ namespace Atoms.Repositories
 		/// Deletes a batch of data class models in a single transaction.
 		/// </summary>
 		/// <returns>The asynchronous task</returns>
+		/// <exception cref="DbEntityNotFoundException" />
+		/// <exception cref="ModelDbEntityMismatchException" />
+		/// <exception cref="ModelPropertyTypeMismatchException" />
 		Task DeleteManyAsync(IEnumerable<TModel> models);
 		/// <summary>
 		/// Gets a single data model class from the database or null, wrapped inside
@@ -41,6 +44,7 @@ namespace Atoms.Repositories
 		/// </returns>
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
+		/// <exception cref="ModelPropertyTypeMismatchException" />
 		Task<AtomicOption<TModel>> GetOneAsync(TModel model);
 	}
 }

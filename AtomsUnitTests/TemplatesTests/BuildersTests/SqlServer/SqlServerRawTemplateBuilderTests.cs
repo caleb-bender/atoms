@@ -5,13 +5,13 @@ using Atoms.Templates.Query;
 
 namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 {
-    public class SqlServerTemplateBuilderTests
+    public class SqlServerRawTemplateBuilderTests
 	{
 		private readonly SqlServerRawTemplateBuilder templateBuilder;
 		private bool exceptionHandler1WasCalled = false;
 		private bool exceptionHandler2WasCalled = false;
 
-		public SqlServerTemplateBuilderTests()
+		public SqlServerRawTemplateBuilderTests()
 		{
 			templateBuilder = new SqlServerRawTemplateBuilder();
 		}
@@ -22,10 +22,12 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 			// Act
 			var queryTemplate = new SqlServerRawTemplateBuilder()
 				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.GetQueryTemplate<int>();
 
 			var mutationTemplate = new SqlServerRawTemplateBuilder()
 				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.GetMutationTemplate();
 
 			// Assert
@@ -41,10 +43,12 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		{
 			// Act
 			var queryTemplate = new SqlServerRawTemplateBuilder()
-				.SetSqlText("SQL")
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.GetQueryTemplate<int>();
 			var mutationTemplate = new SqlServerRawTemplateBuilder()
-				.SetSqlText("SQL")
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.GetMutationTemplate();
 			// Assert
 			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);
@@ -71,9 +75,13 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		{
 			// Act
 			var queryTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.SetExceptionHandler(ExceptionHandler1)
 				.GetQueryTemplate<int>();
 			var mutationTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetQueryText("SQL")
 				.SetExceptionHandler(ExceptionHandler2)
 				.GetMutationTemplate();
 			// Assert
@@ -85,6 +93,31 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 
 			Assert.True(exceptionHandler1WasCalled);
 			Assert.True(exceptionHandler2WasCalled);
+		}
+
+		[Fact]
+		public async void WhenWeGetQueryTemplateWithoutDefiningAConnectionString_ThenAConnectionStringMissingExceptionIsThrown()
+		{
+			// Assert
+			Assert.Throws<ConnectionStringMissingException>(() =>
+			{
+				var queryTemplate = new SqlServerRawTemplateBuilder()
+				.SetQueryText("SQL")
+				.SetExceptionHandler(ExceptionHandler1)
+				.GetQueryTemplate<int>();
+			});
+		}
+
+		[Fact]
+		public async void WhenWeGetQueryTemplateWithoutDefiningTheQueryText_ThenQueryTextMissingExceptionIsThrown()
+		{
+			Assert.Throws<QueryTextMissingException>(() =>
+			{
+				var queryTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetExceptionHandler(ExceptionHandler1)
+				.GetQueryTemplate<int>();
+			});
 		}
 	}
 }

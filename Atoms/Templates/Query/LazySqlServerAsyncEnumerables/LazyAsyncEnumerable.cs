@@ -30,7 +30,13 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			using var reader = await queryCommand.ExecuteReaderAsync();
 			while (await reader.ReadAsync())
 			{
-				yield return GetValueFromReader(reader);
+				T value = default(T);
+				try
+				{
+					value = GetValueFromReader(reader);
+				}
+				catch (InvalidCastException) { }
+				yield return value;
 			}
 		}
 

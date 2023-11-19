@@ -17,11 +17,21 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 	public class SqlServerAtomicQueryTemplateTests : AtomicQueryTemplateTests
 	{
 		private static readonly string connectionString = GetConnectionString();
-		private static readonly IAtomicRepository<BlogPost> blogPostRepo =
-			new SqlServerAtomicRepositoryFactory<BlogPost>().CreateRepository(connectionString);
 		private static readonly IAtomicQueryTemplate<long> blogPostIdQueryTemplate = GetBlogPostIdQueryTemplate();
 		private static readonly IAtomicQueryTemplate<(long, BlogPost.BlogPostGenre, string)> blogIdGenreTitleQueryTemplate =
 			GetIdGenreTitleQueryTemplate();
+		private static readonly IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> customerOrderIdAndTypeQueryTemplate =
+			GetCustomerOrderIdAndTypeQueryTemplate();
+		private static readonly IAtomicQueryTemplate<string?> customerCityQueryTemplate =
+			GetCustomerCityQueryTemplate();
+
+		private static IAtomicQueryTemplate<string?> GetCustomerCityQueryTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT City FROM CustomerAddresses")
+				.GetQueryTemplate<string?>();
+		}
 
 		private static IAtomicQueryTemplate<(long, BlogPost.BlogPostGenre, string)> GetIdGenreTitleQueryTemplate()
 		{
@@ -32,7 +42,10 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		}
 
 		public SqlServerAtomicQueryTemplateTests()
-			: base(blogPostRepo, blogPostIdQueryTemplate, blogIdGenreTitleQueryTemplate)
+		: base(
+			blogPostIdQueryTemplate, blogIdGenreTitleQueryTemplate,
+			customerOrderIdAndTypeQueryTemplate, customerCityQueryTemplate
+		)
 		{
 		}
 
@@ -44,14 +57,28 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				.GetQueryTemplate<long>();
 		}
 
+		private static IAtomicQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)> GetCustomerOrderIdAndTypeQueryTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetSqlText("SELECT OrderId, OrderType FROM CustomerOrders")
+				.GetQueryTemplate<(Guid, CustomerOrder.FulfillmentTypes)>();
+		}
+
 		protected override void Cleanup()
 		{
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
-				@"DELETE FROM BlogPosts;", connection
+				@"DELETE FROM BlogPosts; DELETE FROM CustomerOrders;
+				DELETE FROM CustomerAddresses;", connection
 			);
 			deleteCommand.ExecuteNonQuery();
+		}
+
+		protected override IAtomicRepository<T> GetAtomicRepository<T>()
+		{
+			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(connectionString);
 		}
 	}
 }

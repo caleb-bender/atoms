@@ -5,8 +5,8 @@
     <Version>1.0.1</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
-    <Description>A flexible .NET Core ORM for SQL Server that is atomic and thread-safe</Description>
-    <PackageReleaseNotes>Add link to GitHub repository and add package icon.</PackageReleaseNotes>
+    <Description>A flexible .NET Core ORM for SQL Server that is atomic and mostly thread-safe</Description>
+    <PackageReleaseNotes>A link to the GitHub repository and a package icon were added. Also, the Newtonsoft.Json version used by this package was upgraded.</PackageReleaseNotes>
     <PackageIconUrl>https://github.com/caleb-bender/atoms/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 

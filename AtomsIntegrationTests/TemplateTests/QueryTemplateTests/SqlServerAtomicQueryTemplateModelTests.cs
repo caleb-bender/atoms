@@ -45,5 +45,16 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(connectionString);
 		}
+
+		protected override async Task CreateOneModelWithIgnoredAsync(long id, string propertyReadFromButNotWrittenTo, string propertyNeitherReadFromNorWrittenTo)
+		{
+			using SqlConnection connection = new SqlConnection(connectionString);
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO ModelsWithIgnored(Id, PropertyReadFromButNotWrittenTo, PropertyNeitherReadFromNorWrittenTo)
+				VALUES ('{id}', '{propertyReadFromButNotWrittenTo}', '{propertyNeitherReadFromNorWrittenTo}')", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
+		}
 	}
 }

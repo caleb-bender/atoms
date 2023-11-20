@@ -222,6 +222,21 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			});
 		}
 
+		[Fact]
+		public async Task WhenWeQueryAllBlogPostTitlesUpFront_ThenTheResultsAreCorrect()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPost1, blogPost2, blogPost3, blogPost4);
+			// Act
+			var titles =
+				await blogPostTitleWithSpecificGenreAndTitleStartsWithLetterTemplate
+				.QueryAsync(new { Genre = BlogPost.BlogPostGenre.Fantasy, Title = "K%" });
+			// Assert
+			Assert.Equal(1, titles.Count());
+			foreach (var title in titles)
+				Assert.Equal(blogPost3.Title, title);
+		}
+
 		protected static Task ExceptionHandler(Exception err)
 		{
 			exceptionHandlerWasCalled = true;

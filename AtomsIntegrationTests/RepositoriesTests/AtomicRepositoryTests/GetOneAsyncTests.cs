@@ -198,7 +198,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			// Arrange
 			await CreateOneCustomerAddressAsync("+11234567890", "Los Angeles", "United States");
 			// Act
-			// Act
 			var customerAddressOption = await customerAddressRepo.GetOneAsync(new CustomerAddress { PhoneNumber = "+11234567890" });
 			// Assert
 			var customerAddressExists = Assert.IsType<AtomicOption<CustomerAddress>.Exists>(customerAddressOption);

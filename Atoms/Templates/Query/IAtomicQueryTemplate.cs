@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Atoms.Exceptions;
 
 namespace Atoms.Templates.Query
 {
@@ -23,6 +24,9 @@ namespace Atoms.Templates.Query
 		/// referenced by the template
 		/// </param>
 		/// <returns>An IAsyncEnumerable that can be iterated over asynchronously</returns>
+		/// <exception cref="DbEntityNotFoundException" />
+		/// <exception cref="ModelDbEntityMismatchException" />
+		/// <exception cref="ModelPropertyTypeMismatchException" />
 		IAsyncEnumerable<T> QueryLazy(object? parameters = null);
 	}
 }

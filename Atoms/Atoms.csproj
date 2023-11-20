@@ -2,10 +2,14 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible .NET Core ORM for SQL Server that is atomic and thread-safe</Description>
+    <PackageReleaseNotes>Add link to GitHub repository and add package icon.</PackageReleaseNotes>
+    <PackageIconUrl>https://github.com/caleb-bender/atoms/AtomsIcon.JPG</PackageIconUrl>
+    <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   
   <PropertyGroup>

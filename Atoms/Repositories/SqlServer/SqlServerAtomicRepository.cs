@@ -54,6 +54,7 @@ namespace Atoms.Repositories.SqlServer
 			}
 			catch (SqlException err)
 			{
+				TranslateOperandTypeClashError(err, typeof(TModel));
 				TranslateInvalidColumnNameError(err, typeof(TModel));
 				TranslateInvalidObjectNameError(err, typeof(TModel));
 				throw;

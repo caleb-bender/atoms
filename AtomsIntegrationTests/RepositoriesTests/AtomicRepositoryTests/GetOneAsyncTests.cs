@@ -354,7 +354,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			// Assert
 			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
 			{
-				await typeMismatch3Repo.DeleteOneAsync(typeMismatchModel3);
+				await typeMismatch3Repo.GetOneAsync(typeMismatchModel3);
 			});
 		}
 

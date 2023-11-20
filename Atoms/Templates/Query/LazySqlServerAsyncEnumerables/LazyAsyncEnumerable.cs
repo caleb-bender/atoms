@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
+using static Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
 namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
@@ -37,25 +38,60 @@ namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 
 		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken localCancellationToken = default)
 		{
-			localCancellationToken = cancellationToken;
-			using SqlConnection connection = new SqlConnection(connectionString);
-			connection.Open();
-			using SqlCommand queryCommand = new SqlCommand(sqlText, connection);
-			AddParametersIfTheyExist(queryCommand);
-			using var reader = await queryCommand.ExecuteReaderAsync(localCancellationToken);
-			while (await reader.ReadAsync(localCancellationToken))
+			var (connection, reader) = await GetConnectionAndDataReader();
+			try
 			{
-				T value = default(T);
-				try
+				while (await reader.ReadAsync(cancellationToken))
 				{
-					value = GetValueFromReader(reader);
+					T value = default(T);
+					try
+					{
+						value = GetValueFromReader(reader);
+					}
+					catch (Exception err)
+					{
+						if (ShouldHandleException(err))
+						{
+							if (exceptionHandler is not null)
+								await exceptionHandler.Invoke(err);
+							else
+								throw;
+						}
+					}
+					yield return value;
 				}
-				catch (Exception err) {
-					if (exceptionHandler is not null)
-						await exceptionHandler.Invoke(err);
-				}
-				yield return value;
 			}
+			finally
+			{
+				connection.Dispose();
+				reader.Dispose();
+			}
+			
+		}
+
+		private async Task<(SqlConnection, SqlDataReader)> GetConnectionAndDataReader()
+		{
+			var connection = new SqlConnection(connectionString);
+			try
+			{
+				connection.Open();
+				using SqlCommand queryCommand = new SqlCommand(sqlText, connection);
+				AddParametersIfTheyExist(queryCommand);
+				var reader = await queryCommand.ExecuteReaderAsync(cancellationToken);
+				return (connection, reader);
+			}
+			catch (SqlException sqlException)
+			{
+				connection.Dispose();
+				TranslateInvalidObjectNameError(sqlException, typeof(T));
+				throw;
+			}
+		}
+
+		private bool ShouldHandleException(Exception err)
+		{
+			return err is not InvalidCastException invalidCastException
+				|| !invalidCastException.Message.Contains("DBNull");
 		}
 
 		private void AddParametersIfTheyExist(SqlCommand queryCommand)

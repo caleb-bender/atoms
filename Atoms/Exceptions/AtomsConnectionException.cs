@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Exceptions
+namespace CalebBender.Atoms.Exceptions
 {
     /// <summary>
     /// This exception occurs when Atoms fails to connect to the database instance.

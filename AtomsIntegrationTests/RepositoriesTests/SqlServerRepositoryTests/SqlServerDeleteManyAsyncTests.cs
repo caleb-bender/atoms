@@ -1,4 +1,4 @@
-﻿using Atoms.Repositories.Factories;
+﻿using CalebBender.Atoms.Repositories.Factories;
 using AtomsIntegrationTests.Models;
 using AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests;
 using System;

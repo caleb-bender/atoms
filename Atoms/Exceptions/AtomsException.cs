@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Exceptions
+namespace CalebBender.Atoms.Exceptions
 {
 	/// <summary>
 	/// AtomsException is the base class for all exceptions that originate from Atoms ORM.

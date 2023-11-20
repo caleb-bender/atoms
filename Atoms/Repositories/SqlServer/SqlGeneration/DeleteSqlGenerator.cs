@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories.SqlServer.SqlGeneration
+namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 {
 	internal static class DeleteSqlGenerator<TModel>
 		where TModel : class, new()

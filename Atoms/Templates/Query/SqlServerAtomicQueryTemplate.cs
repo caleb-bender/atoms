@@ -1,7 +1,7 @@
-﻿using Atoms.Exceptions;
-using Atoms.Templates.Mutation;
-using Atoms.Templates.Query.LazySqlServerAsyncEnumerables;
-using Atoms.Utils.Reflection.Tuples;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Templates.Mutation;
+using CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables;
+using CalebBender.Atoms.Utils.Reflection.Tuples;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Templates.Query
+namespace CalebBender.Atoms.Templates.Query
 {
     internal class SqlServerAtomicQueryTemplate<T> : IAtomicQueryTemplate<T>
     {

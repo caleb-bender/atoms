@@ -1,9 +1,9 @@
-﻿using Atoms.Repositories;
-using Atoms.Repositories.Factories;
-using Atoms.Repositories.SqlServer;
-using Atoms.Repositories.SqlServer.SqlGeneration;
-using Atoms.Templates.Builders;
-using Atoms.Templates.Query;
+﻿using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Repositories.Factories;
+using CalebBender.Atoms.Repositories.SqlServer;
+using CalebBender.Atoms.Repositories.SqlServer.SqlGeneration;
+using CalebBender.Atoms.Templates.Builders;
+using CalebBender.Atoms.Templates.Query;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;

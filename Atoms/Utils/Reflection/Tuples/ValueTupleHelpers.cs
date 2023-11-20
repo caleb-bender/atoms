@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Utils.Reflection.Tuples
+namespace CalebBender.Atoms.Utils.Reflection.Tuples
 {
 	internal static class ValueTupleHelpers<T>
 	{

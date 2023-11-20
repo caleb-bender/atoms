@@ -1,13 +1,13 @@
-﻿using Atoms.Utils.Reflection.TypeMapping;
+﻿using CalebBender.Atoms.Utils.Reflection.TypeMapping;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
-namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
+namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
 	internal class ScalarAsyncEnumerable<T> : LazyAsyncEnumerable<T>
 	{

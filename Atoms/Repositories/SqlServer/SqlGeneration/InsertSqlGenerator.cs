@@ -1,4 +1,4 @@
-﻿using Atoms.DataAttributes;
+﻿using CalebBender.Atoms.DataAttributes;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories.SqlServer.SqlGeneration
+namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 {
 	internal static class InsertSqlGenerator<TModel>
 		where TModel : class, new()

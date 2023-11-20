@@ -1,7 +1,7 @@
-﻿using Atoms.Exceptions;
-using Atoms.Templates.Builders;
-using Atoms.Templates.Mutation;
-using Atoms.Templates.Query;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Templates.Builders;
+using CalebBender.Atoms.Templates.Mutation;
+using CalebBender.Atoms.Templates.Query;
 
 namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 {

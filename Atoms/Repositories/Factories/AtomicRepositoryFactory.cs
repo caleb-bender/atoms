@@ -1,6 +1,6 @@
-﻿using Atoms.DataAttributes;
-using Atoms.Exceptions;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.DataAttributes;
+using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -8,10 +8,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static Atoms.Utils.Reflection.AttributeCheckerHelpers;
-using static Atoms.Utils.Reflection.TypeCheckingHelpers;
+using static CalebBender.Atoms.Utils.Reflection.AttributeCheckerHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeCheckingHelpers;
 
-namespace Atoms.Repositories.Factories
+namespace CalebBender.Atoms.Repositories.Factories
 {
 	public abstract class AtomicRepositoryFactory<TModel> : IAtomicRepositoryFactory<TModel>
 		where TModel : class, new()

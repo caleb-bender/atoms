@@ -1,5 +1,5 @@
-﻿using Atoms.Exceptions;
-using Atoms.Repositories.SqlServer.SqlGeneration;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Repositories.SqlServer.SqlGeneration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories.SqlServer
+namespace CalebBender.Atoms.Repositories.SqlServer
 {
 	internal static class SqlServerErrorTranslators
 	{

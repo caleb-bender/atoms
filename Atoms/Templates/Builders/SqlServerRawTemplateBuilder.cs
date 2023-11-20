@@ -1,13 +1,13 @@
-﻿using Atoms.Exceptions;
-using Atoms.Templates.Query;
-using Atoms.Templates.Mutation;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Templates.Query;
+using CalebBender.Atoms.Templates.Mutation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Templates.Builders
+namespace CalebBender.Atoms.Templates.Builders
 {
 	/// <summary>
 	/// Build an IAtomicQueryTemplate by providing a custom connection string,

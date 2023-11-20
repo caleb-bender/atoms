@@ -1,12 +1,12 @@
-﻿using Atoms.Utils.Reflection.Scalars;
-using Atoms.Utils.Reflection.Tuples;
+﻿using CalebBender.Atoms.Utils.Reflection.Scalars;
+using CalebBender.Atoms.Utils.Reflection.Tuples;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
+namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
 	internal class LazyAsyncEnumerableFactory<T>
 	{

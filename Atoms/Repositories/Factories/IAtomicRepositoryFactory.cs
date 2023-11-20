@@ -1,12 +1,12 @@
-﻿using Atoms.Exceptions;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories.Factories
+namespace CalebBender.Atoms.Repositories.Factories
 {
     /// <summary>
     /// A stateless factory used to obtain an abstracted IAtomicRepository, but will validate that

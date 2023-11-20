@@ -1,5 +1,5 @@
-﻿using Atoms.Exceptions;
-using Atoms.Utils.Reflection.Tuples;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Utils.Reflection.Tuples;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,11 +7,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
-using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
-using static Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
+using static CalebBender.Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
+using static CalebBender.Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
-namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
+namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
 	internal abstract class LazyAsyncEnumerable<T> : IAsyncEnumerable<T>
 	{

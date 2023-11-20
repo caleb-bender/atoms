@@ -1,6 +1,6 @@
-﻿using Atoms.Repositories;
-using Atoms.Templates.Query;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Templates.Query;
+using CalebBender.Atoms.Utils;
 using AtomsIntegrationTests.Models;
 using System;
 using System.Collections.Generic;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.DataAttributes
+namespace CalebBender.Atoms.DataAttributes
 {
 	/// <summary>
 	/// This attribute is required on at least one of the properties of

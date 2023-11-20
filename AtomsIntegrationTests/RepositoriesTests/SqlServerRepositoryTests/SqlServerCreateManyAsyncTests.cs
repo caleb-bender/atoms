@@ -1,6 +1,6 @@
-﻿using Atoms.Repositories;
-using Atoms.Repositories.Factories;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Repositories.Factories;
+using CalebBender.Atoms.Utils;
 using AtomsIntegrationTests.Models;
 using AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests;
 using Dapper;

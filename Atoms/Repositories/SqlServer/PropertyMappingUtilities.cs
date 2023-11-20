@@ -1,13 +1,13 @@
-﻿using Atoms.DataAttributes;
-using Atoms.Exceptions;
+﻿using CalebBender.Atoms.DataAttributes;
+using CalebBender.Atoms.Exceptions;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Reflection;
-using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
-using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
+using static CalebBender.Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
-namespace Atoms.Repositories.SqlServer
+namespace CalebBender.Atoms.Repositories.SqlServer
 {
 	internal static class PropertyMappingUtilities<TModel>
 	{

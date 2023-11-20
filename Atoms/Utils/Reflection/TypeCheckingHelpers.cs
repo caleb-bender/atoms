@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Utils.Reflection
+namespace CalebBender.Atoms.Utils.Reflection
 {
 	internal static class TypeCheckingHelpers
 	{

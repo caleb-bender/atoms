@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Utils
+namespace CalebBender.Atoms.Utils
 {
     /// <summary>
     /// AtomicOption represents an object returned from an atomic operation that may or may not have a value.

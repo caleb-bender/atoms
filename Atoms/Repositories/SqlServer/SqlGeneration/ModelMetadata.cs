@@ -1,14 +1,14 @@
-﻿using Atoms.DataAttributes;
+﻿using CalebBender.Atoms.DataAttributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static Atoms.Utils.Reflection.AttributeCheckerHelpers;
-using static Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static CalebBender.Atoms.Utils.Reflection.AttributeCheckerHelpers;
+using static CalebBender.Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
 
-namespace Atoms.Repositories.SqlServer.SqlGeneration
+namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 {
 	internal static class ModelMetadata<TModel>
 		where TModel : class, new()

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.DataAttributes
+namespace CalebBender.Atoms.DataAttributes
 {
 	/// <summary>
 	/// If one or more property names in your data model class

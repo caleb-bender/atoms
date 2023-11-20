@@ -1,4 +1,4 @@
-﻿namespace Atoms.Utils.Reflection.Scalars
+﻿namespace CalebBender.Atoms.Utils.Reflection.Scalars
 {
 	internal static class ScalarHelpers<T>
 	{

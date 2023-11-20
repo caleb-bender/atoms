@@ -1,7 +1,7 @@
-﻿using Atoms.Exceptions;
-using Atoms.Repositories;
-using Atoms.Repositories.Factories;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Repositories.Factories;
+using CalebBender.Atoms.Utils;
 using AtomsIntegrationTests.Models;
 
 namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests

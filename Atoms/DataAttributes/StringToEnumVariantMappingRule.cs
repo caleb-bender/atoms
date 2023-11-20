@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.DataAttributes
+namespace CalebBender.Atoms.DataAttributes
 {
 	/// <summary>
 	/// If you have a string database property with unreadable or cryptic values

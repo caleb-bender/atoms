@@ -1,14 +1,14 @@
-﻿using Atoms.Exceptions;
-using Atoms.Repositories.SqlServer;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Repositories.SqlServer;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
+using static CalebBender.Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
-namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
+namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
 	internal class DataModelAsyncEnumerable<TModel> : LazyAsyncEnumerable<TModel>
 	{

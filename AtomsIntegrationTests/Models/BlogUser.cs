@@ -1,4 +1,4 @@
-﻿using Atoms.DataAttributes;
+﻿using CalebBender.Atoms.DataAttributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.DataAttributes
+namespace CalebBender.Atoms.DataAttributes
 {
 	/// <summary>
 	/// If the name of the database entity in question does not equal the plural of its

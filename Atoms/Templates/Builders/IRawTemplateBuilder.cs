@@ -1,7 +1,7 @@
-﻿using Atoms.Templates.Mutation;
-using Atoms.Templates.Query;
+﻿using CalebBender.Atoms.Templates.Mutation;
+using CalebBender.Atoms.Templates.Query;
 
-namespace Atoms.Templates.Builders
+namespace CalebBender.Atoms.Templates.Builders
 {
 	/// <summary>
 	/// Defines an interface for objects that are used to build

@@ -1,11 +1,11 @@
-﻿using Atoms.Exceptions;
-using Atoms.Repositories.SqlServer.SqlGeneration;
-using Atoms.Utils;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Repositories.SqlServer.SqlGeneration;
+using CalebBender.Atoms.Utils;
 using System.Data.SqlClient;
 using System.Reflection;
-using static Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
+using static CalebBender.Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
-namespace Atoms.Repositories.SqlServer
+namespace CalebBender.Atoms.Repositories.SqlServer
 {
     internal class SqlServerAtomicRepository<TModel> : IAtomicRepository<TModel>
 		where TModel : class, new()

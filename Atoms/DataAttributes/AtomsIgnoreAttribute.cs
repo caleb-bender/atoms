@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.DataAttributes
+namespace CalebBender.Atoms.DataAttributes
 {
 	/// <summary>
 	/// Annotate a property of a data model class to ignore the property when retrieving/saving. By default, the property is ignored on both reads and

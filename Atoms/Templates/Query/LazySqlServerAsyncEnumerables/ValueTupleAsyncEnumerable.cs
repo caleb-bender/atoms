@@ -1,12 +1,12 @@
-﻿using Atoms.Exceptions;
-using Atoms.Utils.Reflection.Tuples;
-using Atoms.Utils.Reflection.TypeMapping;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Utils.Reflection.Tuples;
+using CalebBender.Atoms.Utils.Reflection.TypeMapping;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
-namespace Atoms.Templates.Query.LazySqlServerAsyncEnumerables
+namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 {
 	internal class ValueTupleAsyncEnumerable<T> : LazyAsyncEnumerable<T>
 	{

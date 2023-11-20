@@ -1,5 +1,5 @@
-﻿using Atoms.DataAttributes;
-using Atoms.Repositories.SqlServer;
+﻿using CalebBender.Atoms.DataAttributes;
+using CalebBender.Atoms.Repositories.SqlServer;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Utils.Reflection.TypeMapping
+namespace CalebBender.Atoms.Utils.Reflection.TypeMapping
 {
 	internal static class EnumMappingHelpers
 	{

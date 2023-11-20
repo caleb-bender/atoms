@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Templates.Mutation
+namespace CalebBender.Atoms.Templates.Mutation
 {
 	internal class SqlServerAtomicMutationTemplate : IAtomicMutationTemplate
 	{

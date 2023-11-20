@@ -1,6 +1,6 @@
-﻿using Atoms.Exceptions;
-using Atoms.Repositories;
-using Atoms.Templates.Query;
+﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Templates.Query;
 using AtomsIntegrationTests.Models;
 
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests

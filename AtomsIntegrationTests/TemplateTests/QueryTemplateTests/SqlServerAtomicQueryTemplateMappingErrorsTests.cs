@@ -1,6 +1,6 @@
-﻿using Atoms.Repositories.Factories;
-using Atoms.Repositories;
-using Atoms.Templates.Query;
+﻿using CalebBender.Atoms.Repositories.Factories;
+using CalebBender.Atoms.Repositories;
+using CalebBender.Atoms.Templates.Query;
 using AtomsIntegrationTests.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
-using Atoms.Templates.Builders;
+using CalebBender.Atoms.Templates.Builders;
 
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {

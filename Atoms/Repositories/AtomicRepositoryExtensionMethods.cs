@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Repositories
+namespace CalebBender.Atoms.Repositories
 {
 	public static class AtomicRepositoryExtensionMethods
 	{

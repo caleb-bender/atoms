@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Atoms.Utils
+namespace CalebBender.Atoms.Utils
 {
     /// <summary>
     /// AtomicResult represents the result of an atomic operation.

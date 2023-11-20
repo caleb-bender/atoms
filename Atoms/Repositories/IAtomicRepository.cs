@@ -1,7 +1,7 @@
-﻿using Atoms.Utils;
-using Atoms.Exceptions;
+﻿using CalebBender.Atoms.Utils;
+using CalebBender.Atoms.Exceptions;
 
-namespace Atoms.Repositories
+namespace CalebBender.Atoms.Repositories
 {
 	/// <summary>
 	/// An stateless object used for basic CRUD operations on a data model class.

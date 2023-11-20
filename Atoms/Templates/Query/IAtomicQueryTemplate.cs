@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Atoms.Exceptions;
+using CalebBender.Atoms.Exceptions;
 
-namespace Atoms.Templates.Query
+namespace CalebBender.Atoms.Templates.Query
 {
 	/// <summary>
 	/// A stateless query template used for reusing a constant query

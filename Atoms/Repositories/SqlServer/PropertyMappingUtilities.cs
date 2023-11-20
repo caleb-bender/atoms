@@ -10,9 +10,8 @@ using static Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 namespace Atoms.Repositories.SqlServer
 {
 	internal static class PropertyMappingUtilities<TModel>
-		where TModel : class, new()
 	{
-
+		private static readonly Type type = typeof(TModel);
 		private static readonly IEnumerable<PropertyInfo> modelPublicProperties = GetAllPublicProperties(typeof(TModel));
 
 
@@ -30,7 +29,9 @@ namespace Atoms.Repositories.SqlServer
 
 		internal static TModel GetModelWithMappedProperties(SqlDataReader reader)
 		{
-			var model = new TModel();
+			var modelConstructor = type.GetConstructor(Type.EmptyTypes);
+			if (modelConstructor is null) throw new InvalidOperationException($"The type \"{type.Name}\" is not a valid data model class. It must be a class with a parameterless constructor.");
+			TModel model = (TModel)modelConstructor.Invoke(null);
 			foreach (var modelProperty in modelPublicProperties)
 			{
 				if (PropertyShouldNotBeReadFromDatabase(modelProperty)) continue;

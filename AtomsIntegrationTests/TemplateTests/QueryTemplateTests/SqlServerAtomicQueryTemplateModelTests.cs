@@ -14,6 +14,7 @@ using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {
+	[Collection("SqlServerDBTests")]
 	public class SqlServerAtomicQueryTemplateModelTests : AtomicQueryTemplateModelTests
 	{
 		private static readonly string connectionString = GetConnectionString();
@@ -23,8 +24,13 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlCommand command = new SqlCommand(
-				@"DELETE FROM BlogPostAuthors;"
+				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
+				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;
+				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;
+				DELETE FROM ModelsWithIgnored; DELETE FROM JobPostings;",
+				connection
 			);
+			command.ExecuteNonQuery();
 		}
 
 		protected override IAtomicQueryTemplate<T> GetAtomicQueryTemplate<T>()

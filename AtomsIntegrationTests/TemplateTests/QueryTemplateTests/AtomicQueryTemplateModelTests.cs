@@ -26,6 +26,29 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			Assert.Equal(0, numberOfResults);
 		}
 
+		[Fact]
+		public async Task GivenSomeBlogPostAuthorsExist_WhenWeLazilyQueryBlogPostAuthors_ThenTheyAreRetrieved()
+		{
+			// Arrange
+			var blogPostAuthors = new[]
+			{
+				new BlogPostAuthor { AuthorId = 1L, AuthorName = "Bob Doe", AuthorSinceDate = DateTime.Today },
+				new BlogPostAuthor { AuthorId = 2L, AuthorName = "Jane Smith", AuthorSinceDate = DateTime.Today }
+			};
+			var blogPostAuthorRepo = GetAtomicRepository<BlogPostAuthor>();
+			await blogPostAuthorRepo.CreateManyAsync(blogPostAuthors);
+			var blogPostAuthorTemplate = GetAtomicQueryTemplate<BlogPostAuthor>();
+			// Act
+			var lazyAuthors = blogPostAuthorTemplate.QueryLazy();
+			// Assert
+			int i = 0;
+			await foreach (var author in lazyAuthors)
+			{
+				Assert.Equal(blogPostAuthors[i].AuthorName, author.AuthorName);
+				i++;
+			}
+		}
+
 		public void Dispose()
 		{
 			Cleanup();

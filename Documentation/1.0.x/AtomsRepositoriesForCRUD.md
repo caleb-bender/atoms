@@ -20,7 +20,7 @@ As of version 1.0.x, the following `IAtomicRepositoryFactory<TModel>` implementa
 ```
 SqlServerAtomicRepositoryFactory<TModel>
 ```
-Suppose you have an ASP.NET Core Web API project and you want to register an `IAtomicRepository<TModel>` using the .NET Dependency Injection Container. Since each `IAtomicRepository<TModel>` is a completely stateless object, it makes sense to register a singleton for each type of repository. As a result, the code in your `Program.cs` file might look something like this:
+Suppose you have an ASP.NET Core Web API project and you want to register an `IAtomicRepository<TModel>` using the .NET Dependency Injection Container. Since each `IAtomicRepository<TModel>` contains only immutable state, it makes sense to register a singleton for each data model type. As a result, the code in your `Program.cs` file might look something like this:
 ```csharp
 using CalebBender.Atoms.Repositories.Factories;
 using MyBlogProject.Models;

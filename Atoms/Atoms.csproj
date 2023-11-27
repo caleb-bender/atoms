@@ -1,15 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
-    <Description>A flexible .NET Core ORM for SQL Server that is atomic and mostly thread-safe</Description>
-    <PackageReleaseNotes>The url for the package icon was fixed</PackageReleaseNotes>
+    <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
+    <PackageReleaseNotes>API Documentation for versions 1.0.x is now available</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageDocumentationUrl>https://github.com/caleb-bender/atoms/blob/main/README.md</PackageDocumentationUrl>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -21,6 +24,10 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>

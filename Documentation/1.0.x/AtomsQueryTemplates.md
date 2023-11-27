@@ -1,7 +1,7 @@
 # Atoms Query Template Documentation (1.0.x)
-If you haven't already read the [Atoms Data Model Classes]() documentation, please do so since it will make understanding the `IAtomicQueryTemplate<T>` interface and any related documentation much easier to grasp, at least as it pertains to data model classes.
+If you haven't already read the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/1.0.x/AtomsDataModelClasses.md) documentation, please do so since it will make understanding the `IAtomicQueryTemplate<T>` interface and any related documentation much easier to grasp, at least as it pertains to data model classes.
 ## Introduction
-If you have already read through the [Atomic Repositories for CRUD]() documentation, you will recall that the `IAtomicRepository<TModel>` interface only contains a `GetOneAsync` method, used to obtain a distinct data model from the database. What if you want to query multiple data models, or a subset of a data model's properties, or a single scalar? Moreover, what if you have specific filtering criteria? This is where the `IAtomicQueryTemplate<T>` comes in. Its definition is very simple:
+If you have already read through the [Atomic Repositories for CRUD](https://github.com/caleb-bender/atoms/blob/main/Documentation/1.0.x/AtomsRepositoriesForCRUD.md) documentation, you will recall that the `IAtomicRepository<TModel>` interface only contains a `GetOneAsync` method, used to obtain a distinct data model from the database. What if you want to query multiple data models, or a subset of a data model's properties, or a single scalar? Moreover, what if you have specific filtering criteria? This is where the `IAtomicQueryTemplate<T>` comes in. Its definition is very simple:
 ```csharp
 namespace CalebBender.Atoms.Templates.Query
 {

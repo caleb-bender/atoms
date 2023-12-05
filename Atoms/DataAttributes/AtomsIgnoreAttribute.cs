@@ -15,5 +15,6 @@ namespace CalebBender.Atoms.DataAttributes
 	public class AtomsIgnoreAttribute : Attribute
 	{
 		public bool ReadFromDatabase { get; init; } = false;
+		public bool OnlyAllowWriteOnCreation { get; init; } = false;
 	}
 }

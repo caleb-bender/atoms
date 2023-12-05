@@ -12,6 +12,8 @@ namespace AtomsIntegrationTests.Models
 	{
 		[UniqueId]
 		public long Id { get; set; }
+		[AtomsIgnore(ReadFromDatabase = true, OnlyAllowWriteOnCreation = true)]
+		public string? PropertyWrittenAtCreationAndReadOnlyThereafter { get; set; } = "default";
 		[AtomsIgnore(ReadFromDatabase = true)]
 		public string? PropertyReadFromButNotWrittenTo { get; set; } = "default";
 		[AtomsIgnore]

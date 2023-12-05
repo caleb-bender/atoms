@@ -214,6 +214,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Null(retrievedModel.PropertyReadFromButNotWrittenTo);
 			// This one is not read from so will be default
 			Assert.Equal("default", retrievedModel.PropertyNeitherReadFromNorWrittenTo);
+			// This one is written to initially so it will be default
+			Assert.Equal("default", retrievedModel.PropertyWrittenAtCreationAndReadOnlyThereafter);
 		}
 
 		[Fact]

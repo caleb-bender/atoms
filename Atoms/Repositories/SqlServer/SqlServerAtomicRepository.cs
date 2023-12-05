@@ -61,16 +61,17 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 			}
 		}
 
-		public async Task DeleteManyAsync(IEnumerable<TModel> models)
+		public async Task<int> DeleteManyAsync(IEnumerable<TModel> models)
 		{
-			if (models is null || models.Count() == 0) return;
+			if (models is null || models.Count() == 0) return 0;
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlTransaction transaction = connection.BeginTransaction();
 			try
 			{
-				await DeleteModelsAsync(transaction, models);
+				var numberOfRowsDeleted = await DeleteModelsAsync(transaction, models);
 				await transaction.CommitAsync();
+				return numberOfRowsDeleted;
 			}
 			catch (SqlException sqlException)
 			{
@@ -115,14 +116,14 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 			}
 		}
 
-		private async Task DeleteModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
+		private async Task<int> DeleteModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (deleteSqlText, deleteParameters) =
 				DeleteSqlGenerator<TModel>.GetDeleteTextAndParameters(models);
 			using SqlCommand deleteCommand = new SqlCommand(deleteSqlText, transaction.Connection);
 			deleteCommand.Parameters.AddRange(deleteParameters.ToArray());
 			deleteCommand.Transaction = transaction;
-			await deleteCommand.ExecuteNonQueryAsync();
+			return await deleteCommand.ExecuteNonQueryAsync();
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace CalebBender.Atoms.Repositories
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
-		Task DeleteManyAsync(IEnumerable<TModel> models);
+		Task<int> DeleteManyAsync(IEnumerable<TModel> models);
 		/// <summary>
 		/// Gets a single data model class from the database or null, wrapped inside
 		/// an AtomicOption for strict null-checking.

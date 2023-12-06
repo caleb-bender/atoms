@@ -21,5 +21,6 @@ namespace CalebBender.Atoms.Templates.Builders
 		IRawTemplateBuilder SetConnectionString(string connectionString);
 		IRawTemplateBuilder SetExceptionHandler(Func<Exception, Task> exceptionHandler);
 		IRawTemplateBuilder SetQueryText(string queryText);
+		IRawTemplateBuilder SetMutationText(string mutationText);
 	}
 }

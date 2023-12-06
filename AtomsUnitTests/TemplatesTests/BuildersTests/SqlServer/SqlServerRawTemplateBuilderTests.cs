@@ -109,6 +109,19 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		}
 
 		[Fact]
+		public void WhenWeGetMutationTemplateWithoutDefiningAConnectionString_ThenAConnectionStringMissingExceptionIsThrown()
+		{
+			// Assert
+			Assert.Throws<ConnectionStringMissingException>(() =>
+			{
+				var queryTemplate = new SqlServerRawTemplateBuilder()
+				.SetMutationText("SQL")
+				.SetExceptionHandler(ExceptionHandler1)
+				.GetMutationTemplate();
+			});
+		}
+
+		[Fact]
 		public void WhenWeGetQueryTemplateWithoutDefiningTheQueryText_ThenQueryTextMissingExceptionIsThrown()
 		{
 			Assert.Throws<QueryTextMissingException>(() =>
@@ -121,7 +134,19 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 		}
 
 		[Fact]
-		public void WhenWeDefineACustomCancellationToken_And_GetQueryTemplate_ThenTheQueryTemplatesContainTheToken()
+		public void WhenWeGetMutationTemplateWithoutDefiningTheMutationText_ThenMutationTextMissingExceptionIsThrown()
+		{
+			Assert.Throws<MutationTextMissingException>(() =>
+			{
+				var mutationTemplate = new SqlServerRawTemplateBuilder()
+				.SetConnectionString("connection")
+				.SetExceptionHandler(ExceptionHandler1)
+				.GetMutationTemplate();
+			});
+		}
+
+		[Fact]
+		public void WhenWeDefineACustomCancellationToken_And_GetTemplates_ThenTheTemplatesContainTheToken()
 		{
 			// Arrange
 			var cancellationTokenSource = new CancellationTokenSource();

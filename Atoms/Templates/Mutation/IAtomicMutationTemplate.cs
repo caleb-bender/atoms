@@ -8,6 +8,6 @@ namespace CalebBender.Atoms.Templates.Mutation
 {
 	public interface IAtomicMutationTemplate
 	{
-		Task MutateAsync(object? parameters = null);
+		Task<int> MutateAsync(object? parameters = null);
 	}
 }

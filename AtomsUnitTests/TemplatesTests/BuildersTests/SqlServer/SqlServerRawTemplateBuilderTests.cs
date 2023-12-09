@@ -27,7 +27,7 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 
 			var mutationTemplate = new SqlServerRawTemplateBuilder()
 				.SetConnectionString("connection")
-				.SetQueryText("SQL")
+				.SetMutationText("SQL")
 				.GetMutationTemplate();
 
 			// Assert
@@ -48,7 +48,7 @@ namespace AtomsUnitTests.TemplatesTests.BuildersTests.SqlServer
 				.GetQueryTemplate<int>();
 			var mutationTemplate = new SqlServerRawTemplateBuilder()
 				.SetConnectionString("connection")
-				.SetQueryText("SQL")
+				.SetMutationText("SQL")
 				.GetMutationTemplate();
 			// Assert
 			var sqlServerQueryTemplate = Assert.IsType<SqlServerAtomicQueryTemplate<int>>(queryTemplate);

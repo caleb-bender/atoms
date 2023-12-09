@@ -27,6 +27,32 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
 		}
 
+		protected override IAtomicMutationTemplate GetDeleteBlogUserMutationTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(GetConnectionString())
+				.SetMutationText("DELETE FROM TheBlogUsers WHERE UserId = @UserId")
+				.GetMutationTemplate();
+		}
+
+		protected override IAtomicMutationTemplate GetMutationTemplateWithCustomCancellationToken()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(GetConnectionString())
+				.SetMutationText("UPDATE TheBlogUsers SET UserRole = 'Reader'")
+				.SetCancellationToken(customCancellationTokenSource.Token)
+				.GetMutationTemplate();
+		}
+
+		protected override IAtomicMutationTemplate GetMutationTemplateWithCustomExceptionHandler()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(GetConnectionString())
+				.SetMutationText($"syntax error")
+				.SetExceptionHandler(CustomExceptionHandler)
+				.GetMutationTemplate();
+		}
+
 		protected override IAtomicMutationTemplate GetUpdateSingleBlogUserMutationTemplate(long userId, string groupName)
 		{
 			return new SqlServerRawTemplateBuilder()

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static CalebBender.Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
 namespace CalebBender.Atoms.Templates.Mutation
 {
@@ -23,15 +26,30 @@ namespace CalebBender.Atoms.Templates.Mutation
 			{
 				using SqlCommand mutationCommand = new SqlCommand(SqlText, connection);
 				mutationCommand.Transaction = transaction;
-				await mutationCommand.ExecuteNonQueryAsync();
+				AddParametersIfTheyExist(parameters, mutationCommand);
+				var numberOfEntriesModified = await mutationCommand.ExecuteNonQueryAsync(CancellationToken);
 				await transaction.CommitAsync();
+				return numberOfEntriesModified;
 			}
 			catch (SqlException sqlException)
 			{
 				await transaction.RollbackAsync();
-				throw;
+				if (ExceptionHandler is null) throw;
+				await ExceptionHandler.Invoke(sqlException);
+				return 0;
 			}
-			return 1;
+		}
+
+		private static void AddParametersIfTheyExist(object? parameters, SqlCommand mutationCommand)
+		{
+			if (parameters is null) return;
+			var parameterObjectProperties = GetAllPublicProperties(parameters.GetType());
+			foreach (var property in parameterObjectProperties)
+			{
+				var propertyValue =
+					IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, parameters);
+				mutationCommand.Parameters.AddWithValue("@" + property.Name, propertyValue);
+			}
 		}
 	}
 }

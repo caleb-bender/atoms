@@ -14,6 +14,8 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 	public abstract class BasicAtomicMutationTemplateTests : IDisposable
 	{
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;
+		private readonly IAtomicRepository<BlogPost> blogPostRepo;
+		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
 		private static bool customExceptionHandlerWasCalled = false;
 		protected static CancellationTokenSource customCancellationTokenSource = new CancellationTokenSource();
 
@@ -21,9 +23,18 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 		BlogUser blogUser2 = new BlogUser { UserId = 1L, GroupName = "Group 2" };
 		BlogUser blogUser3 = new BlogUser { UserId = 2L, GroupName = "Group 2" };
 
+		BlogPost blogPost = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror };
+		BlogPost blogPost2 = new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Scifi };
+
+		CustomerOrder customerOrder = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.Unknown };
+		CustomerOrder customerOrder2 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.Unknown };
+		CustomerOrder customerOrder3 = new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.Unknown };
+
 		public BasicAtomicMutationTemplateTests()
 		{
 			blogUserRepo = GetAtomicRepository<BlogUser>();
+			blogPostRepo = GetAtomicRepository<BlogPost>();
+			customerOrderRepo = GetAtomicRepository<CustomerOrder>();
 		}
 
 		[Fact]
@@ -98,9 +109,39 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 			await blogUserRepo.CreateManyAsync(blogUser, blogUser2, blogUser3);
 			var deleteBlogUserMutationTemplate = GetDeleteBlogUserMutationTemplate();
 			// Act
-			var numberOfEntriedDeleted = await deleteBlogUserMutationTemplate.MutateAsync(new { UserId = blogUser3.UserId });
+			var numberOfEntriedDeleted = await deleteBlogUserMutationTemplate.MutateAsync(new { blogUser3.UserId });
 			// Assert
 			Assert.Equal(1, numberOfEntriedDeleted);
+		}
+
+		[Fact]
+		public async Task GivenAFewBlogPosts_WhenWeExecuteMutationTemplateThatUpdatesASingleBlogPostsGenre_ThenOneBlogPostsIsUpdated()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPost, blogPost2);
+			var updateSingleBlogPostGenreMutationTemplate = GetUpdateSingleBlogPostGenreMutationTemplate();
+			// Act
+			var numberUpdated = await updateSingleBlogPostGenreMutationTemplate.MutateAsync(new { blogPost.PostId, blogPost.Genre, NewGenre = BlogPost.BlogPostGenre.Thriller });
+			// Assert
+			Assert.Equal(1, numberUpdated);
+			var retrievedBlogPostOption = await blogPostRepo.GetOneAsync(new BlogPost { PostId = blogPost.PostId, Genre = BlogPost.BlogPostGenre.Thriller });
+			var retrievedBlogPost = Assert.IsType<AtomicOption<BlogPost>.Exists>(retrievedBlogPostOption).Value;
+			Assert.Equal(BlogPost.BlogPostGenre.Thriller, retrievedBlogPost.Genre);
+		}
+
+		[Fact]
+		public async Task GivenAFewCustomerOrders_WhenWeExecuteMutationTemplateThatUpdatesFulfillmentTypeWithParameter_ThenEachCustomerOrderIsUpdated()
+		{
+			// Arrange
+			await customerOrderRepo.CreateManyAsync(customerOrder, customerOrder2, customerOrder3);
+			var updateFulfillmentTypeMutationTemplate = GetUpdateFulfillmentTypeMutationTemplate();
+			// Act
+			var numberUpdated = await updateFulfillmentTypeMutationTemplate.MutateAsync(new { FulfillmentType = CustomerOrder.FulfillmentTypes.Delivery });
+			// Assert
+			Assert.Equal(3, numberUpdated);
+			var updatedCustomerOrders = await GetAllCustomerOrders();
+			foreach (var updatedCustomerOrder in updatedCustomerOrders)
+				Assert.Equal(CustomerOrder.FulfillmentTypes.Delivery, updatedCustomerOrder.FulfillmentType);
 		}
 
 		protected static Task CustomExceptionHandler(Exception err)
@@ -114,6 +155,9 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 		protected abstract IAtomicMutationTemplate GetMutationTemplateWithCustomExceptionHandler();
 		protected abstract IAtomicMutationTemplate GetMutationTemplateWithCustomCancellationToken();
 		protected abstract IAtomicMutationTemplate GetDeleteBlogUserMutationTemplate();
+		protected abstract IAtomicMutationTemplate GetUpdateSingleBlogPostGenreMutationTemplate();
+		protected abstract IAtomicMutationTemplate GetUpdateFulfillmentTypeMutationTemplate();
+		protected abstract Task<IEnumerable<CustomerOrder>> GetAllCustomerOrders();
 		protected abstract void Cleanup();
 
 		public void Dispose()

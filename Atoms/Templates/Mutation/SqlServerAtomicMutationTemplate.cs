@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CalebBender.Atoms.Templates.Parameters;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -24,9 +25,11 @@ namespace CalebBender.Atoms.Templates.Mutation
 			using SqlTransaction transaction = connection.BeginTransaction();
 			try
 			{
-				using SqlCommand mutationCommand = new SqlCommand(SqlText, connection);
+				using SqlCommand mutationCommand = connection.CreateCommand();
 				mutationCommand.Transaction = transaction;
-				AddParametersIfTheyExist(parameters, mutationCommand);
+				var parameterizer = new SqlServerTemplateParameterizer(SqlText, parameters);
+				var expandedSqlText = parameterizer.AddParametersAndGetExpandedSqlText(mutationCommand);
+				mutationCommand.CommandText = expandedSqlText;
 				var numberOfEntriesModified = await mutationCommand.ExecuteNonQueryAsync(CancellationToken);
 				await transaction.CommitAsync();
 				return numberOfEntriesModified;
@@ -37,18 +40,6 @@ namespace CalebBender.Atoms.Templates.Mutation
 				if (ExceptionHandler is null) throw;
 				await ExceptionHandler.Invoke(sqlException);
 				return 0;
-			}
-		}
-
-		private static void AddParametersIfTheyExist(object? parameters, SqlCommand mutationCommand)
-		{
-			if (parameters is null) return;
-			var parameterObjectProperties = GetAllPublicProperties(parameters.GetType());
-			foreach (var property in parameterObjectProperties)
-			{
-				var propertyValue =
-					IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, parameters);
-				mutationCommand.Parameters.AddWithValue("@" + property.Name, propertyValue);
 			}
 		}
 	}

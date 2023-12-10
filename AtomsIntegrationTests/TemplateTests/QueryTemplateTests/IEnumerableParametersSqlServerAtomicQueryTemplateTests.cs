@@ -15,33 +15,8 @@ using static AtomsIntegrationTests.Models.BlogPost;
 namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 {
 	[Collection("SqlServerDBTests")]
-	public class IEnumerableParametersSqlServerAtomicQueryTemplateTests : IDisposable
+	public class IEnumerableParametersSqlServerAtomicQueryTemplateTests : IEnumerableParametersTemplateTests
 	{
-		private readonly IAtomicRepository<BlogPost> blogPostRepo;
-		private readonly BlogPost[] blogPosts = new[]
-		{
-			new BlogPost { PostId = 1L, Genre = BlogPostGenre.Fantasy, Title = "1" },
-			new BlogPost { PostId = 2L, Genre = BlogPostGenre.Horror, Title = "2" },
-			new BlogPost { PostId = 3L, Genre = BlogPostGenre.Thriller, Title = "3" },
-			new BlogPost { PostId = 4L, Genre = BlogPostGenre.Scifi, Title = "4" }
-		};
-
-		private readonly IAtomicRepository<CustomerOrder> customerOrderRepo;
-		private readonly List<CustomerOrder> customerOrders = new List<CustomerOrder>
-		{
-			new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.Unknown },
-			new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByThirdParty },
-			new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByCustomer },
-			new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.Delivery }
-		};
-
-		public IEnumerableParametersSqlServerAtomicQueryTemplateTests()
-		{
-			blogPostRepo = GetAtomicRepository<BlogPost>();
-			customerOrderRepo = GetAtomicRepository<CustomerOrder>();
-		}
-
-
 		[Fact]
 		public async Task GivenSomeBlogPosts_WhenWeQueryThemUsingTemplate_ThenCorrectBlogPostsAreReturned()
 		{
@@ -88,7 +63,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			await blogPostRepo.CreateManyAsync(blogPosts);
 			var blogPostQueryTemplateWithMultipleClauses = GetBlogPostQueryTemplateWithMultipleClauses();
 			var Genres = new[] { BlogPostGenre.Horror, BlogPostGenre.Scifi };
-			var Titles = new[] { "1", "2" };
+			var Titles = new[] { "2" };
 			// Act
 			var queriedBlogPosts =
 				await blogPostQueryTemplateWithMultipleClauses.QueryAsync(new { Genres, Titles });
@@ -122,12 +97,12 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				.GetQueryTemplate<BlogPost>();
 		}
 
-		private IAtomicRepository<T> GetAtomicRepository<T>() where T : class, new()
+		protected override IAtomicRepository<T> GetAtomicRepository<T>()
 		{
 			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
 		}
 
-		private void Cleanup()
+		protected override void Cleanup()
 		{
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
@@ -136,11 +111,6 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				connection
 			);
 			command.ExecuteNonQuery();
-		}
-
-		public void Dispose()
-		{
-			Cleanup();
 		}
 	}
 }

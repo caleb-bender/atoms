@@ -35,40 +35,40 @@ namespace CalebBender.Atoms.Templates.Parameters
 			{
 				var propertyValue =
 					IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, parameters);
-				expandedSqlText = AddEachParameterAndGetExpandedSqlText(command, property, propertyValue);	
+				expandedSqlText = AddEachParameterAndGetExpandedSqlText(command, property, propertyValue, expandedSqlText);	
 			}
 			return expandedSqlText;
 		}
 
 
-		private string AddEachParameterAndGetExpandedSqlText(SqlCommand command, PropertyInfo property, object? propertyValue)
+		private string AddEachParameterAndGetExpandedSqlText(SqlCommand command, PropertyInfo property, object? propertyValue, string expandedSqlText)
 		{
-			var expandedSqlText = sqlText;
 			var (isEnumerable, enumerable) = IsIEnumerable(propertyValue);
+			var propertyName = "@" + property.Name;
 			if (!isEnumerable)
 			{
-				command.Parameters.AddWithValue("@" + property.Name, propertyValue);
+				command.Parameters.AddWithValue(propertyName, propertyValue);
 				return expandedSqlText;
 			}
 			var enumerableOfValues = enumerable.Cast<object>();
-			expandedSqlText = GetSqlTextWithExpandedIEnumerableParameters(enumerableOfValues);
+			expandedSqlText = GetSqlTextWithExpandedIEnumerableParameters(propertyName, enumerableOfValues, expandedSqlText);
 			int i = 0;
 			foreach (var value in enumerableOfValues)
 			{
 				var convertedValue = IfEnumConvertToStringElseReturnOriginalValue(value);
-				command.Parameters.AddWithValue("@" + property.Name + i, convertedValue);
+				command.Parameters.AddWithValue(propertyName + i, convertedValue);
 				i++;
 			}
 			return expandedSqlText;
 		}
-		private string GetSqlTextWithExpandedIEnumerableParameters(IEnumerable<object> enumerableOfValues)
+		private string GetSqlTextWithExpandedIEnumerableParameters(string propertyName, IEnumerable<object> enumerableOfValues, string expandedSqlText)
 		{
 			var regex = new Regex(" (I|i)(N|n) (@\\w+)");
 			var matches = regex.Matches(sqlText);
-			var expandedSqlText = sqlText;
 			foreach (Match match in matches)
 			{
 				var enumerableParameterName = match.Groups[3].Value;
+				if (enumerableParameterName != propertyName) continue;
 				int i = 0;
 				var expandedParameterNames = enumerableOfValues.Select(v => enumerableParameterName + i++).ToArray();
 				string expandedParameters = "(" + string.Join(',', expandedParameterNames) + ")";

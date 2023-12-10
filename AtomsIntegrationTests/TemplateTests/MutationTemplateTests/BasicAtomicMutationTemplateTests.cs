@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 {
-	[Collection("SqlServerDBTests")]
 	public abstract class BasicAtomicMutationTemplateTests : IDisposable
 	{
 		private readonly IAtomicRepository<BlogUser> blogUserRepo;

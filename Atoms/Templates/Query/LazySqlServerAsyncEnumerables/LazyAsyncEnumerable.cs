@@ -1,4 +1,5 @@
 ﻿using CalebBender.Atoms.Exceptions;
+using CalebBender.Atoms.Templates.Parameters;
 using CalebBender.Atoms.Utils.Reflection.Tuples;
 using System;
 using System.Collections.Generic;
@@ -7,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static CalebBender.Atoms.Utils.Reflection.PropertyInfoRetrieverHelpers;
-using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 using static CalebBender.Atoms.Repositories.SqlServer.SqlServerErrorTranslators;
 
 namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
@@ -20,7 +19,6 @@ namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		private object? parameters;
 		private readonly Func<Exception, Task>? exceptionHandler;
 		private readonly CancellationToken cancellationToken;
-		private IEnumerable<PropertyInfo>? parameterObjectProperties;
 
 		protected LazyAsyncEnumerable(
 			string connectionString, string sqlText, object? parameters,
@@ -32,8 +30,6 @@ namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			this.parameters = parameters;
 			this.exceptionHandler = exceptionHandler;
 			this.cancellationToken = cancellationToken;
-			if (parameters is not null)
-				parameterObjectProperties = GetAllPublicProperties(parameters.GetType());
 		}
 
 		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken localCancellationToken = default)
@@ -75,8 +71,10 @@ namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			try
 			{
 				connection.Open();
-				using SqlCommand queryCommand = new SqlCommand(sqlText, connection);
-				AddParametersIfTheyExist(queryCommand);
+				using SqlCommand queryCommand = connection.CreateCommand();
+				var parameterizer = new SqlServerTemplateParameterizer(sqlText, parameters);
+				var expandedSqlText = parameterizer.AddParametersAndGetExpandedSqlText(queryCommand);
+				queryCommand.CommandText = expandedSqlText;
 				var reader = await queryCommand.ExecuteReaderAsync(cancellationToken);
 				return (connection, reader);
 			}
@@ -92,17 +90,6 @@ namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 		{
 			return err is not InvalidCastException invalidCastException
 				|| !invalidCastException.Message.Contains("DBNull");
-		}
-
-		private void AddParametersIfTheyExist(SqlCommand queryCommand)
-		{
-			if (parameterObjectProperties is null) return;
-			foreach (var property in parameterObjectProperties)
-			{
-				var propertyValue =
-					IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, parameters);
-				queryCommand.Parameters.AddWithValue("@" + property.Name, propertyValue);
-			}
 		}
 
 		protected abstract T GetValueFromReader(SqlDataReader reader);

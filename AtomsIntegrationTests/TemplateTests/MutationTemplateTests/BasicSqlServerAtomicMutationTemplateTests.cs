@@ -14,6 +14,7 @@ using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 
 namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 {
+	[Collection("SqlServerDBTests")]
 	public class BasicSqlServerAtomicMutationTemplateTests : BasicAtomicMutationTemplateTests
 	{
 		protected override void Cleanup()

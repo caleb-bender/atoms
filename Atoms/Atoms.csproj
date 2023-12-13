@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
-    <PackageReleaseNotes>API Documentation for versions 1.0.x is now available</PackageReleaseNotes>
+    <PackageReleaseNotes>A bug with the GetOneAsync method was patched.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

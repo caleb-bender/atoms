@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Xunit;
 using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
 using static AtomsIntegrationTests.Models.BlogUser;
+using CalebBender.Atoms.Repositories;
 
 namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 {
@@ -40,10 +41,22 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				@"DELETE FROM BlogPostAuthors; DELETE FROM TypeMismatchModels;
 				DELETE FROM TheBlogUsers; DELETE FROM BlogPosts;
 				DELETE FROM CustomerAddresses; DELETE FROM CustomerOrders;
-				DELETE FROM ModelsWithIgnored; DELETE FROM JobPostings;",
+				DELETE FROM ModelsWithIgnored; DELETE FROM JobPostings;
+				DELETE FROM HolidayMatrices;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
+		}
+
+		protected override async Task CreateHolidayMatrixAsync(string holidayDay, string routeDay, int daysToSkip)
+		{
+			using SqlConnection connection = new SqlConnection(GetConnectionString());
+			connection.Open();
+			using SqlCommand createCommand = new SqlCommand(
+				$@"INSERT INTO HolidayMatrices(HolidayDay, RouteDay, DaysToSkip)
+				VALUES ('{holidayDay}', '{routeDay}', {daysToSkip})", connection
+			);
+			await createCommand.ExecuteNonQueryAsync();
 		}
 
 		protected override async Task CreateJobPostingAsync(long postingId, long employerId)
@@ -150,6 +163,11 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				VALUES ('{id}', '{status}')", connection
 			);
 			await createCommand.ExecuteNonQueryAsync();
+		}
+
+		protected override IAtomicRepository<T> CreateRepository<T>()
+		{
+			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
 		}
 	}
 }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using static AtomsIntegrationTests.Models.BlogPost;
 using static AtomsIntegrationTests.Models.BlogUser;
 using static AtomsIntegrationTests.Models.CustomerOrder;
+using static AtomsIntegrationTests.Models.HolidayMatrix;
 
 namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 {
@@ -357,6 +358,19 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenAHolidayMatrixWithSameEnumForHolidayDayAndRouteDay_WhenWeGetOne_ThenItExists()
+		{
+			// Arrange
+			await CreateHolidayMatrixAsync("TUE", "WED", 1);
+			var holidayMatrixRepo = CreateRepository<HolidayMatrix>();
+			// Act
+			var holidayMatrixOption =
+				await holidayMatrixRepo.GetOneAsync(new HolidayMatrix { HolidayDay = WeekDays.Tuesday, RouteDay = WeekDays.Wednesday });
+			// Assert
+			Assert.IsType<AtomicOption<HolidayMatrix>.Exists>(holidayMatrixOption);
+		}
+
 		private static void AssertThatBlogUserIsCorrect(AtomicOption<BlogUser>.Exists blogUserExists, long expectedUserId, string expectedGroupName, BlogUserRole expectedUserRole = BlogUserRole.Reader)
 		{
 			var blogUser = blogUserExists.Value;
@@ -379,5 +393,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		protected abstract Task CreateOneCustomerOrderAsync(Guid orderId, string? orderType);
 		protected abstract Task CreateOneModelWithIgnoredAsync(long id, string propertyReadFromButNotWrittenTo, string propertyNeitherReadFromNorWrittenTo);
 		protected abstract Task CreateJobPostingAsync(long postingId, long employerId);
+		protected abstract Task CreateHolidayMatrixAsync(string holidayDay, string routeDay, int daysToSkip);
+		protected abstract IAtomicRepository<T> CreateRepository<T>() where T : class, new();
 	}
 }

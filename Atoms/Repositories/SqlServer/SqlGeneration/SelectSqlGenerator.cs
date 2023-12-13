@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static CalebBender.Atoms.Utils.Reflection.TypeMapping.EnumMappingHelpers;
 
 namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 {
@@ -30,8 +31,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 				var property = ModelMetadata<TModel>.UniqueIdPublicProperties.ElementAt(i);
 				string propertyName = ModelMetadata<TModel>.GetDatabasePropertyName(property);
 				whereClause += $"{propertyName} = @{propertyName}";
-				var propertyValue = property.GetValue(model);
-				if (property.PropertyType.IsEnum) propertyValue = propertyValue?.ToString();
+				var propertyValue = IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, model);
 				sqlParameters.Add(new SqlParameter("@" + propertyName, propertyValue));
 				if (i != ModelMetadata<TModel>.UniqueIdPublicProperties.Count() - 1)
 					whereClause += " AND ";

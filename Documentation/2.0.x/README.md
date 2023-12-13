@@ -35,3 +35,4 @@
 	* [Loading all results into memory using `QueryAsync`](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsQueryTemplates.md#loading-all-results-into-memory-using-queryasync)
 	* [Passing parameters using anonymous objects](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsQueryTemplates.md#passing-parameters-using-anonymous-objects)
 	* [Conclusion](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsQueryTemplates.md#conclusion)
+* [Atoms Mutation Templates](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsMutationTemplates.md)

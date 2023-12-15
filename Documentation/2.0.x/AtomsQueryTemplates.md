@@ -1,3 +1,4 @@
+
 # Atoms Query Template Documentation (2.0.x)
 If you haven't already read the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsDataModelClasses.md) documentation, please do so since it will make understanding the `IAtomicQueryTemplate<T>` interface and any related documentation much easier to grasp, at least as it pertains to data model classes.
 ## Introduction
@@ -133,6 +134,7 @@ await foreach (var blogPost in lazyBlogPosts)
 }
 ```
 We need to use an `await foreach` loop since each blog post is retrieved asynchronously. Note that no loading takes place until the `await foreach` loop is reached, and then each result is read one at a time thereafter, until either there are no more results or until a cancellation occurs.
+
 ## Loading all results into memory using `QueryAsync`
 When the number of results you are querying is not very large, it may be more efficient and sensible to just load all the results upfront. This is where the `QueryAsync` extension method comes in. While the read it performs is asynchronous, when the method completes all results are loaded as opposed to solely the very next one with `QueryLazy`. Here is the above example modified to load all blog posts at once:
 ```csharp
@@ -194,5 +196,29 @@ await blogPostSearchService.QueryByGenre(BlogPostGenre.Fantasy);
 
 // etc...
 ```
+## `IEnumerable` parameters
+Suppose we want to query a set of blog posts using a list of titles. How would we do this using an `IAtomicQueryTemplate<T>` obtained from a `SqlServerRawTemplateBuilder`? It's actually quite simple. Here is an example:
+```csharp
+var blogPostsQueryByTitleTemplate =
+	new SqlServerRawTemplateBuilder()
+		.SetConnectionString("the connection string")
+		.SetMutationText("SELECT * FROM BlogPosts WHERE Title IN @Titles") 
+		.GetQueryTemplate<BlogPost>();
+
+// Query the blog posts with specific titles
+var Titles = new List<string> { "A Haunted Cove", "Journey to the Ethereal Garden", "The Man in the Shadows" };
+var queriedBlogPosts =
+	await blogPostsQueryByTitleTemplate.QueryAsync(new { Titles });
+```
+If you have any experience using SQL parameters, you will recall that SQL Server doesn't support parameters in this way, since a normal SQL parameter cannot be a collection or set of things. However, Atoms automatically expands `IEnumerable` parameters so that the text in our above example gets converted from
+```
+"SELECT * FROM BlogPosts WHERE Title IN @Titles"
+```
+to
+```
+"SELECT * FROM BlogPosts WHERE Title IN (@Titles0,@Titles1,@Titles2)"
+```
+Also, each actual parameter is resolved dynamically with the corresponding value in the `IEnumerable`. This allows one to easily query data by using an `IEnumerable` of a variable number of elements for the filtering criteria. One thing to note is that each `IEnumerable` parameter used must be one dimensional and contain elements of a type that can map to a database type. Other than that, this approach is pretty flexible and saves the programmer from a bunch of nasty SQL string concatenation logic....whew!
+
 ## Conclusion
 Query templates are meant to make your life as a programmer easier by allowing you to define a skeleton for a query once, and then supply different parameters (if the template needs parameters) to easily change the behavior of the template without any additional code. As of 2.0.x, you can only use a `SqlServerRawTemplateBuilder` instance to obtain a `IAtomicQueryTemplate<T>`, which the latter you can reuse as much to your heart's content.

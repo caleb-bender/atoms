@@ -119,6 +119,7 @@ Suppose you want to ignore one or more public properties so that Atoms does not 
 CREATE TABLE ModelsWithIgnored(
 	Id BIGINT PRIMARY KEY,
 	PropertyReadFromButNotWrittenTo VARCHAR(50) DEFAULT 'DEFAULT',
+	PropertyWrittenAtCreationAndReadOnlyThereafter VARCHAR(50) NULL
 );
 ```
 And the corresponding data model class:
@@ -134,9 +135,16 @@ using CalebBender.Atoms.DataAttributes;
 		public string PropertyNeitherReadFromNorWrittenTo { get; set; }
 		[AtomsIgnore(ReadFromDatabase = true)]
 		public string PropertyReadFromButNotWrittenTo { get; set; }
+		[AtomsIgnore(ReadFromDatabase = true, OnlyAllowWriteOnCreation = true)]
+		public string? PropertyWrittenAtCreationAndReadOnlyThereafter { get; set; } = "default";
 	}
 ```
-Presently, there are two different ways to use the `AtomsIgnoreAttribute`. The first way is to make a public property completely invisible to Atoms. In this example `PropertyNeitherReadFromNorWrittenTo` is completely ignored by Atoms. When doing any CRUD operation, `PropertyNeitherReadFromNorWrittenTo` will remain untouched and it will never be included in a write. The second way is to make a public property read-only. This is useful if you had some column that defaults to some value and you don't want to be able to change it in the future. In this example, `PropertyReadFromButNotWrittenTo` will always be read as `"DEFAULT`" and Atoms will never allow writes to the table column, ignoring any changes made to the data class instance. In short, to completely ignore a public property, annotate with `[AtomsIgnore]`. To make a public property read-only, annotate with `[AtomsIgnore(ReadFromDatabase = true)]`. Note that currently, a read-only property is strictly read-only, meaning that writes even on creation are ignored. This limitation will be addressed in a future version, probably with the addition of a `AllowWriteOnlyOnCreation` property on the `AtomsIgnoreAttribute`.
+Presently, there are three different ways to use the `AtomsIgnoreAttribute`:
+* The first way is to make a public property completely invisible to Atoms. In this example `PropertyNeitherReadFromNorWrittenTo` is completely ignored by Atoms. When doing any CRUD operation, `PropertyNeitherReadFromNorWrittenTo` will remain untouched and it will never be included in a write.
+* The second way is to make a public property read-only. This is useful if you had some column that defaults to some value in the database, and you don't want to be able to change it in the future. In this example, `PropertyReadFromButNotWrittenTo` will always be read as `"DEFAULT`" and Atoms will never allow writes to the table column, ignoring any changes made to the data class instance.
+* The third and final way is to make the public property read-only and only allow writes on initialization. In this example, `PropertyWrittenAtCreationAndReadOnlyThereafter` is only written to once on creation and is read-only thereafter. If you need to be able to initialize the property, setting `ReadFromDatabase` to true is not sufficient, as you need to also set `OnlyAllowWriteOnCreation` to true so that it can be initialized. Simply put, the second way is useful when the database initializes the value of the read-only property, but the third way comes in handy when you need to initialize the value of the read-only property.
+
+In short, to completely ignore a public property, annotate with `[AtomsIgnore]`. To make a public property purely read-only, annotate with `[AtomsIgnore(ReadFromDatabase = true)]`. Finally, to make a public property read-only after it is initialized by the program, then annotate with `[AtomsIgnore(ReadFromDatabase = true, OnlyAllowWriteOnCreation = true)]`.
 
 As a side note, if you want to create a data model class with a subset of properties from its corresponding database entity, this is completely doable. Atoms only ever reads from/writes to using the public properties defined on the data model class. Consider this example:
 ```sql

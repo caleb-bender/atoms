@@ -67,6 +67,116 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal("Among the Planets", (await GetUpdatedModel(blogPost2, blogPostRepo)).Title);
 		}
 
+		[Fact]
+		public async Task GivenSomeCreatedBlogPosts_WhenWeAttemptToUpdateTheirPostId_NothingIsUpdated()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+			var blogPost1 = new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror, Title = "An Eery Feeling" };
+			var blogPost2 = new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Scifi, Title = "Among the Stars" };
+			await blogPostRepo.CreateManyAsync(blogPost1, blogPost2);
+			// Act
+			blogPost2.PostId = 3L;
+			var numberUpdated = await blogPostRepo.UpdateOneAsync(blogPost2);
+			// Assert
+			Assert.Equal(0, numberUpdated);
+		}
+
+		[Fact]
+		public async Task GivenANullOrEmptyIEnumerable_WhenWeUpdateMany_ThenNothingIsUpdated()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+
+			// Act
+			var numberUpdated = await blogPostRepo.UpdateManyAsync(null);
+
+			// Assert
+			Assert.Equal(0, numberUpdated);
+
+			// Act
+			numberUpdated = await blogPostRepo.UpdateManyAsync(new List<BlogPost>());
+
+			// Assert
+			Assert.Equal(0, numberUpdated);
+		}
+
+		[Fact]
+		public async Task GivenACreatedBlogPost_WhenWeUpdateBlogComments_ThenTheyAreSuccessfullyUpdated()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+			var blogPost = new BlogPost
+			{
+				PostId = 1L,
+				Genre = BlogPost.BlogPostGenre.Thriller,
+				Title = "Lost Identity",
+				Content = "In a dreary town called Willow Grove, there was ...",
+				BlogComments = new List<BlogComment>
+				{
+					new BlogComment
+					{
+						Username = "john-doe",
+						Content = "Very capitivating!"
+					}
+				}
+			};
+			await blogPostRepo.CreateOneAsync(blogPost);
+			// Act
+			blogPost.BlogComments.Add(new BlogComment { Username = "jane-smith", Content = "On the edge of my seat reading this!" });
+			var numberUpdated = await blogPostRepo.UpdateOneAsync(blogPost);
+			// Assert
+			Assert.Equal(1, numberUpdated);
+			Assert.Equal("jane-smith", (await GetUpdatedModel(blogPost, blogPostRepo)).BlogComments?.Last().Username);
+		}
+
+		[Fact]
+		public async Task GivenSomeCreatedCustomerOrders_WhenWeUpdateManyFulfillmentTypes_ThenTheyAreUpdatedCorrectly()
+		{
+			// Arrange
+			var customerOrderRepo = CreateRepository<CustomerOrder>();
+			var createdCustomerOrders = await customerOrderRepo.CreateManyAsync(
+				new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByThirdParty },
+				new CustomerOrder { OrderId = Guid.NewGuid(), FulfillmentType = CustomerOrder.FulfillmentTypes.PickupByCustomer }
+			);
+			// Act
+			var numberUpdated = await customerOrderRepo.UpdateManyAsync(
+				createdCustomerOrders.Select(order => { order.FulfillmentType = CustomerOrder.FulfillmentTypes.Delivery; return order; })
+			);
+			// Assert
+			Assert.Equal(2, numberUpdated);
+			int i = 0;
+			foreach (var customerOrder in createdCustomerOrders)
+			{
+				var retrievedCustomerOrder = await GetUpdatedModel(createdCustomerOrders.ElementAt(i++), customerOrderRepo);
+				Assert.Equal(CustomerOrder.FulfillmentTypes.Delivery, retrievedCustomerOrder.FulfillmentType);
+			}
+		}
+
+		[Fact]
+		public async Task GivenSomeCreatedModelsWithAtomsIgnoreProperty_WhenWeUpdateMany_ThenNoneAreUpdated()
+		{
+			// Arrange
+			var modelWithIgnoredRepo = CreateRepository<ModelWithIgnored>();
+			var model = await modelWithIgnoredRepo.CreateOneAsync(
+				new ModelWithIgnored { Id = 1L }
+			);
+			// Act
+			await modelWithIgnoredRepo.UpdateOneAsync(
+				new ModelWithIgnored {
+					Id = 1L,
+					PropertyNeitherReadFromNorWrittenTo = "CHANGED",
+					PropertyReadFromButNotWrittenTo = "CHANGED",
+					PropertyWrittenAtCreationAndReadOnlyThereafter = "CHANGED"
+				}
+			);
+			// Assert
+			var retrievedModel = await GetUpdatedModel(model, modelWithIgnoredRepo);
+			Assert.True(retrievedModel.PropertyNeitherReadFromNorWrittenTo == "default");
+			Assert.True(retrievedModel.PropertyReadFromButNotWrittenTo is null);
+			Assert.True(retrievedModel.PropertyWrittenAtCreationAndReadOnlyThereafter == "default");
+		}
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);

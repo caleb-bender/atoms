@@ -19,6 +19,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 
 		public async Task<int> UpdateManyAsync(IEnumerable<TModel> models)
 		{
+			if (models is null || models.Count() == 0) return 0;
 			using SqlConnection connection = new SqlConnection(connectionString);
 			connection.Open();
 			using SqlTransaction transaction = connection.BeginTransaction();

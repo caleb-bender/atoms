@@ -50,5 +50,11 @@ namespace CalebBender.Atoms.Repositories
 		{
 			return await repo.UpdateManyAsync(models);
 		}
+
+		public static async Task<int> UpdateOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
+			where TModel : class, new()
+		{
+			return await repo.UpdateManyAsync(model);
+		}
 	}
 }

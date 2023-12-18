@@ -29,7 +29,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			{
 				var property = ModelMetadata<TModel>.UniqueIdPublicProperties.ElementAt(i);
 				string propertyName = ModelMetadata<TModel>.GetDatabasePropertyName(property);
-				whereClause += $"{propertyName} = @{propertyName}";
+				whereClause += $"[{propertyName}] = @{propertyName}";
 				var propertyValue = property.GetValue(model);
 				if (property.PropertyType.IsEnum) propertyValue = propertyValue?.ToString();
 				sqlParameters.Add(new SqlParameter("@" + propertyName, propertyValue));

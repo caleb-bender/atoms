@@ -46,5 +46,6 @@ namespace CalebBender.Atoms.Repositories
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
 		Task<AtomicOption<TModel>> GetOneAsync(TModel model);
+		Task<int> UpdateManyAsync(IEnumerable<TModel> models);
 	}
 }

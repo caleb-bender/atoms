@@ -44,5 +44,11 @@ namespace CalebBender.Atoms.Repositories
 		{
 			return await repo.DeleteManyAsync(model);
 		}
+
+		public static async Task<int> UpdateManyAsync<TModel>(this IAtomicRepository<TModel> repo, params TModel[] models)
+			where TModel : class, new()
+		{
+			return await repo.UpdateManyAsync(models);
+		}
 	}
 }

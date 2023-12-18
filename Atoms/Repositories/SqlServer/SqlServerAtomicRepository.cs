@@ -17,6 +17,34 @@ namespace CalebBender.Atoms.Repositories.SqlServer
             this.connectionString = connectionString;
         }
 
+		public async Task<int> UpdateManyAsync(IEnumerable<TModel> models)
+		{
+			using SqlConnection connection = new SqlConnection(connectionString);
+			connection.Open();
+			using SqlTransaction transaction = connection.BeginTransaction();
+			try
+			{
+				var numberUpdated = await UpdateModelsAsync(transaction, models);
+				await transaction.CommitAsync();
+				return numberUpdated;
+			}
+			catch (SqlException sqlException)
+			{
+				await transaction.RollbackAsync();
+				throw;
+			}
+		}
+
+		private async Task<int> UpdateModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
+		{
+			var (updateSqlText, updateParameters) =
+				UpdateSqlGenerator<TModel>.GetUpdateSqlTextAndParameters(models);
+			using SqlCommand updateCommand = new SqlCommand(updateSqlText, transaction.Connection);
+			updateCommand.Parameters.AddRange(updateParameters.ToArray());
+			updateCommand.Transaction = transaction;
+			return await updateCommand.ExecuteNonQueryAsync();
+		}
+
 		public async Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models)
 		{
 			if (models is null || models.Count() == 0) return new List<TModel>();

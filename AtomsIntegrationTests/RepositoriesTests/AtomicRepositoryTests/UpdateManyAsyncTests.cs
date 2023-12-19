@@ -256,6 +256,27 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenACreatedHolidayMatrix_WhenWeUpdateOne_ThenTheyAreUpdated()
+		{
+			// Arrange
+			var holidayMatrixRepo = CreateRepository<HolidayMatrix>();
+			var createdHolidayMatrix = await holidayMatrixRepo.CreateOneAsync(
+				new HolidayMatrix {
+					HolidayDay = HolidayMatrix.WeekDays.Monday,
+					RouteDay = HolidayMatrix.WeekDays.Tuesday,
+					DaysToSkip = 1
+				}
+			);
+			// Act
+			createdHolidayMatrix.DaysToSkip = 2;
+			var numberUpdated = await holidayMatrixRepo.UpdateOneAsync(createdHolidayMatrix);
+			// Assert
+			Assert.Equal(1, numberUpdated);
+			var updatedHolidayMatrix = await GetUpdatedModel(createdHolidayMatrix, holidayMatrixRepo);
+			Assert.Equal(2, updatedHolidayMatrix.DaysToSkip);
+		}
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);

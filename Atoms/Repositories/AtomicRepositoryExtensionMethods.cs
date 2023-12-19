@@ -42,6 +42,7 @@ namespace CalebBender.Atoms.Repositories
 		public static async Task<int> DeleteOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
 			where TModel : class, new()
 		{
+			if (model is null) return 0;
 			return await repo.DeleteManyAsync(model);
 		}
 
@@ -54,6 +55,7 @@ namespace CalebBender.Atoms.Repositories
 		public static async Task<int> UpdateOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
 			where TModel : class, new()
 		{
+			if (model is null) return 0;
 			return await repo.UpdateManyAsync(model);
 		}
 	}

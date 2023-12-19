@@ -163,6 +163,15 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(0, numberOfBlogUsersDeleted);
 		}
 
+		[Fact]
+		public async Task GivenANullModel_WhenWeDeleteOne_ThenZeroAreDeleted()
+		{
+			// Act
+			var numberDeleted = await blogPostRepo.DeleteOneAsync(null);
+			// Assert
+			Assert.Equal(0, numberDeleted);
+		}
+
 		public void Dispose()
 		{
 			Cleanup();

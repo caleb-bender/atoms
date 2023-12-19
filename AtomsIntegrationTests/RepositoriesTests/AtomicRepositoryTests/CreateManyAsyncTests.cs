@@ -305,6 +305,16 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenANullModel_WhenWeCreateOne_ThenAnArgumentNullExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+			{
+				await blogPostRepo.CreateOneAsync(null);
+			});
+		}
+
 		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
 			where TModel : class, new()
 		{

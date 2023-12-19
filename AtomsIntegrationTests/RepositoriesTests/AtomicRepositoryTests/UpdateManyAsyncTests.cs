@@ -190,6 +190,31 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenANullModel_WhenWeUpdateOne_ThenZeroAreUpdated()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+			// Act
+			var numberUpdated = await blogPostRepo.UpdateOneAsync(null);
+			// Assert
+			Assert.Equal(0, numberUpdated);
+		}
+
+		[Fact]
+		public async Task GivenABlogPostWithTooLongOfATitle_WhenWeUpdateOne_ThenAStringPropertyValueExceedsMaxLengthExceptionIsThrown()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+			var createdBlogPost = await blogPostRepo.CreateOneAsync(new BlogPost { PostId = 1L, Genre = BlogPost.BlogPostGenre.Horror, Title = "Scary" });
+			// Assert
+			await Assert.ThrowsAsync<StringPropertyValueExceedsMaxLengthException>(async () =>
+			{
+				createdBlogPost.Title = "0123456789012345678901234567890123456789";
+				await blogPostRepo.UpdateOneAsync(createdBlogPost);
+			});
+		}
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);

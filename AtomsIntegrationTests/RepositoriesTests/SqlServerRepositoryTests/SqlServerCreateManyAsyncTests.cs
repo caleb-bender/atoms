@@ -68,10 +68,15 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				@"DELETE FROM BlogPostAuthors; DELETE FROM CustomerAddresses;
 				DELETE FROM JobPostings; DELETE FROM Employees; DELETE FROM TheBlogUsers;
 				DELETE FROM ModelsWithIgnored; DELETE FROM TypeMismatchModels;
-				DELETE FROM BlogPosts;",
+				DELETE FROM BlogPosts; DELETE FROM OneIdentityPropertyModels;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();
+		}
+
+		protected override IAtomicRepository<T> CreateRepository<T>()
+		{
+			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
 		}
 	}
 }

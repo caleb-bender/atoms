@@ -1,4 +1,5 @@
 ﻿using AtomsIntegrationTests.Models;
+using CalebBender.Atoms.Exceptions;
 using CalebBender.Atoms.Repositories;
 using CalebBender.Atoms.Utils;
 using System;
@@ -175,6 +176,18 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.True(retrievedModel.PropertyNeitherReadFromNorWrittenTo == "default");
 			Assert.True(retrievedModel.PropertyReadFromButNotWrittenTo is null);
 			Assert.True(retrievedModel.PropertyWrittenAtCreationAndReadOnlyThereafter == "default");
+		}
+
+		[Fact]
+		public async Task GivenThereAreNoPropertiesToWriteTo_WhenWeUpdateOne_ThenANoWritableModelPropertiesExistExceptionIsThrown()
+		{
+			// Arrange
+			var oneIdentityPropertyRepo = CreateRepository<OneIdentityPropertyModel>();
+			// Assert
+			await Assert.ThrowsAsync<NoWritableModelPropertiesExistException>(async () =>
+			{
+				await oneIdentityPropertyRepo.UpdateOneAsync(new OneIdentityPropertyModel { });
+			});
 		}
 
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()

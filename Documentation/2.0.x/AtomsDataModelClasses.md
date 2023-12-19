@@ -8,12 +8,13 @@ namespace CalebBender.Atoms.Repositories
 	public interface IAtomicRepository<TModel> where TModel : class, new()
 	{
 		Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models);
-		Task DeleteManyAsync(IEnumerable<TModel> models);
 		Task<AtomicOption<TModel>> GetOneAsync(TModel model);
+		Task<int> UpdateManyAsync(IEnumerable<TModel> models);
+		Task<int> DeleteManyAsync(IEnumerable<TModel> models);
 	}
 }
 ```
-You will notice there is not presently an `UpdateManyAsync` method. This will be added in the next minor version or so. Each of these methods allow you to plug in any instance or set of instances of a data class model of type `TModel` and perform CRUD operations that are atomic; that is, they either fully succeed or not at all. However, before you can use a data class within a `IAtomicRepository<TModel>` instance, you must add an attribute to it.
+Each of these methods allow you to plug in any instance or set of instances of a data class model of type `TModel` and perform CRUD operations that are atomic; that is, they either fully succeed or not at all. However, before you can use a data class within a `IAtomicRepository<TModel>` instance, you must add an attribute to it.
 ## Setting up the data model class for an IAtomicRepository
 Suppose you have the following SQL Server table definition:
 ```sql

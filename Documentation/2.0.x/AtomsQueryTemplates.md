@@ -150,7 +150,7 @@ foreach (var blogPost in blogPosts)
 	// Do something with each blog post
 }
 ```
-Since `QueryAsync` returns an `IEnumerable<T>` when awaited, a regular `foreach` loop can be used to iterate over results. You can also utilize the various methods of the `IEnumerable<T>` like `Where`, `Select`, `SelectMany`, `ForEach`, and so on. Simply put, using `QueryAsync` makes sense when the queried data is not large and you need better control over the data.
+Since `QueryAsync` returns an `IEnumerable<T>` when awaited, a regular `foreach` loop can be used to iterate over results. You can also utilize the various methods of the `IEnumerable<T>` like `Where`, `Select`, `SelectMany`, and so on. Simply put, using `QueryAsync` makes sense when the queried data is not large and you need better control over the data.
 ## Passing parameters using anonymous objects
 So far we haven't discussed the most powerful part of query templates: the ability to reuse a predefined query skeleton with different parameters. Suppose you have a class called `BlogPostSearchService`, used to search different blog posts on an internet blog. Let's say it is a creative story writing blog and you want users to be able to filter by a specific genre. A minimalistic implementation may look like this:
 ```csharp
@@ -202,7 +202,7 @@ Suppose we want to query a set of blog posts using a list of titles. How would w
 var blogPostsQueryByTitleTemplate =
 	new SqlServerRawTemplateBuilder()
 		.SetConnectionString("the connection string")
-		.SetMutationText("SELECT * FROM BlogPosts WHERE Title IN @Titles") 
+		.SetQueryText("SELECT * FROM BlogPosts WHERE Title IN @Titles") 
 		.GetQueryTemplate<BlogPost>();
 
 // Query the blog posts with specific titles

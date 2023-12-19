@@ -1,6 +1,6 @@
 
 # Atoms Mutation Template Documentation (2.0.x)
-If you haven't already read the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsDataModelClasses.md) documentation, please do so since it will make understanding the `IAtomicMutationTemplate<T>` interface and any related documentation much easier to grasp, at least as it pertains to enum parameters.
+If you haven't already read the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsDataModelClasses.md) documentation, please do so since it will make understanding the `IAtomicMutationTemplate` interface and any related documentation much easier to grasp, at least as it pertains to enum parameters.
 ## Introduction
 Atoms Mutation Templates are simpler than [Atoms Query Templates](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsQueryTemplates.md), mainly because they are meant to only execute writes and they always return the same thing: a 32-bit integer representing the number of entries modified by the mutation. This is the definition of the `IAtomicMutationTemplate` interface:
 ```csharp
@@ -14,7 +14,7 @@ namespace CalebBender.Atoms.Templates.Mutation
 ```
 Like the `IAtomicQueryTemplate<T>` interface's `QueryLazy` and `QueryAsync` methods, an object containing parameters as C# properties can be passed into `MutateAsync` if the mutation requires them. Otherwise, they can be let empty.
 
-Essentially, an implementation of `IAtomicMutationTemplate<T>` contains a reusable template for writing to the database as many times as necessary. The only state it contains is immutable and set once on construction, any objects like a connection are open and closed within the scope of the `MutateAsync` method.
+Essentially, an implementation of `IAtomicMutationTemplate` contains a reusable template for writing to the database as many times as necessary. The only state it contains is immutable and set once on construction, any objects like a connection are open and closed within the scope of the `MutateAsync` method.
 ## Creating a mutation template using `SqlServerRawTemplateBuilder`
 In addition to being able to create an `IAtomicQueryTemplate<T>` instance with `SqlServerRawTemplateBuilder`, the same can be done for an `IAtomicMutationTemplate`. Here is an example that constructs a mutation template that changes all blog posts with genre `Horror` to a new genre:
 ```csharp

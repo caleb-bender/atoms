@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
-    <PackageReleaseNotes>The repository method UpdateManyAsync and its extension methods were added. The repository method DeleteManyAsync and its extension methods now return a 32-bit integer disclosing the number of entries that were deleted (the only breaking change in 2.0.0). The Atomic Mutation Template was added, which allows for more custom atomic writes than an IAtomicRepository. The AtomsIgnoreAttribute now allows for a property to be read-only after initialization as opposed to before where properties annotated with AtomsIgnoreAttribute could only be completely read only. Finally, both mutation templates and query templates offer IEnumerable parameters, which allows for SQL text with a IN or NOT IN clause to utilize a parameter that will be expanded to a tuple of parameters by Atoms behind the scenes.</PackageReleaseNotes>
+    <PackageReleaseNotes>A bug where query and mutation templates did not properly handle the exception for null parameters has been patched. The same bug has been patched for CreateManyAsync, UpdateManyAsync, and DeleteManyAsync as well.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

@@ -43,6 +43,7 @@ namespace CalebBender.Atoms.Templates.Parameters
 
 		private string AddEachParameterAndGetExpandedSqlText(SqlCommand command, PropertyInfo property, object? propertyValue, string expandedSqlText)
 		{
+			if (propertyValue is null) throw new ArgumentNullException("A parameter used within an anonymous object passed to a template cannot be null.");
 			var (isEnumerable, enumerable) = IsIEnumerable(propertyValue);
 			var propertyName = "@" + property.Name;
 			if (!isEnumerable)
@@ -55,7 +56,10 @@ namespace CalebBender.Atoms.Templates.Parameters
 			int i = 0;
 			foreach (var value in enumerableOfValues)
 			{
-				var convertedValue = IfEnumConvertToStringElseReturnOriginalValue(value);
+				object? convertedValue = null;
+				if (value is not null)
+					convertedValue = IfEnumConvertToStringElseReturnOriginalValue(value);
+				if (convertedValue is null) throw new ArgumentNullException("An IEnumerable parameter must contain all non-null values.");
 				command.Parameters.AddWithValue(propertyName + i, convertedValue);
 				i++;
 			}

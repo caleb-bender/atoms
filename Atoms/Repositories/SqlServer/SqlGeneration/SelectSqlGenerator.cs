@@ -30,8 +30,10 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			{
 				var property = ModelMetadata<TModel>.UniqueIdPublicProperties.ElementAt(i);
 				string propertyName = ModelMetadata<TModel>.GetDatabasePropertyName(property);
+
 				whereClause += $"{propertyName} = @{propertyName}";
 				var propertyValue = IfEnumPropertyConvertToDatabaseValueElseUseOriginalValue(property, model);
+
 				sqlParameters.Add(new SqlParameter("@" + propertyName, propertyValue));
 				if (i != ModelMetadata<TModel>.UniqueIdPublicProperties.Count() - 1)
 					whereClause += " AND ";

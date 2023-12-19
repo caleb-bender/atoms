@@ -100,5 +100,19 @@ namespace CalebBender.Atoms.Utils.Reflection.TypeMapping
 				return (modelProperty.GetValue(model)?.ToString(), true);
 			return (null, false);
 		}
+
+		internal static object IfEnumConvertToStringElseReturnOriginalValue(object value)
+		{
+			if (!value.GetType().IsEnum) return value;
+			var stringToEnumMappings = value.GetType().GetCustomAttributes<StringToEnumVariantMappingRule>();
+			foreach (var mappingRule in stringToEnumMappings)
+			{
+				int enumVariantInt = Convert.ToInt32(mappingRule.EnumVariant);
+				int valueInt = Convert.ToInt32(value);
+				if (enumVariantInt == valueInt)
+					return mappingRule.DatabaseStringValue;
+			}
+			return value.ToString() ?? "";
+		}
 	}
 }

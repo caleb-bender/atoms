@@ -14,12 +14,14 @@ namespace AtomsIntegrationTests.Models
 		[StringToEnumVariantMappingRule("PT", PickupByThirdParty)]
 		[StringToEnumVariantMappingRule("NONE", Unknown)]
 		[StringToEnumVariantMappingRule("", Unknown)]
+		[StringToEnumVariantMappingRule("DO", Dropoff)]
 		public enum FulfillmentTypes
 		{
 			Unknown,
 			PickupByCustomer,
 			Delivery,
-			PickupByThirdParty
+			PickupByThirdParty,
+			Dropoff
 		}
 
 		[UniqueId]

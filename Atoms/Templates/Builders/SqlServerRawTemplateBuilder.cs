@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace CalebBender.Atoms.Templates.Builders
 {
@@ -47,8 +48,17 @@ namespace CalebBender.Atoms.Templates.Builders
 				throw new QueryTextMissingException("This builder's SetQueryText adapter method was not called with a nonempty query text string.");
 		}
 
+		private void AssertConnectionStringAndMutationTextWereDefined()
+		{
+			if (string.IsNullOrEmpty(connectionString))
+				throw new ConnectionStringMissingException("This builder's SetConnectionString adapter method was not called with a nonempty connection string.");
+			if (string.IsNullOrEmpty(sqlText))
+				throw new MutationTextMissingException("This builder's SetMutationText adapter method was not called with a nonempty mutation text string.");
+		}
+
 		public IAtomicMutationTemplate GetMutationTemplate()
 		{
+			AssertConnectionStringAndMutationTextWereDefined();
 			return new SqlServerAtomicMutationTemplate
 			{
 				ConnectionString = connectionString,
@@ -61,6 +71,12 @@ namespace CalebBender.Atoms.Templates.Builders
 		public IRawTemplateBuilder SetQueryText(string queryText)
 		{
 			sqlText = queryText;
+			return this;
+		}
+
+		public IRawTemplateBuilder SetMutationText(string mutationText)
+		{
+			sqlText = mutationText;
 			return this;
 		}
 

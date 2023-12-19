@@ -23,16 +23,17 @@ namespace CalebBender.Atoms.Repositories
 		/// <exception cref="EnumPropertyMappingFailedException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
+		/// <exception cref="NoWritableModelPropertiesExistException" />
 		/// <exception cref="StringPropertyValueExceedsMaxLengthException" />
 		Task<IEnumerable<TModel>> CreateManyAsync(IEnumerable<TModel> models);
 		/// <summary>
 		/// Deletes a batch of data class models in a single transaction.
 		/// </summary>
-		/// <returns>The asynchronous task</returns>
+		/// <returns>A task containing the number of models deleted as a 32-bit integer</returns>
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
-		Task DeleteManyAsync(IEnumerable<TModel> models);
+		Task<int> DeleteManyAsync(IEnumerable<TModel> models);
 		/// <summary>
 		/// Gets a single data model class from the database or null, wrapped inside
 		/// an AtomicOption for strict null-checking.
@@ -46,5 +47,16 @@ namespace CalebBender.Atoms.Repositories
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
 		Task<AtomicOption<TModel>> GetOneAsync(TModel model);
+		/// <summary>
+		/// Updates a batch of data class models in a single transaction.
+		/// </summary>
+		/// <returns>A task containing the number of models updated as a 32-bit integer</returns>
+		/// <exception cref="DbEntityNotFoundException" />
+		/// <exception cref="EnumPropertyMappingFailedException" />
+		/// <exception cref="ModelDbEntityMismatchException" />
+		/// <exception cref="ModelPropertyTypeMismatchException" />
+		/// <exception cref="NoWritableModelPropertiesExistException" />
+		/// <exception cref="StringPropertyValueExceedsMaxLengthException" />
+		Task<int> UpdateManyAsync(IEnumerable<TModel> models);
 	}
 }

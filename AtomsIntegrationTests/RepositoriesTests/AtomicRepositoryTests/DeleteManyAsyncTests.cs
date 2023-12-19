@@ -140,6 +140,38 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenThreeCreatedBlogUsers_WhenWeDeleteTwo_ThenTwoIsReturnedFromDeleteMany()
+		{
+			// Arrange
+			var blogUser1 = new BlogUser { UserId = 1L, GroupName = "Group1" };
+			var blogUser2 = new BlogUser { UserId = 1L, GroupName = "Group2" };
+			var blogUser3 = new BlogUser { UserId = 2L, GroupName = "Group3" };
+			await blogUserRepo.CreateManyAsync(blogUser1, blogUser2, blogUser3);
+			// Act
+			var numberOfBlogUsersDeleted = await blogUserRepo.DeleteManyAsync(blogUser1, blogUser3);
+			// Assert
+			Assert.Equal(2, numberOfBlogUsersDeleted);
+		}
+
+		[Fact]
+		public async Task GivenNoModelsToDelete_WhenWeCallDeleteMany_ThenZeroIsReturned()
+		{
+			// Act
+			var numberOfBlogUsersDeleted = await blogUserRepo.DeleteManyAsync();
+			// Assert
+			Assert.Equal(0, numberOfBlogUsersDeleted);
+		}
+
+		[Fact]
+		public async Task GivenANullModel_WhenWeDeleteOne_ThenZeroAreDeleted()
+		{
+			// Act
+			var numberDeleted = await blogPostRepo.DeleteOneAsync(null);
+			// Assert
+			Assert.Equal(0, numberDeleted);
+		}
+
 		public void Dispose()
 		{
 			Cleanup();

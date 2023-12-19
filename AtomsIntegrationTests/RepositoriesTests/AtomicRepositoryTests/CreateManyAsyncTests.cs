@@ -293,6 +293,28 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task WhenWeAttemptToCreateAModelWithOneIdentityProperty_ThenANoWritableModelPropertiesExistExceptionIsThrown()
+		{
+			// Arrange
+			var oneIdentityPropertyModelRepo = CreateRepository<OneIdentityPropertyModel>();
+			// Assert
+			await Assert.ThrowsAsync<NoWritableModelPropertiesExistException>(async () =>
+			{
+				var createdModel = await oneIdentityPropertyModelRepo.CreateOneAsync(new OneIdentityPropertyModel { });
+			});
+		}
+
+		[Fact]
+		public async Task GivenANullModel_WhenWeCreateOne_ThenAnArgumentNullExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+			{
+				await blogPostRepo.CreateOneAsync(null);
+			});
+		}
+
 		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
 			where TModel : class, new()
 		{
@@ -307,5 +329,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Cleanup();
 		}
 		protected abstract void Cleanup();
+
+		protected abstract IAtomicRepository<T> CreateRepository<T>() where T : class, new();
 	}
 }

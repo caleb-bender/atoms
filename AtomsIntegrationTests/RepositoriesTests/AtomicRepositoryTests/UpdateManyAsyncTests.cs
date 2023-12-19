@@ -215,6 +215,47 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task WhenWeAttemptToUpdateAModelDoesNotMatchEntitySchema_ThenAModelDbEntityMismatchExceptionIsThrown()
+		{
+			// Arrange
+			var jobPostingMismatchRepo = CreateRepository<JobPostingModelEntityMismatch>();
+			var jobPostMismatch = new JobPostingModelEntityMismatch { Id = Guid.NewGuid() };
+			// Assert
+			await Assert.ThrowsAsync<ModelDbEntityMismatchException>(async () =>
+			{
+				// Act
+				await jobPostingMismatchRepo.UpdateOneAsync(jobPostMismatch);
+			});
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToUpdateAModelThatsMapsToNonexistentDatabaseEntity_ThenADbEntityNotFoundExceptionIsThrown()
+		{
+			// Arrange
+			var nonexistentModelRepo = CreateRepository<NonexistentModel>();
+			var nonexistentModel = new NonexistentModel { Id = 1 };
+			// Assert
+			await Assert.ThrowsAsync<DbEntityNotFoundException>(async () =>
+			{
+				// Act
+				await nonexistentModelRepo.UpdateOneAsync(nonexistentModel);
+			});
+		}
+
+		[Fact]
+		public async Task WhenWeAttemptToUpdateATypeMismatchModel_ThenAModelPropertyTypeMismatchExceptionIsThrown()
+		{
+			// Arrange
+			var typeMismatchModelRepo = CreateRepository<TypeMismatchModel>();
+			var typeMismatchModel = new TypeMismatchModel { Id = Guid.NewGuid(), DateCreated = 3 };
+			// Assert
+			await Assert.ThrowsAsync<ModelPropertyTypeMismatchException>(async () =>
+			{
+				await typeMismatchModelRepo.UpdateOneAsync(typeMismatchModel);
+			});
+		}
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);

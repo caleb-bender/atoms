@@ -32,6 +32,9 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 			catch (SqlException sqlException)
 			{
 				await transaction.RollbackAsync();
+				TranslateOperandTypeClashError(sqlException, typeof(TModel));
+				TranslateInvalidColumnNameError(sqlException, typeof(TModel));
+				TranslateInvalidObjectNameError(sqlException, typeof(TModel));
 				throw;
 			}
 		}

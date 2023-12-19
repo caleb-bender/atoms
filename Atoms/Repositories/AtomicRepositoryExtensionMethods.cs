@@ -46,12 +46,18 @@ namespace CalebBender.Atoms.Repositories
 			return await repo.DeleteManyAsync(model);
 		}
 
+		/// <summary>
+		/// Extension method for passing in models as params inline
+		/// </summary>
 		public static async Task<int> UpdateManyAsync<TModel>(this IAtomicRepository<TModel> repo, params TModel[] models)
 			where TModel : class, new()
 		{
 			return await repo.UpdateManyAsync(models);
 		}
 
+		/// <summary>
+		/// Extension method for passing in one model
+		/// </summary>
 		public static async Task<int> UpdateOneAsync<TModel>(this IAtomicRepository<TModel> repo, TModel model)
 			where TModel : class, new()
 		{

@@ -2,6 +2,8 @@
 using CalebBender.Atoms.Repositories;
 using CalebBender.Atoms.Repositories.Factories;
 using CalebBender.Atoms.Templates.Builders;
+using CalebBender.Atoms.Templates.Mutation;
+using CalebBender.Atoms.Templates.Query;
 using CalebBender.Atoms.Utils;
 using System;
 using System.Collections.Generic;
@@ -74,6 +76,26 @@ namespace AtomsIntegrationTests.TemplateTests.MutationTemplateTests
 			Assert.Equal(2, numberDeleted);
 		}
 
+		[Fact]
+		public async Task GivenExtraWhitespaceWithNotInClause_WhenWeMutateUsingTemplate_ThenCorrectResultsAreModified()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPosts);
+			var blogPostMutationTemplateWithExtraWhitespace = GetBlogPostMutationTemplateWithExtraWhitespace();
+			var Genres = new[] { BlogPostGenre.Horror, BlogPostGenre.Thriller, BlogPostGenre.Scifi };
+			// Act
+			var numberOfBlogPostsDeleted = await blogPostMutationTemplateWithExtraWhitespace.MutateAsync(new { Genres });
+			// Assert
+			Assert.Equal(1, numberOfBlogPostsDeleted);
+		}
+
+		private static IAtomicMutationTemplate GetBlogPostMutationTemplateWithExtraWhitespace()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(GetConnectionString())
+				.SetQueryText("DELETE FROM BlogPosts WHERE Genre  NOT   IN   @Genres")
+				.GetMutationTemplate();
+		}
 
 		protected override IAtomicRepository<T> GetAtomicRepository<T>()
 		{

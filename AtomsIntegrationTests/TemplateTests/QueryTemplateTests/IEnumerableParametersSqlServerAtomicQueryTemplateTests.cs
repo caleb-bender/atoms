@@ -73,6 +73,22 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			Assert.Equal(BlogPostGenre.Scifi, queriedBlogPost.Genre);
 			Assert.Equal("4", queriedBlogPost.Title);
 		}
+
+		[Fact]
+		public async Task GivenExtraWhitespaceWithInClause_WhenWeQueryUsingTemplate_ThenCorrectResultsAreReturned()
+		{
+			// Arrange
+			await blogPostRepo.CreateManyAsync(blogPosts);
+			var blogPostQueryTemplateWithExtraWhitespace = GetBlogPostQueryTemplateWithExtraWhitespace();
+			var Genres = new[] { BlogPostGenre.Horror, BlogPostGenre.Thriller };
+			// Act
+			var queriedBlogPosts = await blogPostQueryTemplateWithExtraWhitespace.QueryAsync(new { Genres });
+			// Assert
+			Assert.Equal(2, queriedBlogPosts.Count());
+			Assert.Equal(2L, queriedBlogPosts.ElementAt(0).PostId);
+			Assert.Equal(3L, queriedBlogPosts.ElementAt(1).PostId);
+		}
+
 		private static IAtomicQueryTemplate<CustomerOrder> GetCustomerOrderQueryTemplate()
 		{
 			return new SqlServerRawTemplateBuilder()
@@ -94,6 +110,14 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 			return new SqlServerRawTemplateBuilder()
 				.SetConnectionString(GetConnectionString())
 				.SetQueryText("SELECT * FROM BlogPosts WHERE Genre IN @Genres AND Title not in @Titles")
+				.GetQueryTemplate<BlogPost>();
+		}
+
+		private static IAtomicQueryTemplate<BlogPost> GetBlogPostQueryTemplateWithExtraWhitespace()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(GetConnectionString())
+				.SetQueryText("SELECT * FROM BlogPosts WHERE Genre IN   @Genres")
 				.GetQueryTemplate<BlogPost>();
 		}
 

@@ -67,7 +67,7 @@ namespace CalebBender.Atoms.Templates.Parameters
 		}
 		private string GetSqlTextWithExpandedIEnumerableParameters(string propertyName, IEnumerable<object> enumerableOfValues, string expandedSqlText)
 		{
-			var regex = new Regex(" (I|i)(N|n) (@\\w+)");
+			var regex = new Regex("\\s(I|i)(N|n)\\s+(@\\w+)");
 			var matches = regex.Matches(sqlText);
 			foreach (Match match in matches)
 			{

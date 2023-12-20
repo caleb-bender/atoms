@@ -18,6 +18,7 @@ namespace CalebBender.Atoms.Repositories
 		/// <returns>
 		/// A task that when completed, will contain the created data class models (in case any unique ids were auto-generated).
 		/// </returns>
+		/// <exception cref="ArgumentNullException" />
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="DuplicateUniqueIdException" />
 		/// <exception cref="EnumPropertyMappingFailedException" />
@@ -30,6 +31,7 @@ namespace CalebBender.Atoms.Repositories
 		/// Deletes a batch of data class models in a single transaction.
 		/// </summary>
 		/// <returns>A task containing the number of models deleted as a 32-bit integer</returns>
+		/// <exception cref="ArgumentNullException" />
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
@@ -43,6 +45,7 @@ namespace CalebBender.Atoms.Repositories
 		/// The task that when completed, contains the AtomicOption with either
 		/// the data model class instance or null.
 		/// </returns>
+		/// <exception cref="ArgumentNullException" />
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="ModelDbEntityMismatchException" />
 		/// <exception cref="ModelPropertyTypeMismatchException" />
@@ -51,6 +54,7 @@ namespace CalebBender.Atoms.Repositories
 		/// Updates a batch of data class models in a single transaction.
 		/// </summary>
 		/// <returns>A task containing the number of models updated as a 32-bit integer</returns>
+		/// <exception cref="ArgumentNullException" />
 		/// <exception cref="DbEntityNotFoundException" />
 		/// <exception cref="EnumPropertyMappingFailedException" />
 		/// <exception cref="ModelDbEntityMismatchException" />

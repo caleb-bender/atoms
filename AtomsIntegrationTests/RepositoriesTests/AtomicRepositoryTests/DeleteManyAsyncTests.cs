@@ -172,6 +172,19 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(0, numberDeleted);
 		}
 
+		[Fact]
+		public async Task GivenANullModel_WhenWeDeleteMany_ThenAnArgumentNullExceptionIsThrown()
+		{
+			// Assert
+			await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+			{
+				await blogPostRepo.DeleteManyAsync(new[] {
+					new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Horror },
+					null
+				});
+			});
+		}
+
 		public void Dispose()
 		{
 			Cleanup();

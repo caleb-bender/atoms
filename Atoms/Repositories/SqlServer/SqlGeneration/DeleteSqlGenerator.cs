@@ -41,6 +41,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			for (int j = 0; j < models.Count(); j++)
 			{
 				var model = models.ElementAt(j);
+				if (model is null) throw new ArgumentNullException("A model passed to DeleteManyAsync cannot be null.");
 				var parameterName = "@" + uniqueIdName + j;
 				var parameterValue = PropertyMappingUtilities<TModel>.GetModelPropertyDatabaseValue(uniqueIdProperty, model);
 				tupleParameters.Add(new SqlParameter(parameterName, parameterValue));

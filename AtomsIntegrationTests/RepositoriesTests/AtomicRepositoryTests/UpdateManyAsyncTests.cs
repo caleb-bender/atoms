@@ -277,6 +277,21 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(2, updatedHolidayMatrix.DaysToSkip);
 		}
 
+		[Fact]
+		public async Task GivenANullModel_WhenWeUpdateMany_ThenAnArgumentNullExceptionIsThrown()
+		{
+			// Arrange
+			var blogPostRepo = CreateRepository<BlogPost>();
+			// Assert
+			await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+			{
+				await blogPostRepo.UpdateManyAsync(new[] {
+					new BlogPost { PostId = 2L, Genre = BlogPost.BlogPostGenre.Horror },
+					null
+				});
+			});
+		}
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);

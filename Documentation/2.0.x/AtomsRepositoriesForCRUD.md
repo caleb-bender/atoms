@@ -249,6 +249,7 @@ As it turns out, the other `DeleteManyAsync` overload and `DeleteOneAsync` metho
 
 ## `CreateOneAsync` and `CreateManyAsync` Exceptions
 
+* `ArgumentNullException`
 * `DbEntityNotFoundException`
 * `DuplicateUniqueIdException`
 * `EnumPropertyMappingFailedException`
@@ -259,12 +260,14 @@ As it turns out, the other `DeleteManyAsync` overload and `DeleteOneAsync` metho
 
 ## `GetOneAsync` Exceptions
 
+* `ArgumentNullException`
 * `DbEntityNotFoundException`
 * `ModelDbEntityMismatchException`
 * `ModelPropertyTypeMismatchException`
 
 ## `UpdateOneAsync` and `UpdateManyAsync` Exceptions
 
+* `ArgumentNullException`
 * `DbEntityNotFoundException`
 * `EnumPropertyMappingFailedException`
 * `ModelDbEntityMismatchException`
@@ -274,6 +277,7 @@ As it turns out, the other `DeleteManyAsync` overload and `DeleteOneAsync` metho
 
 ## `DeleteOneAsync` and `DeleteManyAsync` Exceptions
 
+* `ArgumentNullException`
 * `DbEntityNotFoundException`
 * `ModelDbEntityMismatchException`
 * `ModelPropertyTypeMismatchException`

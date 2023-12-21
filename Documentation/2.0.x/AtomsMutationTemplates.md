@@ -122,7 +122,7 @@ The reason we use the `Token` property of the `cancellationTokenSource`, as oppo
 try
 {
 	// cancel before mutating
-	cancellationToken.Cancel();
+	cancellationTokenSource.Cancel();
 	await cancellableBlogPostMutationTemplate.MutateAsync(new { NewGenre = BlogPost.BlogPostGenre.Thriller });
 }
 catch (TaskCanceledException exception)

@@ -104,7 +104,7 @@ try
 {
 	var lazyBlogPosts = cancellableBlogPostQueryTemplate.QueryLazy();
 	// cancel before lazy loading
-	cancellationToken.Cancel();
+	cancellationTokenSource.Cancel();
 	await foreach (var blogPost in lazyBlogPosts)
 	{
 		// iteration is cancelled and TaskCanceledException is thrown

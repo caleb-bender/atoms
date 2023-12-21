@@ -13,7 +13,7 @@ namespace CalebBender.Atoms.Repositories
 	}
 }
 ```
-As noted in the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/1.0.x/AtomsDataModelClasses.md) documentation,  the `UpdateManyAsync` method is missing and will be added in the next release or so. Each of these methods allow you to plug in any instance or set of instances of a data class model and perform CRUD operations that are atomic; that is, they either fully succeed or not at all. To create an instance of an `IAtomicRepository<TModel>`, one must always use an implementation of the `IAtomicRepositoryFactory<TModel>` interface.
+As noted in the [Atoms Data Model Classes](https://github.com/caleb-bender/atoms/blob/main/Documentation/1.0.x/AtomsDataModelClasses.md) documentation,  the `UpdateManyAsync` method is not included in this version. You therefore should upgrade to the latest [2.0.x](https://github.com/caleb-bender/atoms/blob/main/Documentation/2.0.x/AtomsRepositoriesForCRUD.md#updating-a-single-data-model) version to use it. Each of these methods allow you to plug in any instance or set of instances of a data class model and perform CRUD operations that are atomic; that is, they either fully succeed or not at all. To create an instance of an `IAtomicRepository<TModel>`, one must always use an implementation of the `IAtomicRepositoryFactory<TModel>` interface.
 
 ## Creating a repository instance
 As of version 1.0.x, the following `IAtomicRepositoryFactory<TModel>` implementations exist within the `CalebBender.Atoms.Repositories.Factories` namespace:

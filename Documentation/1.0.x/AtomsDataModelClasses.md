@@ -218,7 +218,7 @@ CREATE TABLE CustomerOrders(
 ```
 Also, lets suppose that the `OrderType` column could be a variety of different cryptic string values: `"PC"` for pickup by customer, `"D"` for delivery, `"PT"` for pickup by third-party, And `"NONE"`,`""`, or `NULL` for an unknown order type. These abbreviations are rather unclear, and let's say you don't want to replicate this ambiguity in your data model class. What do you do?
 
-Fear not! The `StringToEnumMappingRuleAttribute` is here. When you define your data model class, simply define the mapping rules you would like for each string variant:
+Fear not! The `StringToEnumVariantMappingRuleAttribute` is here. When you define your data model class, simply define the mapping rules you would like for each string variant:
 ```csharp
 public class CustomerOrder
 {
@@ -241,7 +241,7 @@ public class CustomerOrder
 	public FulfillmentTypes FulfillmentType { get; set; }
 }
 ```
-We even could use `FulfillmentType` as the name of our property and just tell Atoms to map it to our `OrderType` column. As far as this example goes, the solution is as simple as that. No extra boilerplate or additional code to implement custom mapping rules. Just add your `StringToEnumMappingRuleAttribute`s directly above the definition of your enumeration. Now every time Atoms sees one of those cryptic string values it knows how to resolve it. Conversely, when Atoms needs to write the enumeration value to the database, it is able to write the appropriate string value.
+We even could use `FulfillmentType` as the name of our property and just tell Atoms to map it to our `OrderType` column. As far as this example goes, the solution is as simple as that. No extra boilerplate or additional code to implement custom mapping rules. Just add your `StringToEnumVariantMappingRuleAttribute`s directly above the definition of your enumeration. Now every time Atoms sees one of those cryptic string values it knows how to resolve it. Conversely, when Atoms needs to write the enumeration value to the database, it is able to write the appropriate string value.
 
 One important thing to note when using mapping rules is that Atoms will use the very first mapping rule that matches, starting from top to bottom. So, if you have multiple rules for either the enum variant or the string variant, it will always use the first one. In this example, when we write to the database, Atoms will always map `FulfillmentTypes.Unknown` to `"NONE"` and never to `""` because it always uses the first matched rule. However, we may still want the `[StringToEnumVariantMappingRule("", Unknown)]` rule if we are reading from the database and the value happens to be `""`. Usually, it is best to have a single mapping rule for each string variant and enum variant, as it reduces complexity and the potential for unpredictable behavior. If `""` and `"NONE"` are not interchangeable and mean different things, then they should have separate mapping rules to separate enum variants. As stated before, `NULL` is always mapped to the first enum variant, which in this case is `FulfillmentTypes.Unknown`.
 ## Using nullable properties

@@ -8,7 +8,7 @@ using CalebBender.Atoms.Exceptions;
 namespace CalebBender.Atoms.Templates.Query
 {
 	/// <summary>
-	/// A stateless query template used for reusing a constant query
+	/// A query template with immutable state used for reusing a constant query
 	/// with variable parameters.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>

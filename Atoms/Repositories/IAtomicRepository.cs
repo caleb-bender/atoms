@@ -4,7 +4,7 @@ using CalebBender.Atoms.Exceptions;
 namespace CalebBender.Atoms.Repositories
 {
 	/// <summary>
-	/// An stateless object used for basic CRUD operations on a data model class.
+	/// An object with immutable state used for basic CRUD operations on a data model class.
 	/// </summary>
 	/// <typeparam name="TModel">
 	/// A data model class with at least one public property

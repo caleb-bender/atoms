@@ -237,6 +237,23 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 				Assert.Equal(blogPost3.Title, title);
 		}
 
+		[Fact]
+		public async Task WhenWeQueryATupleOfNullableValues_ThenTheyAreCorrectlyDeserialized()
+		{
+			// Arrange
+			await customerAddressRepo.CreateManyAsync(
+				new CustomerAddress { PhoneNumber = "11234567890", UnitNumber = null },
+				new CustomerAddress { PhoneNumber = "11234567891", UnitNumber = 3 }
+			);
+			var phoneAndUnitQueryTemplate = GetPhoneAndUnitQueryTemplate();
+			// Act
+			var phonesAndUnits = await phoneAndUnitQueryTemplate.QueryAsync();
+			// Assert
+			Assert.Equal(2, phonesAndUnits.Count());
+			Assert.Null(phonesAndUnits.First().Item2);
+			Assert.NotNull(phonesAndUnits.ElementAt(1).Item2);
+		}
+
 		protected static Task ExceptionHandler(Exception err)
 		{
 			exceptionHandlerWasCalled = true;
@@ -254,5 +271,7 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 
 		protected abstract IAtomicRepository<T> GetAtomicRepository<T>() where T : class, new();
 		protected abstract IAtomicQueryTemplate<BlogPost.BlogPostGenre> GetBlogGenreQueryTemplateWithCancelToken();
+
+		protected abstract IAtomicQueryTemplate<(string, int?)> GetPhoneAndUnitQueryTemplate();
 	}
 }

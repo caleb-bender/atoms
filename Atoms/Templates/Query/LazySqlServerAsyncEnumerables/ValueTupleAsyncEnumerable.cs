@@ -30,7 +30,8 @@ namespace CalebBender.Atoms.Templates.Query.LazySqlServerAsyncEnumerables
 			{
 				var value = reader[i++];
 				var (parsingStatus, parsedEnumOrValue) = AttemptToParseEnumField(field, value);
-				field.SetValue(valueTupleInstance, parsedEnumOrValue);
+				var parsedValue = (parsedEnumOrValue == DBNull.Value) ? null : parsedEnumOrValue;
+				field.SetValue(valueTupleInstance, parsedValue);
 			}
 			return (T)valueTupleInstance;
 		}

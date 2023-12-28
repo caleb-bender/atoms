@@ -144,5 +144,13 @@ namespace AtomsIntegrationTests.TemplateTests.QueryTemplateTests
 		{
 			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(connectionString);
 		}
+
+		protected override IAtomicQueryTemplate<(string, int?)> GetPhoneAndUnitQueryTemplate()
+		{
+			return new SqlServerRawTemplateBuilder()
+				.SetConnectionString(connectionString)
+				.SetQueryText("SELECT Phone, Unit FROM CustomerAddresses")
+				.GetQueryTemplate<(string, int?)>();
+		}
 	}
 }

@@ -185,11 +185,26 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenARepositoryCreatedWithATableName_WhenWeDeleteOne_ThenItIsDeleted()
+		{
+            // Arrange
+            var employeeRepo = CreateRepository<EmployeeAnonymous>("Employees");
+            var employee = new EmployeeAnonymous { EmployeeId = Guid.NewGuid(), Salary = 102_000M };
+            await employeeRepo.CreateOneAsync(employee);
+			// Act
+			var numberDeleted = await employeeRepo.DeleteOneAsync(employee);
+			// Assert
+			Assert.Equal(1, numberDeleted);
+        }
+
 		public void Dispose()
 		{
 			Cleanup();
 		}
 
 		protected abstract void Cleanup();
+
+		protected abstract IAtomicRepository<T> CreateRepository<T>(string? tableName = null) where T : class, new();
 	}
 }

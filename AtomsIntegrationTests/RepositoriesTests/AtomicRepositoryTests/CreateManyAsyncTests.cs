@@ -328,7 +328,21 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
-		private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
+		[Fact]
+        public async Task GivenARepositoryCreatedWithATableName_WhenWeCreateOneWithAnAnonymousModel_ThenItIsCreated()
+        {
+			// Arrange
+			var employeeRepo = CreateRepository<EmployeeAnonymous>("Employees");
+			var employee = new EmployeeAnonymous { EmployeeId = Guid.NewGuid(), Salary = 102_000M };
+			// Act
+			await employeeRepo.CreateOneAsync(employee);
+			// Assert
+			var retrievedEmployee = await GetExistingModelAsync(employee, employeeRepo);
+			Assert.Equal(employee.EmployeeId, retrievedEmployee.EmployeeId);
+			Assert.Equal(employee.Salary, retrievedEmployee.Salary);
+        }
+
+        private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
 			where TModel : class, new()
 		{
 			var retrievedModelOption = await repo.GetOneAsync(model);
@@ -343,6 +357,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		}
 		protected abstract void Cleanup();
 
-		protected abstract IAtomicRepository<T> CreateRepository<T>() where T : class, new();
+		protected abstract IAtomicRepository<T> CreateRepository<T>(string? tableName = null) where T : class, new();
 	}
 }

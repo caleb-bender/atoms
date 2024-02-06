@@ -11,9 +11,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 	internal static class DeleteSqlGenerator<TModel>
 		where TModel : class, new()
 	{
-		private static readonly string deleteFromText = GetDeleteFromText();
-
-		internal static (string, IEnumerable<SqlParameter>) GetDeleteTextAndParameters(IEnumerable<TModel> models)
+		internal static (string, IEnumerable<SqlParameter>) GetDeleteTextAndParameters(IEnumerable<TModel> models, string? entityName)
 		{
 			var deleteWhereClause = " WHERE ";
 			var deleteParameters = new List<SqlParameter>();
@@ -29,6 +27,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 				if (i + 1 < uniqueIdProperties.Count())
 					deleteWhereClause += " AND ";
 			}
+			var deleteFromText = GetDeleteFromText(entityName);
 			return (deleteFromText + deleteWhereClause, deleteParameters);
 		}
 
@@ -52,9 +51,9 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			return (commaSeparatedValues, tupleParameters);
 		}
 
-		private static string GetDeleteFromText()
+		private static string GetDeleteFromText(string? entityName)
 		{
-			var deleteFromText = "DELETE FROM [" + ModelMetadata<TModel>.TableName + "]";
+			var deleteFromText = "DELETE FROM [" + (entityName ?? ModelMetadata<TModel>.TableName) + "]";
 			return deleteFromText;
 		}
 

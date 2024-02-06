@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static AtomsIntegrationTests.DatabaseConfig.SqlServer.SqlServerConnection;
+using CalebBender.Atoms.Repositories;
 
 namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 {
@@ -39,5 +40,13 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			);
 			deleteCommand.ExecuteNonQuery();
 		}
-	}
+
+        protected override IAtomicRepository<T> CreateRepository<T>(string? tableName = null)
+        {
+            if (tableName is null)
+                return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
+            else
+                return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString(), tableName);
+        }
+    }
 }

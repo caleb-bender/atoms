@@ -16,8 +16,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 		private static readonly Type modelType = typeof(TModel);
 
 		internal static (string, IEnumerable<SqlParameter>) GetUpdateSqlTextAndParameters(
-			IEnumerable<TModel> models
-		)
+			IEnumerable<TModel> models, string? entityName)
 		{
 			string updateSqlText = "";
 			var updateParameters = new List<SqlParameter>();
@@ -26,17 +25,17 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			{
 				if (model is null) throw new ArgumentNullException("A model passed to UpdateManyAsync cannot be null.");
 				var (singleModelUpdateSqlText, singleModelUpdateParameters) =
-					GetUpdateTextAndParametersForSingleModel(modelNumber++, model);
+					GetUpdateTextAndParametersForSingleModel(modelNumber++, model, entityName);
 				updateSqlText += singleModelUpdateSqlText;
 				updateParameters.AddRange(singleModelUpdateParameters);
 			}
 			return (updateSqlText, updateParameters);
 		}
 
-		private static (string, IEnumerable<SqlParameter>) GetUpdateTextAndParametersForSingleModel(int modelNumber, TModel model)
+		private static (string, IEnumerable<SqlParameter>) GetUpdateTextAndParametersForSingleModel(int modelNumber, TModel model, string? entityName)
 		{
 			var singleModelUpdateParameters = new List<SqlParameter>();
-			string singleModelUpdateSqlText = $"UPDATE [{ModelMetadata<TModel>.TableName}] SET ";
+			string singleModelUpdateSqlText = $"UPDATE [{entityName ?? ModelMetadata<TModel>.TableName}] SET ";
 			var numberOfPublicProperties = ModelMetadata<TModel>.PublicProperties.Count();
 			for (int propertyIndex = 0; propertyIndex < numberOfPublicProperties; propertyIndex++)
 			{

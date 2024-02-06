@@ -9,9 +9,9 @@ namespace CalebBender.Atoms.Repositories.Factories
     public class SqlServerAtomicRepositoryFactory<TModel> : AtomicRepositoryFactory<TModel>
 		where TModel : class, new()
 	{
-		protected override IAtomicRepository<TModel> NewAtomicRepositoryResult(string connectionString)
+		protected override IAtomicRepository<TModel> NewAtomicRepositoryResult(string connectionString, string? entityName)
 		{
-			return new SqlServer.SqlServerAtomicRepository<TModel>(connectionString);
+			return new SqlServer.SqlServerAtomicRepository<TModel>(connectionString, entityName);
 		}
 		protected override void AttemptToConnectAndOpen(string connectionString)
         {

@@ -15,10 +15,13 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 	{
 		private static readonly string selectFromText = GetSelectFromSqlText();
 
-		internal static (string, IEnumerable<SqlParameter>) GetSelectSqlTextAndParameters(TModel model)
+		internal static (string, IEnumerable<SqlParameter>) GetSelectSqlTextAndParameters(TModel model, string? entityName)
 		{
 			var (whereClause, whereParameters) = GetWhereClauseTextAndParametersForSpecificModel(model);
-			var selectQuery = selectFromText + whereClause;
+			var selectFromTextWithEntityName = selectFromText;
+			if (entityName is not null)
+				selectFromTextWithEntityName = selectFromText.Replace($"FROM [{ModelMetadata<TModel>.TableName}]", $"FROM [{entityName}]");
+			var selectQuery = selectFromTextWithEntityName + whereClause;
 			return (selectQuery, whereParameters);
 		}
 

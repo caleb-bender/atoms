@@ -292,6 +292,22 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			});
 		}
 
+		[Fact]
+		public async Task GivenARepositoryCreatedWithATableName_WhenWeUpdateAnAnonymousModel_ThenItIsUpdatedSuccessfully()
+		{
+			// Arrange
+			var employeeRepo = CreateRepository<EmployeeAnonymous>("Employees");
+            var employee = new EmployeeAnonymous { EmployeeId = Guid.NewGuid(), Salary = 102_000M };
+            await employeeRepo.CreateOneAsync(employee);
+			// Act
+			employee.Salary = 0M;
+			await employeeRepo.UpdateOneAsync(employee);
+            // Assert
+            var retrievedEmployee = await GetUpdatedModel(employee, employeeRepo);
+            Assert.Equal(employee.EmployeeId, retrievedEmployee.EmployeeId);
+            Assert.Equal(0M, retrievedEmployee.Salary);
+        }
+
 		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);
@@ -301,7 +317,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 				throw new ArgumentNullException("The model doesn't exist");
 		}
 
-		protected abstract IAtomicRepository<T> CreateRepository<T>() where T: class, new();
+		protected abstract IAtomicRepository<T> CreateRepository<T>(string? tableName = null) where T: class, new();
 		protected abstract void Cleanup();
 
 		public void Dispose()

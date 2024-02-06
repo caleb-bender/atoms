@@ -11,10 +11,12 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 		where TModel : class, new()
 	{
         private string connectionString;
+        private readonly string? entityName;
 
-        internal SqlServerAtomicRepository(string connectionString)
+        internal SqlServerAtomicRepository(string connectionString, string? entityName)
         {
             this.connectionString = connectionString;
+            this.entityName = entityName;
         }
 
 		public async Task<int> UpdateManyAsync(IEnumerable<TModel> models)
@@ -42,7 +44,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 		private async Task<int> UpdateModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (updateSqlText, updateParameters) =
-				UpdateSqlGenerator<TModel>.GetUpdateSqlTextAndParameters(models);
+				UpdateSqlGenerator<TModel>.GetUpdateSqlTextAndParameters(models, entityName);
 			using SqlCommand updateCommand = new SqlCommand(updateSqlText, transaction.Connection);
 			updateCommand.Parameters.AddRange(updateParameters.ToArray());
 			updateCommand.Transaction = transaction;
@@ -81,7 +83,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 			{
 				var (selectQuery, sqlParameters) =
 					SelectSqlGenerator<TModel>
-					.GetSelectSqlTextAndParameters(model);
+					.GetSelectSqlTextAndParameters(model, entityName);
 				return await RetrieveModelAsync(selectQuery, sqlParameters, connection);
 			}
 			catch (SqlException err)
@@ -131,7 +133,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 		private async Task InsertModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (insertSqlText, insertParameters) =
-				InsertSqlGenerator<TModel>.GetInsertSqlTextAndParameters(models);
+				InsertSqlGenerator<TModel>.GetInsertSqlTextAndParameters(models, entityName);
 			using SqlCommand insertCommand = new SqlCommand(insertSqlText, transaction.Connection);
 			insertCommand.Parameters.AddRange(insertParameters.ToArray());
 			insertCommand.Transaction = transaction;
@@ -151,7 +153,7 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 		private async Task<int> DeleteModelsAsync(SqlTransaction transaction, IEnumerable<TModel> models)
 		{
 			var (deleteSqlText, deleteParameters) =
-				DeleteSqlGenerator<TModel>.GetDeleteTextAndParameters(models);
+				DeleteSqlGenerator<TModel>.GetDeleteTextAndParameters(models, entityName);
 			using SqlCommand deleteCommand = new SqlCommand(deleteSqlText, transaction.Connection);
 			deleteCommand.Parameters.AddRange(deleteParameters.ToArray());
 			deleteCommand.Transaction = transaction;

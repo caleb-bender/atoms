@@ -29,9 +29,12 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			deleteCommand.ExecuteNonQuery();
 		}
 
-		protected override IAtomicRepository<T> CreateRepository<T>()
+		protected override IAtomicRepository<T> CreateRepository<T>(string? tableName = null)
 		{
-			return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
+			if (tableName is null)
+				return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString());
+			else
+				return new SqlServerAtomicRepositoryFactory<T>().CreateRepository(GetConnectionString(), tableName);
 		}
 
 		[Theory]

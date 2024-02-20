@@ -12,7 +12,8 @@ namespace CalebBender.Atoms.Utils.Reflection
 		private readonly static HashSet<string> compatibleNonPrimitiveTypesForUniqueId = new HashSet<string> {
 			typeof(DateTime).Name,
 			typeof(Guid).Name,
-			typeof(string).Name
+			typeof(string).Name,
+			typeof(decimal).Name
 		};
 
 		internal static bool IsCompatibleUniqueIdType(Type type)

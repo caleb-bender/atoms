@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>3.0.0</Version>
+    <Version>3.1.0</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
-    <PackageReleaseNotes>Anonymous models were added, which are data models that do not belong to any database entity in particular. At runtime, you can use a repository factory to specify the database entity name to bind to the anonymous model for CRUD operations. The only breaking change is an added optional parameter to the IAtomicRepositoryFactory interface method CreateRepository.</PackageReleaseNotes>
+    <PackageReleaseNotes>The decimal type was added as a compatible property type for the UniqueIdAttribute.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

@@ -319,5 +319,33 @@ namespace AtomsUnitTests.RepositoriesTests
                 return fakeRepo.GetOneAsync(null);
             });
         }
+
+        [Fact]
+        public async Task WhenTwoEntriesWithOneIdenticalUniqueIdAndOneDifferentUniqueIdAreCreated_ThenTestCollectionHasTwoEntries()
+        {
+            // Act
+            await fakeRepo.CreateManyAsync(new List<PlayerStats> { stats, stats2 });
+            // Assert
+            Assert.Equal(2, playerStatsCollection.Count);
+            Assert.Contains(stats, playerStatsCollection);
+            Assert.Contains(stats2, playerStatsCollection);
+        }
+
+        [Fact]
+        public void WhenFakeRepoIsCreatedWithModelWithoutUniqueIdAttributes_ThenMissingUniqueIdAttributeExceptionIsThrown()
+        {
+            // Assert
+            Assert.Throws<MissingUniqueIdAttributeException>(() =>
+            {
+                // Act
+                var fakeRepo = new FakeAtomicRepository<ModelWithoutUniqueId>(new List<ModelWithoutUniqueId>());
+            });
+        }
+
+        public class ModelWithoutUniqueId
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
     }
 }

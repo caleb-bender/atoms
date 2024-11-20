@@ -17,6 +17,9 @@ namespace CalebBender.Atoms.Repositories.Testing
         {
             if (testCollection is null)
                 throw new ArgumentNullException("The test collection passed to the FakeAtomicRepository constructor cannot be null");
+            var properties = typeof(TModel).GetProperties();
+            if (!properties.Any(p => Attribute.IsDefined(p, typeof(UniqueIdAttribute))))
+                throw new MissingUniqueIdAttributeException("The data model class must have at least one public property annotated with UniqueIdAttribute");
             this.testCollection = testCollection;
         }
 

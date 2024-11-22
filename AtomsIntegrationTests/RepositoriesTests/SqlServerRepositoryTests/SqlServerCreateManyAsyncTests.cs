@@ -32,6 +32,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				  new SqlServerAtomicRepositoryFactory<NonexistentModel>(),
 				  new SqlServerAtomicRepositoryFactory<TypeMismatchModel>(),
 				  new SqlServerAtomicRepositoryFactory<BlogPost>(),
+				  new SqlServerAtomicRepositoryFactory<TimeData>(),
 				  GetConnectionString()
 			)
 		{
@@ -68,7 +69,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 				@"DELETE FROM BlogPostAuthors; DELETE FROM CustomerAddresses;
 				DELETE FROM JobPostings; DELETE FROM Employees; DELETE FROM TheBlogUsers;
 				DELETE FROM ModelsWithIgnored; DELETE FROM TypeMismatchModels;
-				DELETE FROM BlogPosts; DELETE FROM OneIdentityPropertyModels;",
+				DELETE FROM BlogPosts; DELETE FROM OneIdentityPropertyModels;
+				DELETE FROM TimeDatas;",
 				connection
 			);
 			deleteCommand.ExecuteNonQuery();

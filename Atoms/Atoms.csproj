@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>3.2.1</Version>
+    <Version>3.3.0</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
-    <PackageReleaseNotes>Fix issue where FakeAtomicRepository didn't enforce UniqueIdAttribute requirement</PackageReleaseNotes>
+    <PackageReleaseNotes>TimeOnly properties are now compatible with CRUD repositories</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

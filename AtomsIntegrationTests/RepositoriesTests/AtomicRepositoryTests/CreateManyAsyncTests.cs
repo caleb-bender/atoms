@@ -18,6 +18,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
 		private readonly IAtomicRepository<TypeMismatchModel> typeMismatchModelRepo;
 		private readonly IAtomicRepository<BlogPost> blogPostRepo;
+		private readonly IAtomicRepository<TimeData> timeDataRepo;
 		private readonly CustomerAddress customerAddress = new CustomerAddress
 		{
 			PhoneNumber = "+1234567890",
@@ -78,6 +79,12 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Id = 1
 		};
 
+		private readonly TimeData timeData = new TimeData
+		{
+			Time = new TimeOnly(12, 30, 45),
+            TimeSpan = new TimeSpan(7, 5, 3)
+        };
+
 		public CreateManyAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
@@ -89,7 +96,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
 			IAtomicRepositoryFactory<TypeMismatchModel> typeMismatchModelRepoFactory,
 			IAtomicRepositoryFactory<BlogPost> blogPostRepoFactory,
-			string connectionString
+			IAtomicRepositoryFactory<TimeData> timeDataRepoFactory,
+            string connectionString
 		)
 		{
 			authorRepo = authorRepoFactory.CreateRepository(connectionString);
@@ -102,7 +110,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
 			typeMismatchModelRepo = typeMismatchModelRepoFactory.CreateRepository(connectionString);
 			blogPostRepo = blogPostRepoFactory.CreateRepository(connectionString);
-		}
+            timeDataRepo = timeDataRepoFactory.CreateRepository(connectionString);
+        }
 
 		[Fact]
 		public async Task WhenWeCreateABlogPostAuthor_ThenWhenWeGetItBackItExists()
@@ -340,6 +349,17 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			var retrievedEmployee = await GetExistingModelAsync(employee, employeeRepo);
 			Assert.Equal(employee.EmployeeId, retrievedEmployee.EmployeeId);
 			Assert.Equal(employee.Salary, retrievedEmployee.Salary);
+        }
+
+		[Fact]
+		public async Task GivenARepositoryCreatedWithTimeOnlyAndTimeSpanProperties_WhenWeCreateOne_ThenItIsCreated()
+		{
+            // Act
+            await timeDataRepo.CreateOneAsync(timeData);
+            // Assert
+            var retrievedTimeData = await GetExistingModelAsync(timeData, timeDataRepo);
+            Assert.Equal(timeData.Time, retrievedTimeData.Time);
+            Assert.Equal(timeData.TimeSpan, retrievedTimeData.TimeSpan);
         }
 
         private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)

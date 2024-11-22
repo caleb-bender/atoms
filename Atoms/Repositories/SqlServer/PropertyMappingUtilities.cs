@@ -102,7 +102,9 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 				catch (JsonReaderException) { }
 				return (deserializedObject, true);
 			}
-			else
+			else if (modelProperty.PropertyType == typeof(TimeOnly) && columnValue is TimeSpan timeSpanValue)
+                return (TimeOnly.FromTimeSpan(timeSpanValue), true);
+            else
 				return (null, false);
 		}
 
@@ -151,7 +153,10 @@ namespace CalebBender.Atoms.Repositories.SqlServer
 			var (serializedJson, wasSerializedToJson) = IfNonStringClassThenSerializeToJson(modelProperty, model);
 			if (wasSerializedToJson) return serializedJson;
 
-			return modelPropertyValue;
+			if (modelPropertyValue is TimeOnly timeOnlyValue)
+				return timeOnlyValue.ToTimeSpan();
+
+            return modelPropertyValue;
 		}
 	}
 }

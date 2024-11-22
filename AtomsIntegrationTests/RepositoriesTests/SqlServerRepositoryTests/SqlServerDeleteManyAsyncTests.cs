@@ -24,7 +24,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			new SqlServerAtomicRepositoryFactory<NonexistentModel>(),
 			new SqlServerAtomicRepositoryFactory<JobPostingModelEntityMismatch>(),
 			new SqlServerAtomicRepositoryFactory<TypeMismatchModel3>(),
-			GetConnectionString()
+            new SqlServerAtomicRepositoryFactory<TimeData>(),
+            GetConnectionString()
 		)
 		{
 
@@ -36,7 +37,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
 				@"DELETE FROM CustomerAddresses; DELETE FROM TheBlogUsers;
-				DELETE FROM BlogPosts; DELETE FROM JobPostings;", connection
+				DELETE FROM BlogPosts; DELETE FROM JobPostings; DELETE FROM TimeDatas;", connection
 			);
 			deleteCommand.ExecuteNonQuery();
 		}

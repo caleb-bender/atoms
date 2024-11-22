@@ -342,8 +342,24 @@ namespace AtomsUnitTests.RepositoriesTests
             });
         }
 
+        [Fact]
+        public void WhenFakeRepoIsCreatedWithModelWithOneUniqueIdAttribute_ThenItIsCreated()
+        {
+            // Act
+            var fakeRepo = new FakeAtomicRepository<ModelWithOneUniqueId>(new List<ModelWithOneUniqueId>());
+            // Assert
+            Assert.NotNull(fakeRepo);
+        }
+
         public class ModelWithoutUniqueId
         {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class ModelWithOneUniqueId
+        {
+            [UniqueId]
             public int Id { get; set; }
             public string Name { get; set; }
         }

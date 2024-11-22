@@ -308,7 +308,24 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
             Assert.Equal(0M, retrievedEmployee.Salary);
         }
 
-		private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
+        [Fact]
+		public async Task GivenARepositoryWithCreatedTimeDatas_WhenATimeDataIsUpdated_And_Retrieved_ThenItIsCorrect()
+		{
+            // Arrange
+            var timeDataRepo = CreateRepository<TimeData>();
+            var timeData = new TimeData { Time = new TimeOnly(12, 0, 0), TimeSpan = new TimeSpan(3, 0, 0) };
+            timeData = await timeDataRepo.CreateOneAsync(timeData);
+            // Act
+            timeData.Time = new TimeOnly(13, 0, 0);
+			timeData.TimeSpan = new TimeSpan(4, 0, 0);
+            await timeDataRepo.UpdateOneAsync(timeData);
+            // Assert
+            var retrievedTimeData = await GetUpdatedModel(timeData, timeDataRepo);
+            Assert.Equal(timeData.Time, retrievedTimeData.Time);
+            Assert.Equal(timeData.TimeSpan, retrievedTimeData.TimeSpan);
+        }
+
+        private async Task<T> GetUpdatedModel<T>(T model, IAtomicRepository<T> repo) where T : class, new()
 		{
 			var atomicOption = await repo.GetOneAsync(model);
 			if (atomicOption is AtomicOption<T>.Exists modelExists)

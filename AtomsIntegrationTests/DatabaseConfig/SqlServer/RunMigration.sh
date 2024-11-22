@@ -1,4 +1,6 @@
-﻿servername="$1"
+﻿#!/bin/bash
+
+servername="$1"
 databasename="$2"
 
 for migration in ./Migrations/*.sql; do

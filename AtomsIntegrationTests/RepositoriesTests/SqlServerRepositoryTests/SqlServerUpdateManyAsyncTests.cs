@@ -22,9 +22,9 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 			using SqlConnection connection = new SqlConnection(GetConnectionString());
 			connection.Open();
 			using SqlCommand deleteCommand = new SqlCommand(
-				@"DELETE FROM Employees; DELETE FROM CustomerAddresses; DELETE FROM BlogPosts;
+                @"DELETE FROM Employees; DELETE FROM CustomerAddresses; DELETE FROM BlogPosts;
 					DELETE FROM CustomerOrders; DELETE FROM ModelsWithIgnored;
-					DELETE FROM JobPostings; DELETE FROM HolidayMatrices;",
+					DELETE FROM JobPostings; DELETE FROM HolidayMatrices; DELETE FROM TimeDatas;",
 				connection);
 			deleteCommand.ExecuteNonQuery();
 		}

@@ -19,6 +19,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		private readonly IAtomicRepository<NonexistentModel> nonexistentModelRepo;
 		private readonly IAtomicRepository<JobPostingModelEntityMismatch> jobPostingMismatchRepo;
 		private readonly IAtomicRepository<TypeMismatchModel3> typeMismatchModelRepo;
+		private readonly IAtomicRepository<TimeData> timeDataRepo;
 
 		public DeleteManyAsyncTests(
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
@@ -27,7 +28,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			IAtomicRepositoryFactory<NonexistentModel> nonexistentModelRepoFactory,
 			IAtomicRepositoryFactory<JobPostingModelEntityMismatch> jobPostingMismatchRepoFactory,
 			IAtomicRepositoryFactory<TypeMismatchModel3> typeMismatchModelRepoFactory,
-			string connectionString
+            IAtomicRepositoryFactory<TimeData> timeDataRepoFactory,
+            string connectionString
 		)
 		{
 			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
@@ -36,7 +38,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			nonexistentModelRepo = nonexistentModelRepoFactory.CreateRepository(connectionString);
 			jobPostingMismatchRepo = jobPostingMismatchRepoFactory.CreateRepository(connectionString);
 			typeMismatchModelRepo = typeMismatchModelRepoFactory.CreateRepository(connectionString);
-		}
+            timeDataRepo = timeDataRepoFactory.CreateRepository(connectionString);
+        }
 
 		[Fact]
 		public async Task GivenANullOrEmptyIEnumerable_WhenWeDeleteMany_ThenNoExceptionsAreRaised()
@@ -198,7 +201,19 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 			Assert.Equal(1, numberDeleted);
         }
 
-		public void Dispose()
+		[Fact]
+		public async Task GivenARepositoryCreatedWithTimeData_WhenDeletingTimeData_ThenItIsDeleted()
+		{
+			// Arrange
+			var timeData = new TimeData { Time = new TimeOnly(), TimeSpan = new TimeSpan() };
+			timeData = await timeDataRepo.CreateOneAsync(timeData);
+			// Act
+			var numberDeleted = await timeDataRepo.DeleteOneAsync(timeData);
+			// Assert
+			Assert.Equal(1, numberDeleted);
+		}
+
+        public void Dispose()
 		{
 			Cleanup();
 		}

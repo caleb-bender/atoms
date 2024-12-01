@@ -351,6 +351,19 @@ namespace AtomsUnitTests.RepositoriesTests
             Assert.NotNull(fakeRepo);
         }
 
+        [Fact]
+        public async Task GivenAFewCreatedModels_WhenThoseModelsAreDeletedUsingCopies_ThenTheTestCollectionIsEmpty()
+        {
+            // Arrange
+            var statsList = new List<PlayerStats> { stats, stats2, stats3 };
+            var statsListCopies = new List<PlayerStats> { statsUpdated, stats2Updated, stats3Updated };
+            await fakeRepo.CreateManyAsync(statsList);
+            // Act
+            await fakeRepo.DeleteManyAsync(statsListCopies);
+            // Assert
+            Assert.Empty(playerStatsCollection);
+        }
+
         public class ModelWithoutUniqueId
         {
             public int Id { get; set; }

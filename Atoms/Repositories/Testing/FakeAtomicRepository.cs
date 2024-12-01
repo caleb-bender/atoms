@@ -45,7 +45,9 @@ namespace CalebBender.Atoms.Repositories.Testing
             {
                 if (model is null)
                     throw new ArgumentNullException("A model passed to DeleteManyAsync cannot be null");
-                var removed = testCollection.Remove(model);
+                var savedModel = GetSavedModel(model);
+                if (savedModel is null) continue;
+                var removed = testCollection.Remove(savedModel);
                 if (removed) numberDeleted++;
             }
             return Task.FromResult(numberDeleted);

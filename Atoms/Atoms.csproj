@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PackageId>CalebBender.Atoms</PackageId>
-    <Version>3.3.1</Version>
+    <Version>3.3.2</Version>
     <Authors>Caleb Bender</Authors>
     <Company>Caleb Bender</Company>
     <Description>A flexible and atomic .NET Core ORM for SQL Server</Description>
-    <PackageReleaseNotes>Fix bug where FakeAtomicRepository didn't delete an identical deep copy to saved entity</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug with GetOneAsync on FakeAtomicRepository</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/caleb-bender/atoms/main/AtomsIcon.JPG</PackageIconUrl>
     <RepositoryUrl>https://github.com/caleb-bender/atoms</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

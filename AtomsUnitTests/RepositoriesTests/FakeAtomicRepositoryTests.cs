@@ -73,6 +73,17 @@ namespace AtomsUnitTests.RepositoriesTests
         }
 
         [Fact]
+        public async Task GivenAnEmptyCollection_WhenEntryIsCreatedAndRetrievedUsingDeepCopy_ThenTheEntryIsReturned()
+        {
+            // Act
+            await fakeRepo.CreateOneAsync(stats);
+            var retrievedStatsResult = await fakeRepo.GetOneAsync(statsUpdated);
+            // Assert
+            var exists = Assert.IsType<AtomicOption<PlayerStats>.Exists>(retrievedStatsResult);
+            Assert.Equal(stats, exists.Value);
+        }
+
+        [Fact]
         public async Task GivenAnEmptyCollection_WhenNonexistentEntryIsRetrieved_ThenItIsAtomicOptionEmpty()
         {
             // Act

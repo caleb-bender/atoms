@@ -57,9 +57,10 @@ namespace CalebBender.Atoms.Repositories.Testing
         {
             if (model is null)
                 throw new ArgumentNullException("The model passed to GetOneAsync cannot be null");
-            if (!testCollection.Contains(model))
+            var savedModel = GetSavedModel(model);
+            if (savedModel is null)
                 return Task.FromResult(new AtomicOption<TModel>.Empty() as AtomicOption<TModel>);
-            return Task.FromResult(new AtomicOption<TModel>.Exists(model) as AtomicOption<TModel>);
+            return Task.FromResult(new AtomicOption<TModel>.Exists(savedModel) as AtomicOption<TModel>);
         }
 
         public Task<int> UpdateManyAsync(IEnumerable<TModel> models)

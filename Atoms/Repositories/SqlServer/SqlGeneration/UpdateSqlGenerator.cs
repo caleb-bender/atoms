@@ -37,9 +37,11 @@ namespace CalebBender.Atoms.Repositories.SqlServer.SqlGeneration
 			var singleModelUpdateParameters = new List<SqlParameter>();
 			string singleModelUpdateSqlText = $"UPDATE [{entityName ?? ModelMetadata<TModel>.TableName}] SET ";
 			var numberOfPublicProperties = ModelMetadata<TModel>.PublicProperties.Count();
-			for (int propertyIndex = 0; propertyIndex < numberOfPublicProperties; propertyIndex++)
+            for (int propertyIndex = 0; propertyIndex < numberOfPublicProperties; propertyIndex++)
 			{
-				var (modelParameter, setText) = GetModelParameterAndSetText(propertyIndex, modelNumber, model);
+				var property = ModelMetadata<TModel>.PublicProperties.ElementAt(propertyIndex);
+				if (property.GetCustomAttribute<AtomsIgnoreAttribute>() is not null) continue;
+                var (modelParameter, setText) = GetModelParameterAndSetText(propertyIndex, modelNumber, model);
 				singleModelUpdateSqlText += setText;
 				singleModelUpdateParameters.Add(modelParameter);
 			}

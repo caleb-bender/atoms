@@ -365,25 +365,6 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
             Assert.Equal(timeData.TimeSpan, retrievedTimeData.TimeSpan);
         }
 
-		[Fact]
-		public async Task GivenARepositoryCreatedWithADateTimeOffsetProperty_WhenWeCreateOne_ThenItIsCreated()
-		{
-			// Arrange
-			var blogPostAuthor = new BlogPostAuthorWithDateTimeOffset
-			{
-				AuthorId = 1L,
-				AuthorName = "Test",
-				AuthorSinceDate = DateTimeOffset.Now
-			};
-            // Act
-            await authorWithDateTimeOffsetRepo.CreateOneAsync(blogPostAuthor);
-            // Assert
-            var retrievedAuthor = await GetExistingModelAsync(blogPostAuthor, authorWithDateTimeOffsetRepo);
-            Assert.Equal(blogPostAuthor.AuthorId, retrievedAuthor.AuthorId);
-            Assert.Equal(blogPostAuthor.AuthorName, retrievedAuthor.AuthorName);
-            Assert.Equal(blogPostAuthor.AuthorSinceDate, retrievedAuthor.AuthorSinceDate);
-        }
-
         private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)
 			where TModel : class, new()
 		{

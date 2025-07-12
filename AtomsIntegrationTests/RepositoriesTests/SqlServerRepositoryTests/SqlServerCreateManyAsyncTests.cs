@@ -23,6 +23,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.SqlServerRepositoryTests
 		public SqlServerCreateManyAsyncTests()
 			: base(
 				  new SqlServerAtomicRepositoryFactory<BlogPostAuthor>(),
+				  new SqlServerAtomicRepositoryFactory<BlogPostAuthorWithDateTimeOffset>(),
 				  new SqlServerAtomicRepositoryFactory<CustomerAddress>(),
 				  new SqlServerAtomicRepositoryFactory<JobPosting>(),
 				  new SqlServerAtomicRepositoryFactory<Employee>(),

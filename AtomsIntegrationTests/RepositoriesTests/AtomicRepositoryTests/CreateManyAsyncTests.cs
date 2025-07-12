@@ -9,6 +9,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 	public abstract class CreateManyAsyncTests : IDisposable
 	{
 		private readonly IAtomicRepository<BlogPostAuthor> authorRepo;
+		private readonly IAtomicRepository<BlogPostAuthorWithDateTimeOffset> authorWithDateTimeOffsetRepo;
 		private readonly IAtomicRepository<CustomerAddress> customerAddressRepo;
 		private readonly IAtomicRepository<JobPosting> jobPostingRepo;
 		private readonly IAtomicRepository<Employee> employeeRepo;
@@ -87,6 +88,7 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 
 		public CreateManyAsyncTests(
 			IAtomicRepositoryFactory<BlogPostAuthor> authorRepoFactory,
+			IAtomicRepositoryFactory<BlogPostAuthorWithDateTimeOffset> authorRepoWithDateTimeOffsetFactory,
 			IAtomicRepositoryFactory<CustomerAddress> customerAddressRepoFactory,
 			IAtomicRepositoryFactory<JobPosting> jobPostingRepoFactory,
 			IAtomicRepositoryFactory<Employee> employeeRepoFactory,
@@ -101,7 +103,8 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
 		)
 		{
 			authorRepo = authorRepoFactory.CreateRepository(connectionString);
-			customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
+            authorWithDateTimeOffsetRepo = authorRepoWithDateTimeOffsetFactory.CreateRepository(connectionString);
+            customerAddressRepo = customerAddressRepoFactory.CreateRepository(connectionString);
 			jobPostingRepo = jobPostingRepoFactory.CreateRepository(connectionString);
 			employeeRepo = employeeRepoFactory.CreateRepository(connectionString);
 			blogUserRepo = blogUserRepoFactory.CreateRepository(connectionString);
@@ -360,6 +363,25 @@ namespace AtomsIntegrationTests.RepositoriesTests.AtomicRepositoryTests
             var retrievedTimeData = await GetExistingModelAsync(timeData, timeDataRepo);
             Assert.Equal(timeData.Time, retrievedTimeData.Time);
             Assert.Equal(timeData.TimeSpan, retrievedTimeData.TimeSpan);
+        }
+
+		[Fact]
+		public async Task GivenARepositoryCreatedWithADateTimeOffsetProperty_WhenWeCreateOne_ThenItIsCreated()
+		{
+			// Arrange
+			var blogPostAuthor = new BlogPostAuthorWithDateTimeOffset
+			{
+				AuthorId = 1L,
+				AuthorName = "Test",
+				AuthorSinceDate = DateTimeOffset.Now
+			};
+            // Act
+            await authorWithDateTimeOffsetRepo.CreateOneAsync(blogPostAuthor);
+            // Assert
+            var retrievedAuthor = await GetExistingModelAsync(blogPostAuthor, authorWithDateTimeOffsetRepo);
+            Assert.Equal(blogPostAuthor.AuthorId, retrievedAuthor.AuthorId);
+            Assert.Equal(blogPostAuthor.AuthorName, retrievedAuthor.AuthorName);
+            Assert.Equal(blogPostAuthor.AuthorSinceDate, retrievedAuthor.AuthorSinceDate);
         }
 
         private async Task<TModel> GetExistingModelAsync<TModel>(TModel model, IAtomicRepository<TModel> repo)

@@ -339,9 +339,9 @@ public class SimpleModel
 Then, when creating the repository, you can do the following:
 
 ```csharp
-var repository1WithSimpleModelSchema = new SqlServerAtomicRepository<SimpleModel>(connectionString)
+var repository1WithSimpleModelSchema = new SqlServerAtomicRepository<SimpleModel>()
 	.CreateRepository("<Connection String>", "ActualDatabaseEntityName");
-var repository2WithSimpleModelSchema = new MySqlAtomicRepository<SimpleModel>(connectionString)
+var repository2WithSimpleModelSchema = new MySqlAtomicRepository<SimpleModel>()
 	.CreateRepository("<Connection String>", "AnotherDatabaseEntityName");
 ```
 
